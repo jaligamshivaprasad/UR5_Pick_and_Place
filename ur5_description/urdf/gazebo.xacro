@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ur5_with_gripper">
+  <!-- IgnitionROS2Control plugin — loaded by gz_sim when the robot is spawned -->
+  <gazebo>
+    <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+      <!-- Controller configuration used by the current bringup package. -->
+      <parameters>$(find ur5_moveit_config)/config/ros2_controllers.yaml</parameters>
+    </plugin>
+  </gazebo>
+</robot>
