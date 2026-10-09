@@ -9,13 +9,17 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument('execute', default_value='false',
                               description='Execute only after the complete task has been planned'),
-        DeclareLaunchArgument('grasp_clearance', default_value='0.02',
+        DeclareLaunchArgument('grasp_clearance', default_value='0.03',
                               description='Height in metres above the saved pick pose for grasping'),
         DeclareLaunchArgument('grasp_approach_height', default_value='0.10',
                               description='Vertical pre-grasp approach distance in metres'),
         DeclareLaunchArgument(
             'arm_verification_tolerance', default_value='0.05',
             description='Allowed simulated arm joint tracking error in radians'),
+        DeclareLaunchArgument('experiment_logging', default_value='false',
+                              description='Publish trajectory-stage events for rosbag recording'),
+        DeclareLaunchArgument('experiment_run_id', default_value='',
+                              description='Optional identifier attached to trajectory-stage events'),
         DeclareLaunchArgument('use_sim_time', default_value='true'),
         Node(
             package='ur5_pick_place',
@@ -29,6 +33,9 @@ def generate_launch_description():
                     LaunchConfiguration('grasp_approach_height'), value_type=float),
                 'arm_verification_tolerance': ParameterValue(
                     LaunchConfiguration('arm_verification_tolerance'), value_type=float),
+                'experiment_logging': ParameterValue(
+                    LaunchConfiguration('experiment_logging'), value_type=bool),
+                'experiment_run_id': LaunchConfiguration('experiment_run_id'),
             }],
         ),
     ])

@@ -12,6 +12,7 @@ import pytest
 from trajectory_msgs.msg import JointTrajectoryPoint
 
 from ur5_pick_place.pick_place_trajectory_node import PickPlaceTrajectoryNode, ActionFailure
+from ur5_pick_place.pick_place_trajectory_node import GRASP_ORIENTATION
 from ur5_pick_place.task import (
     allow_contacts, compose, inverse, named_states, sequence, update_robot_state,
 )
@@ -51,8 +52,8 @@ class FakeTask(PickPlaceTrajectoryNode):
     def __init__(self, execute=False, fail_stage=None, fail_execution=None, grasp_position=0.4):
         self.config = {
             'execute': execute, 'object_id': 'block', 'attach_link': 'gripper',
-            'cartesian_link': 'tool0', 'grasp_clearance': 0.02,
-            'grasp_approach_height': 0.1,
+            'cartesian_link': 'tool0', 'grasp_clearance': 0.03,
+            'grasp_approach_height': 0.1, 'release_retreat_height': 0.1,
             'support_surfaces': ['table', 'tray'], 'arm_group': 'arm',
             'gripper_group': 'robotiq_gripper', 'planning_pipeline': 'ompl',
             'linear_planning_pipeline': 'pilz_industrial_motion_planner',
@@ -75,7 +76,8 @@ class FakeTask(PickPlaceTrajectoryNode):
         self.states = named_states(SRDF)
         self.touch_links = ['gripper', 'left', 'right']
         self.stages = sequence()
-        self.cartesian_stages = {'move_to_pre_grasp', 'descend_to_grasp'}
+        self.cartesian_stages = {
+            'move_to_pre_grasp', 'descend_to_grasp', 'retreat_after_place'}
         self.planner = object()
         self.executor_client = object()
         self.preview = Mock()
@@ -154,19 +156,27 @@ class FakeTask(PickPlaceTrajectoryNode):
                                trajectory_start=deepcopy(goal.request.start_state))
 
 
+def test_periodic_joint_verification_accepts_equivalent_revolutions():
+    state = RobotState()
+    state.joint_state.name = ['joint']
+    state.joint_state.position = [0.0]
+    PickPlaceTrajectoryNode.verify_positions(
+        state, {'joint': 2 * math.pi}, 1e-6, 'Test', {'joint'})
+
+
 def test_sequence_starts_and_ends_straight_and_keeps_gripper_open_for_pick():
     assert [(s.group, s.state) for s in sequence()] == [
         ('arm', 'straight'), ('robotiq_gripper', 'open'),
         ('arm', 'pre_grasp'), ('arm', 'grasp_pose'),
         ('robotiq_gripper', 'close'), ('arm', 'place'),
-        ('robotiq_gripper', 'open'), ('arm', 'straight')]
+        ('robotiq_gripper', 'open'), ('arm', 'retreat_pose'), ('arm', 'straight')]
 
 
 def test_plan_only_never_executes_and_does_not_change_live_scene():
     task = FakeTask()
     before = deepcopy(task.live_scene)
     task.run()
-    assert len(task.plan_goals) == 8
+    assert len(task.plan_goals) == 9
     assert all(g.planning_options.plan_only for g in task.plan_goals)
     assert task.executed == []
     assert task.live_scene == before
@@ -233,6 +243,43 @@ def test_cartesian_approach_keeps_orientation_and_saved_pick_state_unchanged():
     assert task.states == states_before
 
 
+def test_grasp_target_uses_the_collision_free_table_clearance():
+    task = FakeTask()
+    task.plan_all(scene())
+
+    assert task.cartesian_targets['descend_to_grasp'].position.z == pytest.approx(1.03)
+    orientation = task.cartesian_targets['descend_to_grasp'].orientation
+    assert (orientation.x, orientation.y, orientation.z, orientation.w) == GRASP_ORIENTATION
+    assert task.cartesian_targets['move_to_pre_grasp'].orientation == orientation
+
+
+def test_release_retreat_is_linear_and_keeps_only_safe_release_contacts():
+    task = FakeTask()
+    task.plan_all(scene())
+
+    retreat = task.plan_goals[7]
+    retreat_matrix = retreat.planning_options.planning_scene_diff.allowed_collision_matrix
+    block = retreat_matrix.entry_names.index('block')
+    for link in task.touch_links:
+        index = retreat_matrix.entry_names.index(link)
+        assert retreat_matrix.entry_values[block].enabled[index]
+        assert retreat_matrix.entry_values[index].enabled[block]
+    assert retreat.request.pipeline_id == 'pilz_industrial_motion_planner'
+    assert retreat.request.planner_id == 'LIN'
+
+    return_goal = task.plan_goals[8]
+    return_matrix = return_goal.planning_options.planning_scene_diff.allowed_collision_matrix
+    block = return_matrix.entry_names.index('block')
+    tray = return_matrix.entry_names.index('tray')
+    assert return_matrix.entry_values[block].enabled[tray]
+    assert return_matrix.entry_values[tray].enabled[block]
+    for link in task.touch_links:
+        if link in return_matrix.entry_names:
+            index = return_matrix.entry_names.index(link)
+            assert not return_matrix.entry_values[block].enabled[index]
+            assert not return_matrix.entry_values[index].enabled[block]
+
+
 def test_rejected_motion_plan_is_replanned_before_any_execution():
     task = FakeTask()
     task.config['planning_retry_attempts'] = 2
@@ -248,14 +295,18 @@ def test_rejected_motion_plan_is_replanned_before_any_execution():
     task.action = transient_failure
     task.run()
     assert rejected == ['Plan move_to_pre_grasp']
-    assert len(task.plan_goals) == 8
+    assert len(task.plan_goals) == 9
     assert not task.executed
 
 
 def test_all_plans_finish_before_execution_and_final_state_is_straight_open():
     task = FakeTask(execute=True)
     task.run()
-    assert len(task.plan_goals) == len(task.executed) == 8
+    assert len(task.plan_goals) == 9
+    assert len(task.executed) == 10
+    held = task.executed[5].trajectory.joint_trajectory
+    assert held.joint_names == list(task.grasp_positions)
+    assert held.points[-1].positions == pytest.approx(list(task.grasp_positions.values()))
     positions = dict(zip(task.live_scene.robot_state.joint_state.name,
                          task.live_scene.robot_state.joint_state.position))
     assert positions == {'arm_joint': 0.5, 'finger_joint': 0.0, 'right_joint': 0.0}
@@ -300,6 +351,20 @@ def test_contact_grasp_accepts_stable_partial_closure():
         state, {'finger_joint': 0.0}, {'finger_joint': 0.8}, 0.4, 0.05)
     assert positions == {'finger_joint': pytest.approx(0.36)}
     assert progress == {'finger_joint': pytest.approx(0.45)}
+
+
+def test_confirmed_contact_is_commanded_as_the_gripper_hold_target():
+    task = FakeTask(execute=True, grasp_position=0.38)
+    task.live_scene.robot_state.joint_state.position[1] = 0.38
+    task.grasp_positions = {'finger_joint': 0.38}
+
+    task.hold_grasp_contact()
+
+    hold = task.executed[-1].trajectory.joint_trajectory
+    assert hold.joint_names == ['finger_joint']
+    assert hold.points[-1].positions == pytest.approx([0.38])
+    assert hold.points[-1].time_from_start.sec == 1
+    task.verify_live_targets({'finger_joint': 0.38}, 'Held grasp contact', 0.01)
 
 
 def test_release_path_is_scaled_from_measured_contact_to_open():

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
+from rclpy.executors import ExternalShutdownException
 from moveit_msgs.msg import PlanningScene, CollisionObject
 from shape_msgs.msg import SolidPrimitive
 from geometry_msgs.msg import Pose
@@ -72,11 +73,15 @@ def main(args=None):
     node = UR5ScenePublisher()
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
     finally:
-        node.destroy_node()
-        rclpy.shutdown()
+        try:
+            node.destroy_node()
+        except Exception:
+            pass
+        if rclpy.ok():
+            rclpy.shutdown()
 
 if __name__ == '__main__':
     main()

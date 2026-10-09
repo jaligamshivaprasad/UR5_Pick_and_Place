@@ -25,6 +25,7 @@ def sequence(arm_group='arm', gripper_group='robotiq_gripper'):
         Stage('grasp', gripper_group, 'close'),
         Stage('move_to_place', arm_group, 'place'),
         Stage('release', gripper_group, 'open'),
+        Stage('retreat_after_place', arm_group, 'retreat_pose'),
         Stage('return_to_straight', arm_group, 'straight'),
     )
 

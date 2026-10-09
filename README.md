@@ -71,3 +71,8 @@ ros2 launch ur5_pick_place pick_place.launch.py execute:=true
 
 See [`ur5_pick_place/README.md`](ur5_pick_place/README.md) for task stages,
 safety checks, parameters, and simulation limitations.
+
+An optional trajectory optimizer compares complete plans for motion time,
+joint travel, tool travel, and sampled acceleration variation. It keeps the
+baseline unless a candidate improves the comparison and uses a separate
+launch file. See the [optimization instructions](ur5_pick_place/README.md#opt-in-trajectory-optimization).

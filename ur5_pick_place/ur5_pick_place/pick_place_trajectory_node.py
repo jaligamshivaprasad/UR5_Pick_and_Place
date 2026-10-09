@@ -2,20 +2,24 @@
 
 import argparse
 from copy import deepcopy
+from datetime import datetime, timezone
+import json
 from pathlib import Path
 import math
 import signal
 import sys
 import time
+import xml.etree.ElementTree as ET
 
 from action_msgs.msg import GoalStatus
 from ament_index_python.packages import get_package_share_directory
+from builtin_interfaces.msg import Duration
 from geometry_msgs.msg import Pose
 from moveit_msgs.action import ExecuteTrajectory, MoveGroup
 from moveit_msgs.msg import (
     AttachedCollisionObject, CollisionObject, DisplayTrajectory, MoveItErrorCodes,
     PlanningScene, PlanningSceneComponents,
-    Constraints, PositionConstraint, OrientationConstraint,
+    Constraints, PositionConstraint, OrientationConstraint, RobotTrajectory,
 )
 from moveit_msgs.srv import GetPlanningScene, GetPositionFK
 import rclpy
@@ -26,11 +30,15 @@ from rclpy.node import Node
 from rclpy.signals import SignalHandlerOptions
 from rclpy.utilities import remove_ros_args
 from shape_msgs.msg import SolidPrimitive
+from std_msgs.msg import String
+from trajectory_msgs.msg import JointTrajectoryPoint
 
 from ur5_pick_place.task import (
     allow_contacts, compose, goal_constraints, gripper_links, inverse,
     named_states, sequence, update_robot_state,
 )
+
+GRASP_ORIENTATION = (1.0, 0.0, 0.0, 0.0)
 
 
 class ActionFailure(RuntimeError):
@@ -48,8 +56,9 @@ class PickPlaceTrajectoryNode(Node):
             'gripper_group': 'robotiq_gripper',
             'object_id': 'block',
             'attach_link': 'robotiq_85_base_link',
-            'grasp_clearance': 0.02,
+            'grasp_clearance': 0.03,
             'grasp_approach_height': 0.10,
+            'release_retreat_height': 0.10,
             'cartesian_link': 'tool0',
             'support_surfaces': ['table', 'tray'],
             'move_group_node': '/move_group',
@@ -84,6 +93,14 @@ class PickPlaceTrajectoryNode(Node):
             # Gazebo can run below real time while MoveIt and collision checks
             # are active; keep the wall-clock timeout above a full transfer.
             'execution_timeout': 300.0,
+            # Opt-in, observation-only experiment annotations.  Publishing
+            # these messages does not add sleeps or alter trajectory timing.
+            'experiment_logging': False,
+            'experiment_run_id': '',
+            'controller_mode': 'Position_OpenLoop',
+            'trajectory_id': '',
+            'payload_condition': 'block_0.1kg_contact_grasp',
+            'block_mass_kg': 0.1,
         }
         for name, value in defaults.items():
             self.declare_parameter(name, value)
@@ -105,10 +122,13 @@ class PickPlaceTrajectoryNode(Node):
         self.srdf_file = srdf_file
         if self.value('grasp_clearance') < 0.0:
             raise ValueError('grasp_clearance must not be negative')
-        if self.value('grasp_approach_height') <= 0.0:
-            raise ValueError('grasp_approach_height must be positive')
+        for name in ('grasp_approach_height', 'release_retreat_height'):
+            if self.value(name) <= 0.0:
+                raise ValueError(name + ' must be positive')
         self.stages = sequence(self.value('arm_group'), self.value('gripper_group'))
-        self.cartesian_stages = {'move_to_pre_grasp', 'descend_to_grasp'}
+        self.cartesian_stages = {
+            'move_to_pre_grasp', 'descend_to_grasp', 'retreat_after_place'}
+        self.periodic_joints = set()
         self.parameters_client = self.create_client(
             GetParameters, self.value('move_group_node').rstrip('/') + '/get_parameters')
         self.scene_client = self.create_client(GetPlanningScene, self.value('planning_scene_service'))
@@ -116,10 +136,36 @@ class PickPlaceTrajectoryNode(Node):
         self.planner = ActionClient(self, MoveGroup, self.value('move_action'))
         self.executor_client = ActionClient(self, ExecuteTrajectory, self.value('execute_action'))
         self.preview = self.create_publisher(DisplayTrajectory, '~/display_planned_path', 10)
+        self.experiment_events = self.create_publisher(
+            String, '/trajectory_experiment/events', 10)
         self.active_goal = None
+        self.active_stage_name = None
 
     def value(self, name):
         return self.get_parameter(name).value
+
+    def emit_experiment_event(self, event, **fields):
+        """Publish a JSON annotation with independent simulation/wall clocks."""
+        try:
+            enabled = bool(self.value('experiment_logging'))
+        except Exception:
+            enabled = False
+        if not enabled:
+            return
+        stamp = self.get_clock().now().nanoseconds * 1e-9
+        payload = {
+            'schema_version': 1,
+            'event': event,
+            'sim_time_s': stamp,
+            'recorded_at_utc': datetime.now(timezone.utc).isoformat(),
+            'run_id': self.value('experiment_run_id'),
+            'controller_mode': self.value('controller_mode'),
+            'trajectory_id': self.value('trajectory_id'),
+            'payload_condition': self.value('payload_condition'),
+            'block_mass_kg': self.value('block_mass_kg'),
+        }
+        payload.update(fields)
+        self.experiment_events.publish(String(data=json.dumps(payload, allow_nan=False)))
 
     def wait(self, future, timeout, operation):
         deadline = time.monotonic() + timeout
@@ -140,6 +186,9 @@ class PickPlaceTrajectoryNode(Node):
         handle = self.wait(client.send_goal_async(goal), self.value('server_timeout'), label + ' acceptance')
         if not handle.accepted:
             raise RuntimeError(label + ' was rejected')
+        if self.active_stage_name is not None:
+            self.emit_experiment_event(
+                'stage_accepted', stage=self.active_stage_name, action_label=label)
         self.active_goal = handle
         try:
             result = self.wait(handle.get_result_async(), timeout, label)
@@ -147,6 +196,11 @@ class PickPlaceTrajectoryNode(Node):
             code = result.result.error_code.val
             if result.status != GoalStatus.STATUS_SUCCEEDED or code != MoveItErrorCodes.SUCCESS:
                 raise ActionFailure(label, result.status, code)
+            if self.active_stage_name is not None:
+                self.emit_experiment_event(
+                    'controller_completed', stage=self.active_stage_name,
+                    action_label=label, action_status=int(result.status),
+                    moveit_error_code=int(code))
             return result.result
         except BaseException:
             try:
@@ -180,6 +234,10 @@ class PickPlaceTrajectoryNode(Node):
             srdf = Path(self.srdf_file).read_text()
         if not self.urdf or not srdf:
             raise RuntimeError('MoveIt did not provide the robot model and named states')
+        self.periodic_joints = {
+            joint.attrib['name'] for joint in ET.fromstring(self.urdf).findall('joint')
+            if joint.attrib.get('type') in ('revolute', 'continuous')
+        }
         self.states = named_states(srdf)
         self.touch_links = gripper_links(self.urdf, self.value('attach_link'))
         for stage in self.stages:
@@ -239,7 +297,7 @@ class PickPlaceTrajectoryNode(Node):
             request.goal_constraints = [Constraints(
                 name=stage.state, position_constraints=[position],
                 orientation_constraints=[orientation])]
-            if stage.name == 'descend_to_grasp':
+            if stage.name in ('descend_to_grasp', 'retreat_after_place'):
                 request.pipeline_id = self.value('linear_planning_pipeline')
                 request.planner_id = self.value('linear_planner_id')
             elif stage.name == 'move_to_place':
@@ -278,11 +336,23 @@ class PickPlaceTrajectoryNode(Node):
         self.cartesian_frame = original.header.frame_id
         grasp_pose = self.fk(pick_state, self.cartesian_frame, self.value('cartesian_link'))
         grasp_pose.position.z += self.value('grasp_clearance')
+        (grasp_pose.orientation.x, grasp_pose.orientation.y,
+         grasp_pose.orientation.z, grasp_pose.orientation.w) = GRASP_ORIENTATION
         pre_grasp_pose = deepcopy(grasp_pose)
         pre_grasp_pose.position.z += self.value('grasp_approach_height')
+        place_state = deepcopy(state)
+        place_positions = dict(zip(
+            place_state.joint_state.name, place_state.joint_state.position))
+        place_positions.update(self.states[(self.value('arm_group'), 'place')])
+        place_state.joint_state.name = list(place_positions)
+        place_state.joint_state.position = list(place_positions.values())
+        retreat_pose = self.fk(
+            place_state, self.cartesian_frame, self.value('cartesian_link'))
+        retreat_pose.position.z += self.value('release_retreat_height')
         self.cartesian_targets = {
             'move_to_pre_grasp': pre_grasp_pose,
             'descend_to_grasp': grasp_pose,
+            'retreat_after_place': retreat_pose,
         }
         attachment = None
         released = None
@@ -316,9 +386,13 @@ class PickPlaceTrajectoryNode(Node):
             contacts = []
             if stage.name == 'descend_to_grasp':
                 contacts.extend(self.touch_links)
-            if stage.name in ('grasp', 'move_to_place', 'release'):
+            if stage.name in ('grasp', 'move_to_place'):
                 contacts.extend(self.touch_links)
                 contacts.extend(self.value('support_surfaces'))
+            if released is not None:
+                contacts.extend(self.value('support_surfaces'))
+                if stage.name in ('release', 'retreat_after_place'):
+                    contacts.extend(self.touch_links)
             diff.allowed_collision_matrix = allow_contacts(
                 scene.allowed_collision_matrix, object_id, contacts)
             # Collision checking must use the hypothetical gripper state from
@@ -342,15 +416,22 @@ class PickPlaceTrajectoryNode(Node):
             trajectory = result.planned_trajectory
             state = update_robot_state(state, trajectory, self.urdf)
             if stage.name not in self.cartesian_stages:
-                self.verify_positions(state, self.states[(stage.group, stage.state)],
-                                      self.value('joint_goal_tolerance') + 1e-6, 'Planned ' + stage.name)
+                self.verify_positions(
+                    state, self.states[(stage.group, stage.state)],
+                    self.value('joint_goal_tolerance') + 1e-6, 'Planned ' + stage.name,
+                    getattr(self, 'periodic_joints', set()))
             plans.append((stage, trajectory, result.trajectory_start, start))
         return plans
 
     @staticmethod
-    def verify_positions(state, targets, tolerance, label):
+    def verify_positions(state, targets, tolerance, label, periodic_joints=None):
         measured = dict(zip(state.joint_state.name, state.joint_state.position))
-        errors = {joint: abs(measured[joint] - target) if joint in measured else float('inf')
+        periodic_joints = periodic_joints or set()
+        errors = {
+            joint: (abs(math.atan2(math.sin(measured[joint] - target),
+                                   math.cos(measured[joint] - target)))
+                    if joint in periodic_joints else abs(measured[joint] - target))
+            if joint in measured else float('inf')
                   for joint, target in targets.items()}
         wrong = {joint: error for joint, error in errors.items()
                  if not math.isfinite(error) or error > tolerance}
@@ -435,6 +516,24 @@ class PickPlaceTrajectoryNode(Node):
                 raise last_error or RuntimeError('Grasp was not confirmed before the timeout')
             rclpy.spin_once(self, timeout_sec=0.05)
 
+    def hold_grasp_contact(self):
+        if not getattr(self, 'grasp_positions', None):
+            raise RuntimeError('Cannot hold the grasp: no measured contact position is available')
+        trajectory = RobotTrajectory()
+        trajectory.joint_trajectory.joint_names = list(self.grasp_positions)
+        point = JointTrajectoryPoint()
+        point.positions = list(self.grasp_positions.values())
+        point.time_from_start = Duration(sec=1)
+        trajectory.joint_trajectory.points = [point]
+        self.get_logger().info(
+            'Holding the gripper at the measured contact position before carrying.')
+        self.action(
+            self.executor_client, ExecuteTrajectory.Goal(trajectory=trajectory),
+            self.value('execution_timeout'), 'Hold grasp contact')
+        self.verify_live_targets(
+            self.grasp_positions, 'Held grasp contact',
+            self.value('verification_tolerance'))
+
     @staticmethod
     def release_from_contact(trajectory, contact_positions, open_targets, close_targets):
         """Scale a planned fully-closed-to-open path to start at contact.
@@ -479,7 +578,9 @@ class PickPlaceTrajectoryNode(Node):
         while True:
             try:
                 state = self.get_scene().robot_state
-                self.verify_positions(state, targets, tolerance, label)
+                self.verify_positions(
+                    state, targets, tolerance, label,
+                    getattr(self, 'periodic_joints', set()))
                 measured = dict(zip(state.joint_state.name, state.joint_state.position))
                 return {joint: measured[joint] for joint in targets}
             except RuntimeError:
@@ -492,66 +593,117 @@ class PickPlaceTrajectoryNode(Node):
             return self.value('arm_verification_tolerance')
         return self.value('verification_tolerance')
 
+    def publish_plan_preview(self, plans, initial_scene):
+        pass
+
+    def prepare_plans(self, initial_scene):
+        return self.plan_all(initial_scene)
+
     def run(self):
         self.connect()
         initial_scene = self.get_scene()
-        plans = self.plan_all(initial_scene)
+        plans = self.prepare_plans(initial_scene)
         self.get_logger().info(f'All {len(plans)} trajectories planned successfully.')
+        self.publish_plan_preview(plans, initial_scene)
         if not self.value('execute'):
             self.get_logger().info('Planning only: no trajectory execution requests were sent. '
                                    'Use --ros-args -p execute:=true to run the task.')
             return
-        # A concurrent RViz command must not invalidate the reviewed trajectory starts.
-        initial_targets = dict(zip(initial_scene.robot_state.joint_state.name,
-                                   initial_scene.robot_state.joint_state.position))
-        self.verify_live_targets(initial_targets, 'Robot changed during planning')
-        for index, (stage, trajectory, trajectory_start, start) in enumerate(plans, start=1):
-            stage_tolerance = self.stage_verification_tolerance(stage)
-            execution_trajectory = trajectory
-            preview_start = trajectory_start
-            if stage.name == 'release':
-                current_grasp_positions = self.verify_live_targets(
-                    self.grasp_positions, 'Start of release',
-                    self.value('grasp_retention_tolerance'))
-                self.grasp_positions = current_grasp_positions
-                execution_trajectory = self.release_from_contact(
-                    trajectory, current_grasp_positions,
-                    self.states[(self.value('gripper_group'), 'open')],
-                    self.states[(self.value('gripper_group'), 'close')])
-                preview_start = deepcopy(trajectory_start)
-                preview_positions = dict(zip(
-                    preview_start.joint_state.name, preview_start.joint_state.position))
-                preview_positions.update(current_grasp_positions)
-                preview_start.joint_state.name = list(preview_positions)
-                preview_start.joint_state.position = list(preview_positions.values())
-            joints = execution_trajectory.joint_trajectory.joint_names
-            start_positions = dict(zip(start.joint_state.name, start.joint_state.position))
-            if stage.name != 'release':
-                self.verify_live_targets(
-                    {j: start_positions[j] for j in joints}, 'Start of ' + stage.name,
-                    stage_tolerance)
-            self.get_logger().info(f'Executing {index}/{len(plans)}: {stage.group}/{stage.state}')
-            self.preview.publish(DisplayTrajectory(
-                model_id=initial_scene.robot_model_name, trajectory_start=preview_start,
-                trajectory=[execution_trajectory]))
-            self.action(self.executor_client, ExecuteTrajectory.Goal(trajectory=execution_trajectory),
+        self.emit_experiment_event(
+            'task_started', stage_count=len(plans),
+            arm_velocity_scaling=self.value('arm_velocity_scaling'),
+            arm_acceleration_scaling=self.value('arm_acceleration_scaling'))
+        try:
+            # A concurrent RViz command must not invalidate the reviewed
+            # trajectory starts.
+            initial_targets = dict(zip(
+                initial_scene.robot_state.joint_state.name,
+                initial_scene.robot_state.joint_state.position))
+            self.verify_live_targets(initial_targets, 'Robot changed during planning')
+            for index, (stage, trajectory, trajectory_start, start) in enumerate(
+                    plans, start=1):
+                self.active_stage_name = stage.name
+                try:
+                    stage_tolerance = self.stage_verification_tolerance(stage)
+                    execution_trajectory = trajectory
+                    preview_start = trajectory_start
+                    if stage.name == 'release':
+                        current_grasp_positions = self.verify_live_targets(
+                            self.grasp_positions, 'Start of release',
+                            self.value('grasp_retention_tolerance'))
+                        self.grasp_positions = current_grasp_positions
+                        execution_trajectory = self.release_from_contact(
+                            trajectory, current_grasp_positions,
+                            self.states[(self.value('gripper_group'), 'open')],
+                            self.states[(self.value('gripper_group'), 'close')])
+                        preview_start = deepcopy(trajectory_start)
+                        preview_positions = dict(zip(
+                            preview_start.joint_state.name,
+                            preview_start.joint_state.position))
+                        preview_positions.update(current_grasp_positions)
+                        preview_start.joint_state.name = list(preview_positions)
+                        preview_start.joint_state.position = list(preview_positions.values())
+                    joints = execution_trajectory.joint_trajectory.joint_names
+                    start_positions = dict(zip(
+                        start.joint_state.name, start.joint_state.position))
+                    if stage.name != 'release':
+                        self.verify_live_targets(
+                            {joint: start_positions[joint] for joint in joints},
+                            'Start of ' + stage.name, stage_tolerance)
+                    points = execution_trajectory.joint_trajectory.points
+                    duration = 0.0
+                    if points:
+                        duration = (points[-1].time_from_start.sec
+                                    + points[-1].time_from_start.nanosec * 1e-9)
+                    self.emit_experiment_event(
+                        'stage_submitted', stage=stage.name, stage_index=index,
+                        group=stage.group, state=stage.state,
+                        planned_duration_s=duration,
+                        joint_names=list(joints), waypoint_count=len(points))
+                    self.get_logger().info(
+                        f'Executing {index}/{len(plans)}: {stage.group}/{stage.state}')
+                    self.preview.publish(DisplayTrajectory(
+                        model_id=initial_scene.robot_model_name,
+                        trajectory_start=preview_start,
+                        trajectory=[execution_trajectory]))
+                    self.action(
+                        self.executor_client,
+                        ExecuteTrajectory.Goal(trajectory=execution_trajectory),
                         self.value('execution_timeout'), 'Execute ' + stage.name)
-            targets = (dict(zip(joints, execution_trajectory.joint_trajectory.points[-1].positions))
-                       if stage.name in self.cartesian_stages else self.states[(stage.group, stage.state)])
-            if stage.name == 'grasp':
-                self.verify_live_grasp()
-            else:
-                self.verify_live_targets(
-                    targets, 'Executed ' + stage.name, stage_tolerance)
-            if stage.name == 'move_to_place':
-                self.grasp_positions = self.verify_live_targets(
-                    self.grasp_positions, 'Grasp retained at place',
-                    self.value('grasp_retention_tolerance'))
+                    targets = (
+                        dict(zip(joints, execution_trajectory.joint_trajectory.points[-1].positions))
+                        if stage.name in self.cartesian_stages
+                        else self.states[(stage.group, stage.state)])
+                    if stage.name == 'grasp':
+                        self.verify_live_grasp()
+                        self.hold_grasp_contact()
+                    else:
+                        self.verify_live_targets(
+                            targets, 'Executed ' + stage.name, stage_tolerance)
+                    if stage.name == 'move_to_place':
+                        self.grasp_positions = self.verify_live_targets(
+                            self.grasp_positions, 'Grasp retained at place',
+                            self.value('grasp_retention_tolerance'))
+                    self.emit_experiment_event(
+                        'stage_completed', stage=stage.name, stage_index=index,
+                        verification='passed')
+                except BaseException as error:
+                    self.emit_experiment_event(
+                        'stage_failed', stage=stage.name, stage_index=index,
+                        error_type=type(error).__name__, error=str(error))
+                    raise
+                finally:
+                    self.active_stage_name = None
+        except BaseException as error:
+            self.emit_experiment_event(
+                'task_failed', error_type=type(error).__name__, error=str(error))
+            raise
+        self.emit_experiment_event('task_completed', execution_status='success')
         self.get_logger().info(
             'Pick and place trajectory sequence completed; gripper is open and arm is straight.')
 
 
-def main(args=None):
+def main(args=None, node_factory=PickPlaceTrajectoryNode):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--dry-run', action='store_true',
                         help='Print the existing named-state targets without connecting to ROS.')
@@ -562,10 +714,13 @@ def main(args=None):
         states = named_states(path.read_text())
         for index, stage in enumerate(sequence(), start=1):
             if stage.name == 'move_to_pre_grasp':
-                print(f'{index}. {stage.name}: arm/tool0: pick +0.12 m in Z, preserve orientation')
+                print(f'{index}. {stage.name}: arm/tool0: pick +0.13 m in Z, vertical-down gripper')
                 continue
             if stage.name == 'descend_to_grasp':
-                print(f'{index}. {stage.name}: arm/tool0: linear descent to pick +0.02 m in Z')
+                print(f'{index}. {stage.name}: arm/tool0: linear descent to pick +0.03 m in Z')
+                continue
+            if stage.name == 'retreat_after_place':
+                print(f'{index}. {stage.name}: arm/tool0: linear vertical retreat +0.10 m')
                 continue
             targets = states[(stage.group, stage.state)]
             print(f'{index}. {stage.name}: {stage.group}/{stage.state}: {targets}')
@@ -580,7 +735,7 @@ def main(args=None):
                          for number in (signal.SIGINT, signal.SIGTERM)}
     node = None
     try:
-        node = PickPlaceTrajectoryNode(cli.srdf)
+        node = node_factory(cli.srdf)
         node.run()
         return 0
     except (KeyboardInterrupt, ExternalShutdownException):

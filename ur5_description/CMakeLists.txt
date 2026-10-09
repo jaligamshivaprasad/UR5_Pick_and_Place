@@ -14,6 +14,8 @@ install(DIRECTORY
 )
 
 if(BUILD_TESTING)
+  find_package(ament_cmake_pytest REQUIRED)
+  ament_add_pytest_test(gripper_linkage test/test_gripper_linkage.py)
   find_package(ament_lint_auto REQUIRED)
   set(ament_cmake_copyright_FOUND TRUE)
   set(ament_cmake_cpplint_FOUND TRUE)

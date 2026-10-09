@@ -1,0 +1,25 @@
+/clock:
+  history: keep_last
+  depth: 10
+  reliability: best_effort
+  durability: volatile
+/joint_states:
+  history: keep_last
+  depth: 100
+  reliability: reliable
+  durability: volatile
+/arm_controller/controller_state:
+  history: keep_last
+  depth: 100
+  reliability: reliable
+  durability: volatile
+/robotiq_gripper_controller/controller_state:
+  history: keep_last
+  depth: 100
+  reliability: reliable
+  durability: volatile
+/trajectory_experiment/events:
+  history: keep_last
+  depth: 100
+  reliability: reliable
+  durability: volatile

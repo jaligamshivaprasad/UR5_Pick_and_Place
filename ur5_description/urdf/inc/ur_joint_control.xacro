@@ -5,7 +5,7 @@
 
     Only position command + position/velocity state interfaces are declared.
     Velocity and effort command interfaces are removed: declaring interfaces
-    that no loaded controller claims causes IgnitionSystem to emit warnings on
+    that no loaded controller claims causes the GazeboSimSystem to emit warnings on
     every update cycle and can delay joint-state initialisation.
 
     If you later add a velocity or effort controller, re-add the corresponding

@@ -18,3 +18,4 @@ venv/
 *.swp
 *~
 .DS_Store
+.dashboard_runtime/

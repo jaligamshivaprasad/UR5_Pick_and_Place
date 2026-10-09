@@ -36,7 +36,7 @@ def generate_launch_description():
         .robot_description(file_path="config/ur5.urdf.xacro", mappings={
             "sim_ignition": "true",
             "sim_gazebo": "false",
-            "name": "IgnitionSystem",
+            "name": "GazeboSimSystem",
             "simulation_controllers": "$(find ur5_moveit_config)/config/ros2_controllers.yaml",
         })
         .robot_description_semantic(file_path="config/ur5.srdf")
@@ -82,6 +82,16 @@ def generate_launch_description():
         package="ros_gz_bridge",
         executable="parameter_bridge",
         arguments=["/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock"],
+        output="screen",
+    )
+    pose_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        name="gazebo_pose_bridge",
+        arguments=[
+            "/world/ur5_pick_place/dynamic_pose/info@tf2_msgs/msg/TFMessage"
+            "[ignition.msgs.Pose_V",
+        ],
         output="screen",
     )
 
@@ -192,6 +202,7 @@ def generate_launch_description():
         ign_gazebo,
         spawn_robot,
         clock_bridge,
+        pose_bridge,
         rsp_node,
         jsb_spawner,
         RegisterEventHandler(OnProcessExit(target_action=jsb_spawner, on_exit=[arm_spawner])),

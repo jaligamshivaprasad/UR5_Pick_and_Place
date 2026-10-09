@@ -1,0 +1,477 @@
+{
+  "date": "2026-10-04",
+  "baseline_commit": "c5263eb",
+  "environment": "ROS 2 Humble, isolated ROS_DOMAIN_ID=74, localhost only; MoveIt + robot_state_publisher + original scene publisher; static synthetic joint feedback at saved straight/open, no controllers or Gazebo running",
+  "limitations": "Planning-only samples, stochastic OMPL without fixed seed. These five consecutive trials are not physical execution or production cycle-time validation. Includes baseline fallback.",
+  "settings": {
+    "execute": false,
+    "optimization_candidates": 4,
+    "optimization_try_ptp": false,
+    "arm_velocity_scaling": 0.2,
+    "arm_acceleration_scaling": 0.2,
+    "gripper_velocity_scaling": 0.3,
+    "gripper_acceleration_scaling": 0.3,
+    "grasp_clearance": 0.02,
+    "grasp_approach_height": 0.1,
+    "planning_time": 5.0,
+    "planning_attempts": 10,
+    "planning_retry_attempts": 5,
+    "planning_pipeline": "ompl",
+    "place_planning_pipeline": "pilz_industrial_motion_planner",
+    "place_planner_id": "PTP",
+    "linear_planning_pipeline": "pilz_industrial_motion_planner",
+    "linear_planner_id": "LIN"
+  },
+  "initial_joint_positions": {
+    "shoulder_pan_joint": -3.2283,
+    "shoulder_lift_joint": -1.4927,
+    "elbow_joint": 0.0868,
+    "wrist_1_joint": -1.4232,
+    "wrist_2_joint": -6.2137,
+    "wrist_3_joint": 1.6315,
+    "robotiq_85_left_inner_knuckle_joint": 0.0,
+    "robotiq_85_left_knuckle_joint": 0.0,
+    "robotiq_85_left_finger_tip_joint": 0.0,
+    "robotiq_85_right_inner_knuckle_joint": 0.0,
+    "robotiq_85_right_knuckle_joint": 0.0,
+    "robotiq_85_right_finger_tip_joint": 0.0
+  },
+  "measurement_notes": [
+    "Duration sums trajectory timestamps, excluding planning, controller overhead and grasp checks.",
+    "Joint travel sums Euclidean segment lengths in commanded arm coordinates; angles are not wrapped.",
+    "Tool travel samples linear joint segments at most 0.05 rad apart; not continuous controller interpolation.",
+    "Acceleration variation sums absolute sampled changes per arm joint, including boundaries to/from rest.",
+    "Acceleration variation is a smoothness proxy, not a continuous jerk measurement or jerk limit.",
+    "All candidates use the same initial scene, task targets, clearances and speed scaling.",
+    "This report describes planned motion, not measured simulation or hardware performance."
+  ],
+  "fk_cross_check_max_error_m": 5.034405433428661e-16,
+  "median_improvement_percent": {
+    "duration_s": 19.62977693425195,
+    "joint_distance_rad": 22.11301819730512,
+    "tool_distance_m": 6.142548638498718,
+    "acceleration_variation_rad_s2": 11.4947326154829
+  },
+  "trials": [
+    {
+      "trial": 1,
+      "selected": "ompl_1",
+      "baseline": {
+        "duration_s": 42.179002223,
+        "joint_distance_rad": 23.724440133854603,
+        "tool_distance_m": 4.746831376374537,
+        "acceleration_variation_rad_s2": 50.79675358438674
+      },
+      "selected_totals": {
+        "duration_s": 33.059599183,
+        "joint_distance_rad": 18.329772737850163,
+        "tool_distance_m": 4.455254950293213,
+        "acceleration_variation_rad_s2": 44.95780258251576
+      },
+      "improvement_percent": {
+        "duration_s": 21.620717796466106,
+        "joint_distance_rad": 22.738860708903683,
+        "tool_distance_m": 6.142548638498718,
+        "acceleration_variation_rad_s2": 11.4947326154829
+      },
+      "planning_wall_s": 6.300946268001098,
+      "candidates": [
+        {
+          "name": "baseline",
+          "totals": {
+            "duration_s": 42.179002223,
+            "joint_distance_rad": 23.724440133854603,
+            "tool_distance_m": 4.746831376374537,
+            "acceleration_variation_rad_s2": 50.79675358438674
+          },
+          "planning_wall_s": 1.2273663679998208,
+          "eligible": true,
+          "score": 4.0
+        },
+        {
+          "name": "ompl_1",
+          "totals": {
+            "duration_s": 33.059599183,
+            "joint_distance_rad": 18.329772737850163,
+            "tool_distance_m": 4.455254950293213,
+            "acceleration_variation_rad_s2": 44.95780258251576
+          },
+          "planning_wall_s": 1.1262724330008496,
+          "eligible": true,
+          "score": 3.380031402406486
+        },
+        {
+          "name": "ompl_2",
+          "totals": {
+            "duration_s": 41.328685799999995,
+            "joint_distance_rad": 23.032345468482507,
+            "tool_distance_m": 6.089551078184728,
+            "acceleration_variation_rad_s2": 53.86989530951653
+          },
+          "planning_wall_s": 1.4236706880001293,
+          "eligible": false,
+          "score": null
+        },
+        {
+          "name": "ompl_3",
+          "totals": {
+            "duration_s": 48.526849625,
+            "joint_distance_rad": 28.11498814461031,
+            "tool_distance_m": 6.55444754806686,
+            "acceleration_variation_rad_s2": 69.07077561769465
+          },
+          "planning_wall_s": 1.3281889079999019,
+          "eligible": false,
+          "score": null
+        },
+        {
+          "name": "ompl_4",
+          "totals": {
+            "duration_s": 37.301108537000005,
+            "joint_distance_rad": 21.226336059942334,
+            "tool_distance_m": 5.135036234740905,
+            "acceleration_variation_rad_s2": 59.52429490897036
+          },
+          "planning_wall_s": 1.1954478710003968,
+          "eligible": false,
+          "score": null
+        }
+      ]
+    },
+    {
+      "trial": 2,
+      "selected": "ompl_3",
+      "baseline": {
+        "duration_s": 47.589483734999995,
+        "joint_distance_rad": 30.47360904011019,
+        "tool_distance_m": 7.364446051923061,
+        "acceleration_variation_rad_s2": 65.0121138344545
+      },
+      "selected_totals": {
+        "duration_s": 38.158805385,
+        "joint_distance_rad": 20.557652183877085,
+        "tool_distance_m": 6.430839832494168,
+        "acceleration_variation_rad_s2": 46.596221762197274
+      },
+      "improvement_percent": {
+        "duration_s": 19.8167275831659,
+        "joint_distance_rad": 32.539489638990425,
+        "tool_distance_m": 12.677209023550422,
+        "acceleration_variation_rad_s2": 28.326862466202943
+      },
+      "planning_wall_s": 6.551727556001424,
+      "candidates": [
+        {
+          "name": "baseline",
+          "totals": {
+            "duration_s": 47.589483734999995,
+            "joint_distance_rad": 30.47360904011019,
+            "tool_distance_m": 7.364446051923061,
+            "acceleration_variation_rad_s2": 65.0121138344545
+          },
+          "planning_wall_s": 1.3402690990005794,
+          "eligible": true,
+          "score": 4.0
+        },
+        {
+          "name": "ompl_1",
+          "totals": {
+            "duration_s": 39.116233816,
+            "joint_distance_rad": 25.024926245916525,
+            "tool_distance_m": 6.392785268984251,
+            "acceleration_variation_rad_s2": 60.919884655810606
+          },
+          "planning_wall_s": 1.5342072319999716,
+          "eligible": true,
+          "score": 3.448266095718498
+        },
+        {
+          "name": "ompl_2",
+          "totals": {
+            "duration_s": 38.237587609,
+            "joint_distance_rad": 22.096980836169145,
+            "tool_distance_m": 6.60690636847392,
+            "acceleration_variation_rad_s2": 43.39239758525337
+          },
+          "planning_wall_s": 1.2587431170004493,
+          "eligible": true,
+          "score": 3.093193290422624
+        },
+        {
+          "name": "ompl_3",
+          "totals": {
+            "duration_s": 38.158805385,
+            "joint_distance_rad": 20.557652183877085,
+            "tool_distance_m": 6.430839832494168,
+            "acceleration_variation_rad_s2": 46.596221762197274
+          },
+          "planning_wall_s": 1.07587103700007,
+          "eligible": true,
+          "score": 3.066397112880903
+        },
+        {
+          "name": "ompl_4",
+          "totals": {
+            "duration_s": 48.800919056,
+            "joint_distance_rad": 28.229841585671323,
+            "tool_distance_m": 6.793631539501227,
+            "acceleration_variation_rad_s2": 48.51214200298928
+          },
+          "planning_wall_s": 1.342637071000354,
+          "eligible": false,
+          "score": null
+        }
+      ]
+    },
+    {
+      "trial": 3,
+      "selected": "ompl_3",
+      "baseline": {
+        "duration_s": 37.783707652000004,
+        "joint_distance_rad": 21.80766220025488,
+        "tool_distance_m": 6.968160979949202,
+        "acceleration_variation_rad_s2": 44.06688874227817
+      },
+      "selected_totals": {
+        "duration_s": 34.165516207,
+        "joint_distance_rad": 17.920239134660548,
+        "tool_distance_m": 6.606120865400811,
+        "acceleration_variation_rad_s2": 41.294710287099015
+      },
+      "improvement_percent": {
+        "duration_s": 9.57606246143099,
+        "joint_distance_rad": 17.82595048427015,
+        "tool_distance_m": 5.195633619690428,
+        "acceleration_variation_rad_s2": 6.290842249817149
+      },
+      "planning_wall_s": 14.994026668000515,
+      "candidates": [
+        {
+          "name": "baseline",
+          "totals": {
+            "duration_s": 37.783707652000004,
+            "joint_distance_rad": 21.80766220025488,
+            "tool_distance_m": 6.968160979949202,
+            "acceleration_variation_rad_s2": 44.06688874227817
+          },
+          "planning_wall_s": 1.1938223090000974,
+          "eligible": true,
+          "score": 4.0
+        },
+        {
+          "name": "ompl_1",
+          "totals": {
+            "duration_s": 39.477076881,
+            "joint_distance_rad": 23.774842649191847,
+            "tool_distance_m": 6.421478906150883,
+            "acceleration_variation_rad_s2": 39.99170481077364
+          },
+          "planning_wall_s": 6.00417867500073,
+          "eligible": false,
+          "score": null
+        },
+        {
+          "name": "ompl_2",
+          "totals": {
+            "duration_s": 48.743083473,
+            "joint_distance_rad": 28.225750714622357,
+            "tool_distance_m": 6.857530387584138,
+            "acceleration_variation_rad_s2": 40.496085457268165
+          },
+          "planning_wall_s": 1.4868808179999178,
+          "eligible": false,
+          "score": null
+        },
+        {
+          "name": "ompl_3",
+          "totals": {
+            "duration_s": 34.165516207,
+            "joint_distance_rad": 17.920239134660548,
+            "tool_distance_m": 6.606120865400811,
+            "acceleration_variation_rad_s2": 41.294710287099015
+          },
+          "planning_wall_s": 1.1173130120005226,
+          "eligible": true,
+          "score": 3.611115111847913
+        },
+        {
+          "name": "ompl_4",
+          "error": "Plan move_to_pre_grasp failed: action status=6, MoveIt code=99999",
+          "planning_wall_s": 5.191831853999247,
+          "eligible": false,
+          "score": null
+        }
+      ]
+    },
+    {
+      "trial": 4,
+      "selected": "baseline",
+      "baseline": {
+        "duration_s": 37.555263047,
+        "joint_distance_rad": 21.687379020386118,
+        "tool_distance_m": 6.515871463724098,
+        "acceleration_variation_rad_s2": 43.09251712369481
+      },
+      "selected_totals": {
+        "duration_s": 37.555263047,
+        "joint_distance_rad": 21.687379020386118,
+        "tool_distance_m": 6.515871463724098,
+        "acceleration_variation_rad_s2": 43.09251712369481
+      },
+      "improvement_percent": {
+        "duration_s": 0.0,
+        "joint_distance_rad": 0.0,
+        "tool_distance_m": 0.0,
+        "acceleration_variation_rad_s2": 0.0
+      },
+      "planning_wall_s": 11.01632676400095,
+      "candidates": [
+        {
+          "name": "baseline",
+          "totals": {
+            "duration_s": 37.555263047,
+            "joint_distance_rad": 21.687379020386118,
+            "tool_distance_m": 6.515871463724098,
+            "acceleration_variation_rad_s2": 43.09251712369481
+          },
+          "planning_wall_s": 1.1734613609996813,
+          "eligible": true,
+          "score": 4.0
+        },
+        {
+          "name": "ompl_1",
+          "totals": {
+            "duration_s": 38.014408915000004,
+            "joint_distance_rad": 21.424408686659067,
+            "tool_distance_m": 6.526961864054513,
+            "acceleration_variation_rad_s2": 41.95614867258488
+          },
+          "planning_wall_s": 5.926326411000446,
+          "eligible": false,
+          "score": null
+        },
+        {
+          "name": "ompl_2",
+          "totals": {
+            "duration_s": 33.779410571,
+            "joint_distance_rad": 19.253103213957356,
+            "tool_distance_m": 6.516237141283705,
+            "acceleration_variation_rad_s2": 44.350223922793454
+          },
+          "planning_wall_s": 1.1495686690004732,
+          "eligible": false,
+          "score": null
+        },
+        {
+          "name": "ompl_3",
+          "totals": {
+            "duration_s": 54.191117812,
+            "joint_distance_rad": 36.124714258583914,
+            "tool_distance_m": 9.600884868637738,
+            "acceleration_variation_rad_s2": 104.0076655209105
+          },
+          "planning_wall_s": 1.6255156200004421,
+          "eligible": false,
+          "score": null
+        },
+        {
+          "name": "ompl_4",
+          "totals": {
+            "duration_s": 35.445633643,
+            "joint_distance_rad": 20.235216895815977,
+            "tool_distance_m": 4.605534534767459,
+            "acceleration_variation_rad_s2": 60.455912259991734
+          },
+          "planning_wall_s": 1.1414547029999085,
+          "eligible": false,
+          "score": null
+        }
+      ]
+    },
+    {
+      "trial": 5,
+      "selected": "ompl_1",
+      "baseline": {
+        "duration_s": 41.135444463,
+        "joint_distance_rad": 23.53048566593241,
+        "tool_distance_m": 6.13644390503435,
+        "acceleration_variation_rad_s2": 54.792158256737
+      },
+      "selected_totals": {
+        "duration_s": 33.060648474000004,
+        "joint_distance_rad": 18.327185088710504,
+        "tool_distance_m": 4.455038226826353,
+        "acceleration_variation_rad_s2": 44.87922711628625
+      },
+      "improvement_percent": {
+        "duration_s": 19.62977693425195,
+        "joint_distance_rad": 22.11301819730512,
+        "tool_distance_m": 27.400326707599632,
+        "acceleration_variation_rad_s2": 18.09187930506807
+      },
+      "planning_wall_s": 12.04980710199925,
+      "candidates": [
+        {
+          "name": "baseline",
+          "totals": {
+            "duration_s": 41.135444463,
+            "joint_distance_rad": 23.53048566593241,
+            "tool_distance_m": 6.13644390503435,
+            "acceleration_variation_rad_s2": 54.792158256737
+          },
+          "planning_wall_s": 1.2729141370000434,
+          "eligible": true,
+          "score": 4.0
+        },
+        {
+          "name": "ompl_1",
+          "totals": {
+            "duration_s": 33.060648474000004,
+            "joint_distance_rad": 18.327185088710504,
+            "tool_distance_m": 4.455038226826353,
+            "acceleration_variation_rad_s2": 44.87922711628625
+          },
+          "planning_wall_s": 6.319488065999394,
+          "eligible": true,
+          "score": 3.127649988557752
+        },
+        {
+          "name": "ompl_2",
+          "totals": {
+            "duration_s": 39.846622459,
+            "joint_distance_rad": 22.60743933383978,
+            "tool_distance_m": 4.7705423178547095,
+            "acceleration_variation_rad_s2": 61.16625546761682
+          },
+          "planning_wall_s": 1.3391495559999385,
+          "eligible": false,
+          "score": null
+        },
+        {
+          "name": "ompl_3",
+          "totals": {
+            "duration_s": 44.238081162,
+            "joint_distance_rad": 24.96934451041566,
+            "tool_distance_m": 7.359369236106248,
+            "acceleration_variation_rad_s2": 54.864023274836946
+          },
+          "planning_wall_s": 1.9026607719997628,
+          "eligible": false,
+          "score": null
+        },
+        {
+          "name": "ompl_4",
+          "totals": {
+            "duration_s": 39.481515269,
+            "joint_distance_rad": 21.314706603236292,
+            "tool_distance_m": 4.45498166919379,
+            "acceleration_variation_rad_s2": 36.46011024340861
+          },
+          "planning_wall_s": 1.2155945710001106,
+          "eligible": true,
+          "score": 3.2570399915972064
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>UR5 Simulation Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="robot">♙</span><div><h1>UR5 Simulation Dashboard</h1><p>ROS 2 Humble · Ignition Gazebo · MoveIt 2</p></div></div>
+    <div class="connection"><span id="connectionDot" class="dot red"></span><span id="connectionText">Backend disconnected</span><span id="clock"></span></div>
+  </header>
+  <main>
+    <section class="hero card">
+      <div><p class="eyebrow">SYSTEM CONTROL</p><h2>Launch the simulation from one place</h2><p class="muted">The dashboard owns the bringup process and keeps it running while you refresh this page.</p></div>
+      <div class="actions"><button id="start" class="primary">▶ Start System</button><button id="restart" class="secondary">↻ Restart</button><button id="stop" class="danger">■ Stop System</button></div>
+    </section>
+    <section class="grid two">
+      <article class="card"><div class="card-title"><span class="icon">⚙</span><div><h3>Simulation options</h3><p class="muted">Choose the desktop windows opened by bringup.</p></div></div>
+        <label class="switchrow"><input id="headless" type="checkbox"><span>Headless Gazebo</span><small>Run without the Gazebo GUI</small></label>
+        <label class="switchrow"><input id="rviz" type="checkbox" checked><span>Launch RViz2</span><small>Open MoveIt visualization</small></label>
+        <label class="field">World file<input id="world" type="text" placeholder="Default: ur5_pick_place.sdf"></label>
+      </article>
+      <article class="card"><div class="card-title"><span class="icon">◉</span><div><h3>System status</h3><p id="message" class="muted">Simulation is stopped</p></div><span id="state" class="pill stopped">Stopped</span></div><div id="checks" class="checks"></div></article>
+    </section>
+    <section class="grid two workflow">
+      <article class="card"><div class="card-title"><span class="icon">↗</span><div><h3>Pick-and-place trajectory</h3><p class="muted">Plan first, then explicitly choose whether to execute.</p></div><span id="trajectoryState" class="pill stopped">Idle</span></div>
+        <div class="parameter-grid">
+          <label class="field">Grasp clearance (m)<input id="graspClearance" type="number" min="0" max="0.5" step="0.005" value="0.02"></label>
+          <label class="field">Approach height (m)<input id="approachHeight" type="number" min="0.001" max="0.5" step="0.005" value="0.10"></label>
+          <label class="field">Arm tolerance (rad)<input id="armTolerance" type="number" min="0.001" max="1" step="0.005" value="0.05"></label>
+        </div>
+        <div class="actions workflow-actions"><button id="planTrajectory" class="secondary">Plan only</button><button id="executeTrajectory" class="primary">Plan + execute</button><button id="stopTrajectory" class="danger">Cancel trajectory</button></div>
+        <p id="trajectoryDetails" class="muted operation-details">Start the simulation and wait for Ready before planning.</p>
+      </article>
+      <article class="card"><div class="card-title"><span class="icon">●</span><div><h3>Trajectory data recording</h3><p class="muted">Record simulation and execution topics to a ROS 2 bag.</p></div><span id="recordingState" class="pill stopped">Stopped</span></div>
+        <div class="actions workflow-actions"><button id="startRecording" class="primary">Start recording</button><button id="stopRecording" class="danger">Stop recording</button></div>
+        <p id="recordingDetails" class="muted operation-details">Bags are saved in experiment_bags/ and never overwrite an existing run.</p>
+      </article>
+    </section>
+    <section class="card graphs-card">
+      <div class="card-title"><span class="icon">⌁</span><div><h3>Real-time graphs &amp; tracking error</h3><p class="muted">Six UR5 arm joints · rolling 30-second window · position error = reference − feedback</p></div><span id="telemetryState" class="pill stopped">Waiting</span></div>
+      <div class="error-summary">
+        <div><small>Instantaneous 6-joint RMS error</small><strong id="rmsError">—</strong></div>
+        <div><small>Instantaneous max |error|</small><strong id="maxError">—</strong></div>
+        <p id="telemetryMessage" class="muted">Waiting for fresh arm controller feedback.</p>
+      </div>
+      <div class="graph-grid">
+        <article class="graph-panel"><h4>Position <span>(rad)</span></h4><canvas id="positionChart" aria-label="Arm joint desired and actual position graph"></canvas><div class="legend" id="positionLegend"></div></article>
+        <article class="graph-panel"><h4>Velocity <span>(rad/s)</span></h4><canvas id="velocityChart" aria-label="Arm joint velocity graph"></canvas><div class="legend" id="velocityLegend"></div></article>
+        <article class="graph-panel"><h4>Effort <span>(N·m, when reported)</span></h4><canvas id="effortChart" aria-label="Arm joint effort graph"></canvas><div class="legend" id="effortLegend"></div></article>
+        <article class="graph-panel"><h4>Position tracking error <span>(rad)</span></h4><canvas id="errorChart" aria-label="Arm joint signed position tracking error graph"></canvas><div class="legend" id="errorLegend"></div></article>
+      </div>
+    </section>
+    <section class="card graphs-card">
+      <div class="card-title"><span class="icon">⌖</span><div><h3>End-effector position accuracy</h3><p class="muted">MoveIt FK reference vs Gazebo tool0 pose · synchronized simulation timestamps · rolling 30-second window</p></div><span id="positionTelemetryState" class="pill stopped">Waiting</span></div>
+      <div class="error-summary">
+        <div><small>Latest 3D position error</small><strong id="positionErrorNow">—</strong></div>
+        <div><small>30-second RMS / max 3D error</small><strong id="positionErrorStats">—</strong></div>
+        <p id="positionTelemetryMessage" class="muted">Waiting for synchronized MoveIt FK and Gazebo tool0 data.</p>
+      </div>
+      <div class="graph-grid">
+        <article class="graph-panel"><h4>World position <span>(m)</span></h4><canvas id="cartesianPositionChart" aria-label="Desired and actual end-effector world position graph"></canvas><div class="legend" id="cartesianPositionLegend"></div></article>
+        <article class="graph-panel"><h4>3D position error <span>(mm, actual − reference)</span></h4><canvas id="cartesianErrorChart" aria-label="End-effector Euclidean position error graph"></canvas><div class="legend" id="cartesianErrorLegend"></div></article>
+      </div>
+    </section>
+    <section class="card console-card"><div class="card-title"><div><h3>ROS 2 console</h3><p class="muted">Live output from the managed bringup process</p></div><button id="clear" class="small">Clear view</button></div><pre id="logs">No dashboard logs yet.</pre></section>
+  </main>
+  <footer><span>Local dashboard · 127.0.0.1:8765</span><span id="pid"></span></footer>
+  <script src="/static/app.js"></script>
+</body></html>

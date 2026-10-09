@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>ur5_dashboard</name>
+  <version>0.1.0</version>
+  <description>Local dashboard for UR5 simulation, pick-and-place execution, and rosbag recording.</description>
+  <maintainer email="user@todo.todo">user</maintainer>
+  <license>Apache-2.0</license>
+  <buildtool_depend>ament_python</buildtool_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>rosgraph_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>controller_manager_msgs</exec_depend>
+  <exec_depend>control_msgs</exec_depend>
+  <exec_depend>tf2_msgs</exec_depend>
+  <exec_depend>moveit_msgs</exec_depend>
+  <exec_depend>ur5_pick_place</exec_depend>
+  <exec_depend>rosbag2</exec_depend>
+  <exec_depend>fastapi</exec_depend>
+  <exec_depend>uvicorn</exec_depend>
+  <export><build_type>ament_python</build_type></export>
+</package>

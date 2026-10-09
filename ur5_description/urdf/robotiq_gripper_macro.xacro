@@ -20,6 +20,11 @@
         gripper_max_force:=235.0
         gripper_closed_position:=0.7929">
 
+        <!-- Keep commanded endpoints (0 and 0.8 rad) just inside Gazebo's
+             physical stops. Its velocity-driven knuckles can stick at an exact
+             stop, breaking synchronization with the continuous mimic joints.
+             MoveIt retains the nominal 0..0.8 range in joint_limits.yaml. -->
+        <xacro:property name="knuckle_stop_margin" value="${0.001 if sim_ignition else 0.0}" />
 
         <!-- ros2 control include -->
         <xacro:include filename="$(find ur5_description)/urdf/robotiq_gripper.ros2_control.xacro" />
@@ -269,7 +274,7 @@
             <child link="${prefix}robotiq_85_left_knuckle_link" />
             <axis xyz="0 -1 0" />
             <origin xyz="0.03060114 0.0 0.05490452" rpy="0 0 0" />
-            <limit lower="0.0" upper="0.8" velocity="0.5" effort="50" />
+            <limit lower="${-knuckle_stop_margin}" upper="${0.8 + knuckle_stop_margin}" velocity="0.5" effort="50" />
         </joint>
 
         <joint name="${prefix}robotiq_85_right_knuckle_joint" type="revolute">
@@ -277,7 +282,7 @@
             <child link="${prefix}robotiq_85_right_knuckle_link" />
             <axis xyz="0 -1 0" />
             <origin xyz="-0.03060114 0.0 0.05490452" rpy="0 0 0" />
-            <limit lower="-0.8" upper="0.0" velocity="0.5" effort="50" />
+            <limit lower="${-0.8 - knuckle_stop_margin}" upper="${knuckle_stop_margin}" velocity="0.5" effort="50" />
             <mimic joint="${prefix}robotiq_85_left_knuckle_joint" multiplier="-1" />
         </joint>
 

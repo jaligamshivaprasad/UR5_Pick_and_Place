@@ -36,7 +36,7 @@
                     <param name="trigger_joint_command_threshold">0.02</param>
                 </xacro:if>
                 <xacro:if value="${sim_ignition}">
-                    <plugin>ign_ros2_control/IgnitionSystem</plugin>
+                    <plugin>gz_ros2_control/GazeboSimSystem</plugin>
                 </xacro:if>
                 <xacro:if value="${use_fake_hardware}">
                     <plugin>mock_components/GenericSystem</plugin>
@@ -59,7 +59,10 @@
             <joint name="${prefix}robotiq_85_left_knuckle_joint">
                 <command_interface name="position" />
                 <state_interface name="position">
-                    <param name="initial_value">${gripper_closed_position}</param>
+                    <!-- Ignition's passive mimic joints spawn at zero. Start
+                         the driver open too, so the linkage is assembled before
+                         the velocity-based mimic controller begins updating. -->
+                    <param name="initial_value">${0.0 if sim_ignition else gripper_closed_position}</param>
                 </state_interface>
                 <state_interface name="velocity"/>
             </joint>

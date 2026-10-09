@@ -6,7 +6,7 @@
         <ros2_control name="${name}" type="system">
             <hardware>
                 <xacro:if value="${use_sim == 'true' or use_sim == True or use_sim == '1'}">
-                    <plugin>ign_ros2_control/IgnitionSystem</plugin>
+                    <plugin>gz_ros2_control/GazeboSimSystem</plugin>
                 </xacro:if>
                 <xacro:unless value="${use_sim == 'true' or use_sim == True or use_sim == '1'}">
                     <plugin>mock_components/GenericSystem</plugin>
@@ -91,7 +91,7 @@
 
         <xacro:if value="${use_sim == 'true' or use_sim == True or use_sim == '1'}">
             <gazebo>
-                <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+                <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
                     <parameters>$(find ur5_moveit_config)/config/ros2_controllers.yaml</parameters>
                 </plugin>
             </gazebo>
