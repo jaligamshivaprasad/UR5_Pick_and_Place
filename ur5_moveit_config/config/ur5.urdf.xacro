@@ -128,7 +128,7 @@
      script_sender_port="$(arg script_sender_port)"
      trajectory_port="$(arg trajectory_port)"
      >
-     <origin xyz="0.75 0 0.34" rpy="0 0 0" />
+     <origin xyz="1.10 0 0.34" rpy="0 0 1.5707963267948966" />
    </xacro:ur_robot>
 
    <xacro:if value="$(arg sim_gazebo)">
@@ -150,11 +150,11 @@
         <plugin filename="ignition-gazebo-detachable-joint-system"
                 name="ignition::gazebo::systems::DetachableJoint">
           <parent_link>$(arg tf_prefix)wrist_3_link</parent_link>
-          <child_model>pick_place_block</child_model>
-          <child_link>block</child_link>
-          <attach_topic>/teleop/grasp/attach</attach_topic>
-          <detach_topic>/teleop/grasp/detach</detach_topic>
-          <output_topic>/teleop/grasp/state</output_topic>
+          <child_model>block</child_model>
+          <child_link>link</child_link>
+          <attach_topic>/pick_place/grasp/attach</attach_topic>
+          <detach_topic>/pick_place/grasp/detach</detach_topic>
+          <output_topic>/pick_place/grasp/state</output_topic>
           <suppress_child_warning>true</suppress_child_warning>
         </plugin>
       </gazebo>

@@ -9,6 +9,16 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>rclcpp</depend>
+  <depend>moveit_ros_planning_interface</depend>
+  <depend>moveit_core</depend>
+  <depend>geometry_msgs</depend>
+  <depend>control_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>tf2_msgs</depend>
+  <depend>shape_msgs</depend>
+  <depend>moveit_msgs</depend>
+
   <exec_depend>ur5_description</exec_depend>
   <exec_depend>ur5_moveit_config</exec_depend>
   <exec_depend>rclpy</exec_depend>
@@ -16,11 +26,8 @@
   <exec_depend>tf2_ros</exec_depend>
   <exec_depend>ros_gz_sim</exec_depend>
   <exec_depend>ros_gz_bridge</exec_depend>
-  <exec_depend>tf2_msgs</exec_depend>
   <exec_depend>controller_manager</exec_depend>
   <exec_depend>moveit_ros_move_group</exec_depend>
-  <exec_depend>moveit_msgs</exec_depend>
-  <exec_depend>shape_msgs</exec_depend>
   <exec_depend>rviz2</exec_depend>
 
   <test_depend>ament_cmake_pytest</test_depend>

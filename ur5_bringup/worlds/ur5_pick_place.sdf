@@ -85,12 +85,12 @@
     </model>
 
     <!--
-      BLOCK: BOX 0.05 x 0.05 x 0.05, center at (0.35, -0.4, 0.365)
+      BLOCK: BOX 0.05 x 0.05 x 0.05, center at (0.45, -0.4, 0.365)
       Matches scene_publisher_node.py block dimensions and pose exactly.
     -->
     <model name="block">
       <static>false</static>
-      <pose>0.35 -0.40 0.365 0 0 0</pose>
+      <pose>0.45 -0.40 0.365 0 0 0</pose>
       <link name="link">
         <inertial>
           <mass>0.1</mass>
@@ -131,12 +131,12 @@
     </model>
 
     <!--
-      TRAY: BOX 0.25 x 0.25 x 0.04, center at (1.11, 0.36, 0.36)
+      TRAY: BOX 0.25 x 0.25 x 0.04, center at (0.45, 0.36, 0.36)
       Matches scene_publisher_node.py tray dimensions and pose exactly.
     -->
     <model name="tray">
       <static>true</static>
-      <pose>1.11 0.36 0.36 0 0 0</pose>
+      <pose>0.45 0.36 0.36 0 0 0</pose>
       <link name="link">
         <collision name="collision">
           <geometry>

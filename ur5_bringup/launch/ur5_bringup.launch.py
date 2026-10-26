@@ -11,6 +11,11 @@ from ament_index_python.packages import get_package_share_directory
 from moveit_configs_utils import MoveItConfigsBuilder
 
 def generate_launch_description():
+    simulated_grasp_arg = DeclareLaunchArgument(
+        "simulated_grasp",
+        default_value="false",
+        description="Enable the Gazebo detachable joint used for box grasping",
+    )
     headless_arg = DeclareLaunchArgument(
         "headless",
         default_value="false",
@@ -38,6 +43,7 @@ def generate_launch_description():
             "sim_gazebo": "false",
             "name": "GazeboSimSystem",
             "simulation_controllers": "$(find ur5_moveit_config)/config/ros2_controllers.yaml",
+            "simulated_grasp": LaunchConfiguration("simulated_grasp"),
         })
         .robot_description_semantic(file_path="config/ur5.srdf")
         .planning_pipelines(pipelines=["ompl", "pilz_industrial_motion_planner"], default_planning_pipeline="ompl")
@@ -59,7 +65,7 @@ def generate_launch_description():
     )
 
     # Spawn Robot Entity in Ignition Gazebo at world origin.
-    # Full position (x=0.75, y=0.0, z=0.34) is baked into the URDF base_joint
+    # Full position (x=1.10, y=0.0, z=0.34) is baked into the URDF base_joint
     # origin because Ignition anchors any link named 'world' to the simulation
     # world at (0,0,0) and ignores ALL spawn -x/-y/-z arguments.
     robot_xml = moveit_config.robot_description["robot_description"]
@@ -71,8 +77,8 @@ def generate_launch_description():
         arguments=[
             "-string", spawn_xml,
             "-name", "ur5",
-            "-x", "0.0",   # position in URDF joint (x=0.75 baked in)
-            "-y", "0.0",   # position in URDF joint (y=0.0  baked in)
+            "-x", "0.0",   # position in URDF joint (x=1.10 baked in)
+            "-y", "0.0",   # position in URDF joint (y=0.0 baked in)
             "-z", "0.0",   # position in URDF joint (z=0.34 baked in)
         ],
     )
@@ -94,6 +100,18 @@ def generate_launch_description():
         ],
         output="screen",
     )
+    grasp_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        name="grasp_bridge",
+        condition=IfCondition(LaunchConfiguration("simulated_grasp")),
+        arguments=[
+            "/pick_place/grasp/attach@std_msgs/msg/Empty]ignition.msgs.Empty",
+            "/pick_place/grasp/detach@std_msgs/msg/Empty]ignition.msgs.Empty",
+            "/pick_place/grasp/state@std_msgs/msg/String[ignition.msgs.StringMsg",
+        ],
+        output="screen",
+    )
 
     # Robot State Publisher
     rsp_node = Node(
@@ -106,37 +124,45 @@ def generate_launch_description():
         ],
     )
 
-    # Controller Spawners
+    # Move Group Node
+    # The Gazebo plugin creates the controller manager, but controllers are
+    # loaded and activated explicitly after that service becomes available.
     jsb_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["joint_state_broadcaster", "--controller-manager-timeout", "30", "--switch-timeout", "30", "--service-call-timeout", "30"],
-        parameters=[{"use_sim_time": True}],
+        arguments=["joint_state_broadcaster", "--controller-manager-timeout", "60",
+                   "--switch-timeout", "30", "--service-call-timeout", "30"],
+        output="screen",
     )
-
     arm_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["arm_controller", "--controller-manager-timeout", "30", "--switch-timeout", "30", "--service-call-timeout", "30"],
-        parameters=[{"use_sim_time": True}],
+        arguments=["arm_controller", "--controller-manager-timeout", "60",
+                   "--switch-timeout", "30", "--service-call-timeout", "30"],
+        output="screen",
     )
-
-    robotiq_gripper_spawner = Node(
+    gripper_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["robotiq_gripper_controller", "--controller-manager-timeout", "30", "--switch-timeout", "30", "--service-call-timeout", "30"],
-        parameters=[{"use_sim_time": True}],
+        arguments=["robotiq_gripper_controller", "--controller-manager-timeout", "60",
+                   "--switch-timeout", "30", "--service-call-timeout", "30"],
+        output="screen",
     )
 
-    # Move Group Node
     move_group_node = Node(
         package="moveit_ros_move_group",
         executable="move_group",
         output="screen",
         parameters=[
             moveit_config.to_dict(),
+            # Keep MoveIt's standard capabilities and load Pilz's sequence action
+            # for MotionSequenceRequest blending used by ur5_optimized_trajectory.
+            {"capabilities": "move_group/MoveGroupCartesianPathService move_group/MoveGroupExecuteService move_group/MoveGroupExecuteTrajectoryAction move_group/MoveGroupKinematicsService move_group/MoveGroupMoveAction move_group/MoveGroupPlanService move_group/MoveGroupQueryPlannersService move_group/MoveGroupStateValidationService move_group/MoveGroupMultiStateValidationService move_group/MoveGroupGetPlanningSceneService move_group/ApplyPlanningSceneService move_group/ClearOctomapService move_group/TfPublisher pilz_industrial_motion_planner/MoveGroupSequenceAction"},
             {"publish_robot_description_semantic": True},
             {"use_sim_time": True},
+            # The simulated arm controller is open loop; allow a small
+            # start tolerance for the trajectory execution.
+            {"trajectory_execution": {"allowed_start_tolerance": 0.05}},
         ],
     )
 
@@ -183,7 +209,11 @@ def generate_launch_description():
         executable="scene_publisher_node.py",
         name="ur5_scene_publisher",
         output="screen",
-        parameters=[{"use_sim_time": True}],
+        # This publisher must keep refreshing the planning scene even while
+        # Ignition is starting or has not emitted /clock yet. Its one-second
+        # timer is only a wall-time scene refresh and does not control robot
+        # motion, so it intentionally uses wall time.
+        parameters=[{"use_sim_time": False}],
     )
 
     # Mimic Joint Publisher (for MoveIt's planning scene to get full JointState)
@@ -196,6 +226,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        simulated_grasp_arg,
         headless_arg,
         world_arg,
         rviz_arg,
@@ -203,10 +234,11 @@ def generate_launch_description():
         spawn_robot,
         clock_bridge,
         pose_bridge,
+        grasp_bridge,
         rsp_node,
         jsb_spawner,
         RegisterEventHandler(OnProcessExit(target_action=jsb_spawner, on_exit=[arm_spawner])),
-        RegisterEventHandler(OnProcessExit(target_action=arm_spawner, on_exit=[robotiq_gripper_spawner])),
+        RegisterEventHandler(OnProcessExit(target_action=arm_spawner, on_exit=[gripper_spawner])),
         move_group_node,
         rviz_node,
         scene_publisher,

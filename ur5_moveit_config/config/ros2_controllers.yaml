@@ -1,5 +1,6 @@
 controller_manager:
   ros__parameters:
+    use_sim_time: true
     # Keep the controller manager at 100 Hz. Gazebo's 1 ms physics step is
     # intentionally faster than the controller loop; this is a performance
     # tradeoff and does not prevent the controllers from operating correctly.

@@ -20,17 +20,15 @@
         <joint name="wrist_3_joint" value="3.4366" />
     </group_state>
     <group_state name="straight" group="arm">
-        <joint name="elbow_joint" value="0.0868" />
-        <joint name="shoulder_lift_joint" value="-1.4927" />
-        <joint name="shoulder_pan_joint" value="-3.2283" />
-        <joint name="wrist_1_joint" value="-1.4232" />
-        <joint name="wrist_2_joint" value="-6.2137" />
-        <joint name="wrist_3_joint" value="1.6315" />
+        <joint name="elbow_joint" value="-0.057013698134913283" />
+        <joint name="shoulder_lift_joint" value="-1.5307937479739206" />
+        <joint name="shoulder_pan_joint" value="-1.71367777354573" />
+        <joint name="wrist_1_joint" value="-1.4851754824082721" />
+        <joint name="wrist_2_joint" value="-6.213661203430211" />
+        <joint name="wrist_3_joint" value="1.550191232699646" />
     </group_state>
-    <!-- Pick pose: captured from Ignition Fortress /joint_states on 2026-10-04
-         shoulder_pan=0.9860, shoulder_lift=-1.9385, elbow=-1.8922,
-         wrist_1=-0.8457, wrist_2=-4.6883, wrist_3=-5.1156 -->
-    <group_state name="pick" group="arm">
+    <!-- Previous pick pose retained as pick1. -->
+    <group_state name="pick1" group="arm">
         <joint name="shoulder_pan_joint"  value="0.9860" />
         <joint name="shoulder_lift_joint" value="-1.9385" />
         <joint name="elbow_joint"         value="-1.8922" />
@@ -38,15 +36,33 @@
         <joint name="wrist_2_joint"       value="-4.6883" />
         <joint name="wrist_3_joint"       value="-5.1156" />
     </group_state>
+    <!-- Pre-pick pose: captured from Ignition Gazebo /joint_states (elevated above pick). -->
+    <group_state name="pre_pick" group="arm">
+        <joint name="shoulder_pan_joint"  value="-0.8628961227091416" />
+        <joint name="shoulder_lift_joint" value="-2.2822885787183527" />
+        <joint name="elbow_joint"         value="-1.0914066227245864" />
+        <joint name="wrist_1_joint"       value="4.956344086374932" />
+        <joint name="wrist_2_joint"       value="-4.735600605545733" />
+        <joint name="wrist_3_joint"       value="-4.071752229965347" />
+    </group_state>
+    <!-- Pick pose: captured from current Ignition Gazebo /joint_states. -->
+    <group_state name="pick" group="arm">
+        <joint name="shoulder_pan_joint"  value="-0.8652025119575828" />
+        <joint name="shoulder_lift_joint" value="-2.3425341649151807" />
+        <joint name="elbow_joint"         value="-1.1811062653763307" />
+        <joint name="wrist_1_joint"       value="5.106187703290237" />
+        <joint name="wrist_2_joint"       value="-4.735609113611794" />
+        <joint name="wrist_3_joint"       value="-4.073978185217272" />
+    </group_state>
     <!-- Place pose: tool0 at (0.391, 0.336, 0.240) world frame,
          RPY ~(177°, -0.15°, 108.7°) — gripper pointing down toward tray -->
     <group_state name="place" group="arm">
-        <joint name="shoulder_pan_joint"  value="0.5542" />
-        <joint name="shoulder_lift_joint" value="-1.3999" />
-        <joint name="elbow_joint"         value="1.9631" />
-        <joint name="wrist_1_joint"       value="-2.1966" />
-        <joint name="wrist_2_joint"       value="-1.5017" />
-        <joint name="wrist_3_joint"       value="-1.2536" />
+        <joint name="shoulder_pan_joint"  value="-1.9174336920861308" />
+        <joint name="shoulder_lift_joint" value="-2.338207259591497" />
+        <joint name="elbow_joint"         value="-0.930894972446142" />
+        <joint name="wrist_1_joint"       value="4.865796505337236" />
+        <joint name="wrist_2_joint"       value="-4.71383534778999" />
+        <joint name="wrist_3_joint"       value="-5.1262395354413846" />
     </group_state>
     <group_state name="open" group="robotiq_gripper">
         <joint name="robotiq_85_left_knuckle_joint" value="0.0" />

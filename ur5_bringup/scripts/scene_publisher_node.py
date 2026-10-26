@@ -34,23 +34,11 @@ class UR5ScenePublisher(Node):
         table.operation = CollisionObject.ADD
         scene.world.collision_objects.append(table)
 
-        # 2. Block
-        block = CollisionObject()
-        block.header.frame_id = 'world'
-        block.id = 'block'
-        block_shape = SolidPrimitive()
-        block_shape.type = SolidPrimitive.BOX
-        block_shape.dimensions = [0.05, 0.05, 0.05]
-        block_pose = Pose()
-        block_pose.position.x = 0.35
-        block_pose.position.y = -0.40
-        block_pose.position.z = 0.365
-        block.primitives.append(block_shape)
-        block.primitive_poses.append(block_pose)
-        block.operation = CollisionObject.ADD
-        scene.world.collision_objects.append(block)
+        # The movable block is intentionally omitted from the static planning
+        # scene. The arm-only pick sequence reaches its saved pick pose, and
+        # object attachment is handled by a later grasping node.
 
-        # 3. Tray
+        # 2. Tray
         tray = CollisionObject()
         tray.header.frame_id = 'world'
         tray.id = 'tray'
@@ -58,7 +46,7 @@ class UR5ScenePublisher(Node):
         tray_shape.type = SolidPrimitive.BOX
         tray_shape.dimensions = [0.25, 0.25, 0.04]
         tray_pose = Pose()
-        tray_pose.position.x = 1.11
+        tray_pose.position.x = 0.45
         tray_pose.position.y = 0.36
         tray_pose.position.z = 0.36
         tray.primitives.append(tray_shape)

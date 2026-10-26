@@ -1,19 +1,13 @@
-# UR5 Pick and Place
+# UR5 Simulation Workspace
 
 A ROS 2 workspace for simulating a UR5 robotic arm with a Robotiq 2F-85
-gripper and executing a collision-aware pick-and-place task with MoveIt 2.
-The simulation uses Gazebo Sim and includes a table, a block, and a placement
-tray.
+gripper using Gazebo Sim, MoveIt 2, and RViz.
 
-## Workspace packages
+## Packages
 
-- `ur5_description`: UR5 and Robotiq robot description, meshes, and control
-  configuration.
-- `ur5_moveit_config`: MoveIt 2 planning, kinematics, controller, and RViz
-  configuration.
-- `ur5_bringup`: Gazebo Sim, robot, controllers, MoveIt, RViz, and planning
-  scene launch files.
-- `ur5_pick_place`: Pick-and-place planning and optional trajectory execution.
+- `ur5_description` — Robot URDF/xacro, meshes, and control configuration.
+- `ur5_moveit_config` — MoveIt 2 planning, kinematics, controllers, and RViz config.
+- `ur5_bringup` — Launch files for Gazebo Sim, controllers, MoveIt, RViz, and planning scene.
 
 ## Requirements
 
@@ -23,7 +17,7 @@ tray.
 - Gazebo Sim / Ignition Gazebo with `ros_gz`
 - `ros2_control` and the Gazebo ROS 2 control plugin
 
-Install any missing package dependencies with `rosdep`:
+Install dependencies:
 
 ```bash
 source /opt/ros/humble/setup.bash
@@ -32,47 +26,55 @@ rosdep install --from-paths . --ignore-src -r -y
 
 ## Build
 
-From the workspace root:
-
 ```bash
 source /opt/ros/humble/setup.bash
 colcon build --symlink-install
 source install/setup.bash
 ```
 
-## Run the simulation
+## Launch
 
 ```bash
 ros2 launch ur5_bringup ur5_bringup.launch.py
 ```
 
-For a headless simulation or to disable RViz:
+Headless (no Gazebo GUI) or without RViz:
 
 ```bash
 ros2 launch ur5_bringup ur5_bringup.launch.py headless:=true rviz:=false
 ```
 
-## Run pick and place
-
-Start the bringup launch file first. In another sourced terminal, plan the full
-task without moving the robot:
+Build and run the C++ pick-and-place sequence:
 
 ```bash
-source /opt/ros/humble/setup.bash
+colcon build --symlink-install --packages-select ur5_bringup
 source install/setup.bash
-ros2 launch ur5_pick_place pick_place.launch.py
+ros2 launch ur5_bringup pick_place.launch.py
 ```
 
-To plan and execute the task:
+The node moves straight to pick with Pilz PTP, pick to place with Pilz LIN,
+and returns to straight with PTP. Set the node parameter `plan_only` to true
+to validate the complete sequence without execution.
+
+Save the planned trajectories as `path01`:
 
 ```bash
-ros2 launch ur5_pick_place pick_place.launch.py execute:=true
+ros2 launch ur5_bringup pick_place.launch.py headless:=true rviz:=false save_path:=true path_file:=path01
 ```
 
-See [`ur5_pick_place/README.md`](ur5_pick_place/README.md) for task stages,
-safety checks, parameters, and simulation limitations.
+Replay the saved path without replanning the three pick-and-place segments:
 
-An optional trajectory optimizer compares complete plans for motion time,
-joint travel, tool travel, and sampled acceleration variation. It keeps the
-baseline unless a candidate improves the comparison and uses a separate
-launch file. See the [optimization instructions](ur5_pick_place/README.md#opt-in-trajectory-optimization).
+```bash
+ros2 launch ur5_bringup pick_place.launch.py headless:=true rviz:=false replay_path:=true path_file:=path01
+```
+
+Replay `path01` with simulated grasping and placement:
+
+```bash
+ros2 launch ur5_bringup pick_place.launch.py headless:=true rviz:=false grasping:=true replay_path:=true path_file:=path01
+```
+
+Grasping mode requires the box to be detached and at the saved pick location.
+It validates the unchanged trajectory and carried-box clearance before closing
+the gripper; missing box, invalid clearance, or missing attachment feedback
+stops the run without starting transport.
