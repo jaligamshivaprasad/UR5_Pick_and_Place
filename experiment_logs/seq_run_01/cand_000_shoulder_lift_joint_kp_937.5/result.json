@@ -1,0 +1,71 @@
+{
+  "status": "failed",
+  "mode": "effort",
+  "gains": {
+    "shoulder_pan_joint": {
+      "p": 270.0,
+      "i": 6.25,
+      "d": 6.0,
+      "i_clamp": 50.0,
+      "ff_velocity_scale": 0.0
+    },
+    "shoulder_lift_joint": {
+      "p": 937.5,
+      "i": 19.125,
+      "d": 14.0,
+      "i_clamp": 74.375,
+      "ff_velocity_scale": 0.0
+    },
+    "elbow_joint": {
+      "p": 360.0,
+      "i": 12.0,
+      "d": 5.5,
+      "i_clamp": 32.0,
+      "ff_velocity_scale": 0.0
+    },
+    "wrist_1_joint": {
+      "p": 60.0,
+      "i": 3.0,
+      "d": 0.7,
+      "i_clamp": 12.0,
+      "ff_velocity_scale": 0.0
+    },
+    "wrist_2_joint": {
+      "p": 67.5,
+      "i": 3.75,
+      "d": 0.38,
+      "i_clamp": 18.75,
+      "ff_velocity_scale": 0.0
+    },
+    "wrist_3_joint": {
+      "p": 12.0,
+      "i": 0.68,
+      "d": 0.07,
+      "i_clamp": 3.4,
+      "ff_velocity_scale": 0.0
+    }
+  },
+  "trajectory_sha256": "980beaff36c79de5d1235dfeae70c41760815f612d7cf256bdcd6a152ded1c19",
+  "frame": "base_link",
+  "tcp": "tool0",
+  "payload_kg": 0.1,
+  "measured_effort": "Gazebo transmitted joint effort from /dynamic_joint_states, synchronized by simulation timestamp",
+  "command_effort": "JTC output.effort, directly logged",
+  "safety": "continuous URDF hardware clamp active",
+  "reason": "wall-time watchdog expired in startup",
+  "measured_effort_telemetry": {
+    "source": "/dynamic_joint_states named effort interface; gz_ros2_control/Gazebo JointTransmittedWrench feedback",
+    "meaning": "simulated transmitted joint effort, not a physical torque-sensor measurement",
+    "alignment": "nearest simulation timestamp within +/- 0.015 s; no stale or commanded-effort fallback",
+    "dynamic_messages_received": 660,
+    "required_post_startup_rows": 0,
+    "matched_post_startup_rows": 0,
+    "post_startup_coverage": null,
+    "failure_counts": {
+      "missing_effort_fields": 0,
+      "nonfinite_effort": 0,
+      "timestamp_mismatch": 0
+    }
+  },
+  "samples": 293
+}

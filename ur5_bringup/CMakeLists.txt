@@ -29,6 +29,9 @@ install(TARGETS pick_place_node
 install(DIRECTORY launch scripts worlds
   DESTINATION share/${PROJECT_NAME}
 )
+install(FILES EFFORT_MODE.md
+  DESTINATION share/${PROJECT_NAME}
+)
 
 install(PROGRAMS
   scripts/scene_publisher_node.py

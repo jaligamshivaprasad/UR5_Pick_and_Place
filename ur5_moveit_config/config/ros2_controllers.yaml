@@ -34,9 +34,7 @@ joint_state_broadcaster:
       - robotiq_85_left_finger_tip_joint_mimic
       - robotiq_85_right_finger_tip_joint_mimic
     interfaces:
-      - position
-      - velocity
-
+      - effort
 arm_controller:
   ros__parameters:
     joints:
@@ -47,9 +45,13 @@ arm_controller:
       - wrist_2_joint
       - wrist_3_joint
     command_interfaces:
+      - effort
       - position
+      - velocity
     state_interfaces:
+      - effort
       - position
+      - velocity
     open_loop_control: true
     allow_integration_in_goal_trajectories: true
 
@@ -58,8 +60,12 @@ robotiq_gripper_controller:
     joints:
       - robotiq_85_left_knuckle_joint
     command_interfaces:
-      - position
+      - effort
+      - positions
+      - velocity
     state_interfaces:
+      - effort
       - position
+      - velocity
     open_loop_control: true
     allow_integration_in_goal_trajectories: true

@@ -35,6 +35,24 @@ def generate_launch_description():
         default_value="true",
         description="Start RViz2 visualization",
     )
+    controller_mode_arg = DeclareLaunchArgument(
+        "controller_mode",
+        default_value="position",
+        description="Arm controller configuration: position (baseline) or effort (experimental, spawned inactive)",
+        choices=["position", "effort"],
+    )
+    default_controller_yaml = PythonExpression([
+        "'", FindPackageShare("ur5_moveit_config"),
+        "/config/ros2_controllers_effort.yaml' if '",
+        LaunchConfiguration("controller_mode"), "' == 'effort' else '",
+        FindPackageShare("ur5_moveit_config"),
+        "/config/ros2_controllers_position.yaml'",
+    ])
+    controllers_file_arg = DeclareLaunchArgument(
+        "controllers_file", default_value=default_controller_yaml,
+        description="Controller YAML override for isolated simulation commissioning trials",
+    )
+    controller_yaml = LaunchConfiguration("controllers_file")
 
     moveit_config = (
         MoveItConfigsBuilder("ur5", package_name="ur5_moveit_config")
@@ -42,8 +60,9 @@ def generate_launch_description():
             "sim_ignition": "true",
             "sim_gazebo": "false",
             "name": "GazeboSimSystem",
-            "simulation_controllers": "$(find ur5_moveit_config)/config/ros2_controllers.yaml",
+            "simulation_controllers": controller_yaml,
             "simulated_grasp": LaunchConfiguration("simulated_grasp"),
+            "controller_mode": LaunchConfiguration("controller_mode"),
         })
         .robot_description_semantic(file_path="config/ur5.srdf")
         .planning_pipelines(pipelines=["ompl", "pilz_industrial_motion_planner"], default_planning_pipeline="ompl")
@@ -57,9 +76,8 @@ def generate_launch_description():
         ),
         launch_arguments={
             "gz_args": PythonExpression([
-                "'-r -s ", LaunchConfiguration("world"), "' if '",
-                LaunchConfiguration("headless"), "' == 'true' else '-r ",
-                LaunchConfiguration("world"), "'"
+                "('-r -s ' if '", LaunchConfiguration("headless"),
+                "' == 'true' else '-r ') + '", LaunchConfiguration("world"), "'"
             ])
         }.items(),
     )
@@ -157,7 +175,7 @@ def generate_launch_description():
             moveit_config.to_dict(),
             # Keep MoveIt's standard capabilities and load Pilz's sequence action
             # for MotionSequenceRequest blending used by ur5_optimized_trajectory.
-            {"capabilities": "move_group/MoveGroupCartesianPathService move_group/MoveGroupExecuteService move_group/MoveGroupExecuteTrajectoryAction move_group/MoveGroupKinematicsService move_group/MoveGroupMoveAction move_group/MoveGroupPlanService move_group/MoveGroupQueryPlannersService move_group/MoveGroupStateValidationService move_group/MoveGroupMultiStateValidationService move_group/MoveGroupGetPlanningSceneService move_group/ApplyPlanningSceneService move_group/ClearOctomapService move_group/TfPublisher pilz_industrial_motion_planner/MoveGroupSequenceAction"},
+            {"capabilities": "move_group/MoveGroupCartesianPathService move_group/MoveGroupExecuteTrajectoryAction move_group/MoveGroupKinematicsService move_group/MoveGroupMoveAction move_group/MoveGroupPlanService move_group/MoveGroupQueryPlannersService move_group/MoveGroupStateValidationService move_group/MoveGroupMultiStateValidationService move_group/MoveGroupGetPlanningSceneService move_group/ApplyPlanningSceneService move_group/ClearOctomapService move_group/TfPublisher pilz_industrial_motion_planner/MoveGroupSequenceAction"},
             {"publish_robot_description_semantic": True},
             {"use_sim_time": True},
             # The simulated arm controller is open loop; allow a small
@@ -230,6 +248,8 @@ def generate_launch_description():
         headless_arg,
         world_arg,
         rviz_arg,
+        controller_mode_arg,
+        controllers_file_arg,
         ign_gazebo,
         spawn_robot,
         clock_bridge,
@@ -237,8 +257,7 @@ def generate_launch_description():
         grasp_bridge,
         rsp_node,
         jsb_spawner,
-        RegisterEventHandler(OnProcessExit(target_action=jsb_spawner, on_exit=[arm_spawner])),
-        RegisterEventHandler(OnProcessExit(target_action=arm_spawner, on_exit=[gripper_spawner])),
+        RegisterEventHandler(OnProcessExit(target_action=jsb_spawner, on_exit=[arm_spawner, gripper_spawner])),
         move_group_node,
         rviz_node,
         scene_publisher,

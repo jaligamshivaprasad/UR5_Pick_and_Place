@@ -1,0 +1,7 @@
+..............                                                           [100%]
+=============================== warnings summary ===============================
+../../../../opt/ros/humble/local/lib/python3.10/dist-packages/xacro/__init__.py:115
+  Warning: private variables, such as '_ConstructUnits__ConstructUnitsValue', will be normal attributes in 3.11
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+14 passed, 1 warning in 0.80s

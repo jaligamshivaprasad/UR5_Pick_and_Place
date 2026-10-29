@@ -1,0 +1,15 @@
+Controller startup: {}
+Controller startup: {'joint_state_broadcaster': 'unconfigured'}
+Controller startup: {'joint_state_broadcaster': 'active'}
+Controller startup: {'joint_state_broadcaster': 'active', 'position_arm_controller': 'unconfigured'}
+Controller startup: {'joint_state_broadcaster': 'active', 'position_arm_controller': 'inactive'}
+Controller startup: {'joint_state_broadcaster': 'active', 'position_arm_controller': 'active'}
+Controller startup: {'joint_state_broadcaster': 'active', 'position_arm_controller': 'active', 'arm_controller': 'unconfigured'}
+Controller startup: {'joint_state_broadcaster': 'active', 'position_arm_controller': 'active', 'arm_controller': 'inactive'}
+Controller startup: {'joint_state_broadcaster': 'active', 'position_arm_controller': 'active', 'arm_controller': 'inactive', 'robotiq_gripper_controller': 'unconfigured'}
+Controller startup: {'joint_state_broadcaster': 'active', 'position_arm_controller': 'active', 'arm_controller': 'inactive', 'robotiq_gripper_controller': 'active'}
+Expected controllers active!
+Calling get_parameters...
+Switching from position_arm_controller to arm_controller (effort)...
+Checking controllers and hardware interfaces...
+Waiting for states and fk...

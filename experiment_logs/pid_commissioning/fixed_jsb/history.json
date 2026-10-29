@@ -1,0 +1,17 @@
+[
+  {
+    "status": "failed",
+    "mode": "position",
+    "gains": {},
+    "trajectory_sha256": "980beaff36c79de5d1235dfeae70c41760815f612d7cf256bdcd6a152ded1c19",
+    "frame": "base_link",
+    "tcp": "tool0",
+    "payload_kg": 0.0,
+    "measured_effort": "unavailable (not synchronized by this runner)",
+    "command_effort": "JTC output.effort, not inferred from gains",
+    "safety": "sampled watchdog, not a hardware torque clamp",
+    "startup_controllers": {},
+    "samples": 0,
+    "trial": "position_00"
+  }
+]

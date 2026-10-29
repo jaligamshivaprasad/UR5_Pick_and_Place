@@ -1,0 +1,490 @@
+[INFO] [launch]: All log files can be found below /home/shiva/.ros/log/2026-10-29-10-47-56-705479-shiva-IdeaPad-L340-15IRH-Gaming-9105
+[INFO] [launch]: Default logging verbosity is set to INFO
+WARNING:root:[33;21mCannot infer SRDF from `/home/shiva/ur5/ur5_ws/install/ur5_moveit_config/share/ur5_moveit_config`. -- using config/ur5.srdf[0m
+[INFO] [ign gazebo-1]: process started with pid [9132]
+[INFO] [create-2]: process started with pid [9134]
+[INFO] [parameter_bridge-3]: process started with pid [9137]
+[INFO] [parameter_bridge-4]: process started with pid [9139]
+[INFO] [robot_state_publisher-5]: process started with pid [9141]
+[INFO] [spawner-6]: process started with pid [9143]
+[INFO] [move_group-7]: process started with pid [9145]
+[INFO] [scene_publisher_node.py-8]: process started with pid [9147]
+[INFO] [robotiq_mimic_publisher.py-9]: process started with pid [9150]
+[create-2] [INFO] [1793251078.296296627] [ros_gz_sim]: Requesting list of world names.
+[robot_state_publisher-5] [INFO] [1793251078.371464472] [robot_state_publisher]: got segment base
+[robot_state_publisher-5] [INFO] [1793251078.372596365] [robot_state_publisher]: got segment base_link
+[robot_state_publisher-5] [INFO] [1793251078.372632889] [robot_state_publisher]: got segment base_link_inertia
+[robot_state_publisher-5] [INFO] [1793251078.372647618] [robot_state_publisher]: got segment flange
+[robot_state_publisher-5] [INFO] [1793251078.372660453] [robot_state_publisher]: got segment forearm_link
+[robot_state_publisher-5] [INFO] [1793251078.372672578] [robot_state_publisher]: got segment ft_frame
+[robot_state_publisher-5] [INFO] [1793251078.372697294] [robot_state_publisher]: got segment ground_plane
+[robot_state_publisher-5] [INFO] [1793251078.372710207] [robot_state_publisher]: got segment robotiq_85_base_link
+[robot_state_publisher-5] [INFO] [1793251078.372722740] [robot_state_publisher]: got segment robotiq_85_left_finger_link
+[robot_state_publisher-5] [INFO] [1793251078.372734997] [robot_state_publisher]: got segment robotiq_85_left_finger_tip_link
+[robot_state_publisher-5] [INFO] [1793251078.372747389] [robot_state_publisher]: got segment robotiq_85_left_inner_knuckle_link
+[robot_state_publisher-5] [INFO] [1793251078.372764094] [robot_state_publisher]: got segment robotiq_85_left_knuckle_link
+[robot_state_publisher-5] [INFO] [1793251078.372778568] [robot_state_publisher]: got segment robotiq_85_right_finger_link
+[robot_state_publisher-5] [INFO] [1793251078.372793295] [robot_state_publisher]: got segment robotiq_85_right_finger_tip_link
+[robot_state_publisher-5] [INFO] [1793251078.372805266] [robot_state_publisher]: got segment robotiq_85_right_inner_knuckle_link
+[robot_state_publisher-5] [INFO] [1793251078.372817491] [robot_state_publisher]: got segment robotiq_85_right_knuckle_link
+[robot_state_publisher-5] [INFO] [1793251078.372829701] [robot_state_publisher]: got segment shoulder_link
+[robot_state_publisher-5] [INFO] [1793251078.372842262] [robot_state_publisher]: got segment tool0
+[robot_state_publisher-5] [INFO] [1793251078.372854655] [robot_state_publisher]: got segment upper_arm_link
+[robot_state_publisher-5] [INFO] [1793251078.372866775] [robot_state_publisher]: got segment world
+[robot_state_publisher-5] [INFO] [1793251078.372879204] [robot_state_publisher]: got segment wrist_1_link
+[robot_state_publisher-5] [INFO] [1793251078.372890941] [robot_state_publisher]: got segment wrist_2_link
+[robot_state_publisher-5] [INFO] [1793251078.372902260] [robot_state_publisher]: got segment wrist_3_link
+[parameter_bridge-4] [INFO] [1793251078.390341652] [gazebo_pose_bridge]: Creating GZ->ROS Bridge: [/world/ur5_pick_place/dynamic_pose/info (ignition.msgs.Pose_V) -> /world/ur5_pick_place/dynamic_pose/info (tf2_msgs/msg/TFMessage)] (Lazy 0)
+[parameter_bridge-3] [INFO] [1793251078.481305768] [ros_gz_bridge]: Creating GZ->ROS Bridge: [/clock (ignition.msgs.Clock) -> /clock (rosgraph_msgs/msg/Clock)] (Lazy 0)
+[move_group-7] [INFO] [1793251078.610826685] [moveit_rdf_loader.rdf_loader]: Loaded robot model in 0 seconds
+[move_group-7] [INFO] [1793251078.610948601] [moveit_robot_model.robot_model]: Loading robot model 'ur5'...
+[move_group-7] [INFO] [1793251078.610967854] [moveit_robot_model.robot_model]: No root/virtual joint specified in SRDF. Assuming fixed joint
+[move_group-7] [INFO] [1793251078.785761269] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Publishing maintained planning scene on 'monitored_planning_scene'
+[move_group-7] [INFO] [1793251078.786076546] [moveit.ros_planning_interface.moveit_cpp]: Listening to 'joint_states' for joint states
+[move_group-7] [INFO] [1793251078.788527654] [moveit_ros.current_state_monitor]: Listening to joint states on topic 'joint_states'
+[move_group-7] [INFO] [1793251078.790895153] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Listening to '/attached_collision_object' for attached collision objects
+[move_group-7] [INFO] [1793251078.790932495] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Starting planning scene monitor
+[move_group-7] [INFO] [1793251078.792102133] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Listening to '/planning_scene'
+[move_group-7] [INFO] [1793251078.792130765] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Starting world geometry update monitor for collision objects, attached objects, octomap updates.
+[move_group-7] [INFO] [1793251078.793922559] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Listening to 'collision_object'
+[move_group-7] [INFO] [1793251078.795704579] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Listening to 'planning_scene_world' for planning scene world geometry
+[move_group-7] [WARN] [1793251078.795968674] [moveit.ros.occupancy_map_monitor.middleware_handle]: Resolution not specified for Octomap. Assuming resolution = 0.1 instead
+[move_group-7] [ERROR] [1793251078.795989351] [moveit.ros.occupancy_map_monitor.middleware_handle]: No 3D sensor plugin(s) defined for octomap updates
+[move_group-7] [INFO] [1793251078.804185131] [moveit.ros_planning_interface.moveit_cpp]: Loading planning pipeline 'ompl'
+[move_group-7] [INFO] [1793251078.834857593] [moveit.ros_planning.planning_pipeline]: Using planning interface 'OMPL'
+[move_group-7] [INFO] [1793251078.839503996] [moveit_ros.add_time_optimal_parameterization]: Param 'ompl.path_tolerance' was not set. Using default value: 0.100000
+[move_group-7] [INFO] [1793251078.839548314] [moveit_ros.add_time_optimal_parameterization]: Param 'ompl.resample_dt' was not set. Using default value: 0.100000
+[move_group-7] [INFO] [1793251078.839560626] [moveit_ros.add_time_optimal_parameterization]: Param 'ompl.min_angle_change' was not set. Using default value: 0.001000
+[move_group-7] [INFO] [1793251078.839591197] [moveit_ros.fix_workspace_bounds]: Param 'ompl.default_workspace_bounds' was not set. Using default value: 10.000000
+[move_group-7] [INFO] [1793251078.839622997] [moveit_ros.fix_start_state_bounds]: Param 'ompl.start_state_max_bounds_error' was not set. Using default value: 0.050000
+[move_group-7] [INFO] [1793251078.839635279] [moveit_ros.fix_start_state_bounds]: Param 'ompl.start_state_max_dt' was not set. Using default value: 0.500000
+[move_group-7] [INFO] [1793251078.839659779] [moveit_ros.fix_start_state_collision]: Param 'ompl.start_state_max_dt' was not set. Using default value: 0.500000
+[move_group-7] [INFO] [1793251078.839670657] [moveit_ros.fix_start_state_collision]: Param 'ompl.jiggle_fraction' was not set. Using default value: 0.020000
+[move_group-7] [INFO] [1793251078.839688963] [moveit_ros.fix_start_state_collision]: Param 'ompl.max_sampling_attempts' was not set. Using default value: 100
+[move_group-7] [INFO] [1793251078.839714876] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Add Time Optimal Parameterization'
+[move_group-7] [INFO] [1793251078.839724729] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Fix Workspace Bounds'
+[move_group-7] [INFO] [1793251078.839732437] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Fix Start State Bounds'
+[move_group-7] [INFO] [1793251078.839739623] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Fix Start State In Collision'
+[move_group-7] [INFO] [1793251078.839746531] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Fix Start State Path Constraints'
+[move_group-7] [INFO] [1793251078.846800444] [moveit.ros_planning_interface.moveit_cpp]: Loading planning pipeline 'pilz_industrial_motion_planner'
+[move_group-7] [INFO] [1793251078.852756941] [moveit.pilz_industrial_motion_planner.joint_limits_aggregator]: Reading limits from namespace robot_description_planning
+[move_group-7] [WARN] [1793251078.861459793] [move_group]: Ignoring cartesian limits parameters for rotational acceleration / deceleration; these parameters are deprecated and are automatically calculated from translational to rotational ratio.
+[move_group-7] [INFO] [1793251078.869184848] [moveit.pilz_industrial_motion_planner]: Available plugins: pilz_industrial_motion_planner/PlanningContextLoaderCIRC pilz_industrial_motion_planner/PlanningContextLoaderLIN pilz_industrial_motion_planner/PlanningContextLoaderPTP 
+[move_group-7] [INFO] [1793251078.869228782] [moveit.pilz_industrial_motion_planner]: About to load: pilz_industrial_motion_planner/PlanningContextLoaderCIRC
+[move_group-7] [INFO] [1793251078.871575955] [moveit.pilz_industrial_motion_planner]: Registered Algorithm [CIRC]
+[move_group-7] [INFO] [1793251078.871609078] [moveit.pilz_industrial_motion_planner]: About to load: pilz_industrial_motion_planner/PlanningContextLoaderLIN
+[move_group-7] [INFO] [1793251078.873285008] [moveit.pilz_industrial_motion_planner]: Registered Algorithm [LIN]
+[move_group-7] [INFO] [1793251078.873312660] [moveit.pilz_industrial_motion_planner]: About to load: pilz_industrial_motion_planner/PlanningContextLoaderPTP
+[move_group-7] [INFO] [1793251078.874949414] [moveit.pilz_industrial_motion_planner]: Registered Algorithm [PTP]
+[move_group-7] [INFO] [1793251078.874980994] [moveit.ros_planning.planning_pipeline]: Using planning interface 'Pilz Industrial Motion Planner'
+[move_group-7] [INFO] [1793251078.978649201] [moveit.plugins.moveit_simple_controller_manager]: Added FollowJointTrajectory controller for arm_controller
+[move_group-7] [INFO] [1793251078.992222224] [moveit.plugins.moveit_simple_controller_manager]: Added FollowJointTrajectory controller for robotiq_gripper_controller
+[move_group-7] [INFO] [1793251078.993563488] [moveit.plugins.moveit_simple_controller_manager]: Returned 2 controllers in list
+[move_group-7] [INFO] [1793251078.993615557] [moveit.plugins.moveit_simple_controller_manager]: Returned 2 controllers in list
+[move_group-7] [INFO] [1793251078.994818603] [moveit_ros.trajectory_execution_manager]: Trajectory execution is managing controllers
+[move_group-7] [INFO] [1793251078.994849895] [move_group.move_group]: MoveGroup debug mode is ON
+[move_group-7] [ERROR] [1793251079.015311298] [move_group.move_group]: Exception while loading move_group capability 'move_group/MoveGroupExecuteService': MultiLibraryClassLoader: Could not create object of class type move_group::MoveGroupExecuteService as no factory exists for it. Make sure that the library exists and was explicitly loaded through MultiLibraryClassLoader::loadLibrary()
+[move_group-7] [INFO] [1793251079.061951942] [moveit_move_group_default_capabilities.tf_publisher_capability]: Initializing MoveGroupTfPublisher with a frame publishing rate of 10
+[move_group-7] [INFO] [1793251079.065943643] [moveit.pilz_industrial_motion_planner.move_group_sequence_action]: initialize move group sequence action
+[move_group-7] [INFO] [1793251079.079292915] [moveit.pilz_industrial_motion_planner.joint_limits_aggregator]: Reading limits from namespace robot_description_planning
+[move_group-7] [WARN] [1793251079.079451259] [move_group]: Failed loading deceleration limits
+[move_group-7] [WARN] [1793251079.079556891] [move_group]: Failed loading deceleration limits
+[move_group-7] [WARN] [1793251079.079625697] [move_group]: Failed loading deceleration limits
+[move_group-7] [WARN] [1793251079.079697664] [move_group]: Failed loading deceleration limits
+[move_group-7] [WARN] [1793251079.079764309] [move_group]: Failed loading deceleration limits
+[move_group-7] [WARN] [1793251079.079830017] [move_group]: Failed loading deceleration limits
+[move_group-7] [WARN] [1793251079.079895438] [move_group]: Failed loading deceleration limits
+[move_group-7] [WARN] [1793251079.079938009] [move_group]: Ignoring cartesian limits parameters for rotational acceleration / deceleration; these parameters are deprecated and are automatically calculated from translational to rotational ratio.
+[move_group-7] [INFO] [1793251079.079992452] [move_group.move_group]: 
+[move_group-7] 
+[move_group-7] ********************************************************
+[move_group-7] * MoveGroup using: 
+[move_group-7] *     - ApplyPlanningSceneService
+[move_group-7] *     - ClearOctomapService
+[move_group-7] *     - CartesianPathService
+[move_group-7] *     - ExecuteTrajectoryAction
+[move_group-7] *     - GetPlanningSceneService
+[move_group-7] *     - KinematicsService
+[move_group-7] *     - MoveAction
+[move_group-7] *     - StateValidationService
+[move_group-7] *     - MotionPlanService
+[move_group-7] *     - QueryPlannersService
+[move_group-7] *     - StateValidationService
+[move_group-7] *     - TfPublisher
+[move_group-7] *     - SequenceAction
+[move_group-7] ********************************************************
+[move_group-7] 
+[move_group-7] [INFO] [1793251079.080030864] [moveit_move_group_capabilities_base.move_group_context]: MoveGroup context using planning plugin ompl_interface/OMPLPlanner
+[move_group-7] [INFO] [1793251079.080046432] [moveit_move_group_capabilities_base.move_group_context]: MoveGroup context initialization complete
+[move_group-7] [96mLoading 'move_group/ApplyPlanningSceneService'...
+[move_group-7] [0m[96mLoading 'move_group/ClearOctomapService'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupCartesianPathService'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupExecuteService'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupExecuteTrajectoryAction'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupGetPlanningSceneService'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupKinematicsService'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupMoveAction'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupMultiStateValidationService'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupPlanService'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupQueryPlannersService'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupStateValidationService'...
+[move_group-7] [0m[96mLoading 'move_group/TfPublisher'...
+[move_group-7] [0m[96mLoading 'pilz_industrial_motion_planner/MoveGroupSequenceAction'...
+[move_group-7] [0m[92m
+[move_group-7] You can start planning now!
+[move_group-7] 
+[robotiq_mimic_publisher.py-9] [INFO] [1793251079.378522912] [robotiq_mimic_publisher]: Robotiq Mimic Publisher Started
+[spawner-6] [INFO] [1793251079.385284431] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[create-2] [INFO] [1793251079.477802007] [ros_gz_sim]: Requested creation of entity.
+[create-2] [INFO] [1793251079.477877334] [ros_gz_sim]: OK creation of entity.
+[scene_publisher_node.py-8] [INFO] [1793251079.519303021] [ur5_scene_publisher]: UR5 Planning Scene Publisher started.
+[INFO] [create-2]: process has finished cleanly [pid 9134]
+[ign gazebo-1] [INFO] [1793251081.087733895] [GazeboSimROS2ControlPlugin]: robot_param_node is robot_state_publisher
+[ign gazebo-1] [INFO] [1793251081.087781271] [GazeboSimROS2ControlPlugin]: robot_param_node is robot_description
+[ign gazebo-1] [INFO] [1793251081.501238247] [gz_ros2_control]: connected to service!! robot_state_publisher asking for robot_description
+[ign gazebo-1] [INFO] [1793251081.502291928] [gz_ros2_control]: Received URDF from param server
+[ign gazebo-1] [INFO] [1793251081.505423723] [gz_ros2_control]: [gz_ros2_control] Fixed joint ['base_joint'] (Entity='68') is skipped.
+[ign gazebo-1] [INFO] [1793251081.516886172] [gz_ros2_control]: The position_proportional_gain has been set to: 0.1
+[ign gazebo-1] [INFO] [1793251081.516976723] [gz_ros2_control]: Loading joint: shoulder_pan_joint
+[ign gazebo-1] [INFO] [1793251081.517008868] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251081.517032571] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.517061076] [gz_ros2_control]: 			 found initial value: -1.713678
+[ign gazebo-1] [INFO] [1793251081.517093107] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251081.517121790] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251081.517149742] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251081.517172086] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.517210092] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251081.517248262] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251081.517293930] [gz_ros2_control]: Loading joint: shoulder_lift_joint
+[ign gazebo-1] [INFO] [1793251081.517324519] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251081.517351535] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.517378996] [gz_ros2_control]: 			 found initial value: -1.530794
+[ign gazebo-1] [INFO] [1793251081.517405446] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251081.517430181] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251081.517458522] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251081.517484550] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.517519012] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251081.517547666] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251081.517590398] [gz_ros2_control]: Loading joint: elbow_joint
+[ign gazebo-1] [INFO] [1793251081.517619934] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251081.517643248] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.517670131] [gz_ros2_control]: 			 found initial value: -0.057014
+[ign gazebo-1] [INFO] [1793251081.517717810] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251081.517745651] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251081.517770166] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251081.517796605] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.517831102] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251081.517863546] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251081.517900043] [gz_ros2_control]: Loading joint: wrist_1_joint
+[ign gazebo-1] [INFO] [1793251081.517930403] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251081.517957714] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.517984099] [gz_ros2_control]: 			 found initial value: -1.485175
+[ign gazebo-1] [INFO] [1793251081.518009627] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251081.518037105] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251081.518064880] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251081.518092645] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.518122384] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251081.518154678] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251081.518197412] [gz_ros2_control]: Loading joint: wrist_2_joint
+[ign gazebo-1] [INFO] [1793251081.518225431] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251081.518250358] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.518276487] [gz_ros2_control]: 			 found initial value: -6.213661
+[ign gazebo-1] [INFO] [1793251081.518305307] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251081.518329234] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251081.518353126] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251081.518379303] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.518413710] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251081.518441988] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251081.518481865] [gz_ros2_control]: Loading joint: wrist_3_joint
+[ign gazebo-1] [INFO] [1793251081.518511858] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251081.518536455] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.518558134] [gz_ros2_control]: 			 found initial value: 1.550191
+[ign gazebo-1] [INFO] [1793251081.518587919] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251081.518616982] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251081.518641798] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251081.518664471] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.518741522] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251081.518777065] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251081.519002369] [resource_manager]: Initialize hardware 'GazeboSimSystem' 
+[ign gazebo-1] [INFO] [1793251081.519136632] [resource_manager]: Successful initialization of hardware 'GazeboSimSystem'
+[ign gazebo-1] [INFO] [1793251081.519258192] [resource_manager]: 'configure' hardware 'GazeboSimSystem' 
+[ign gazebo-1] [INFO] [1793251081.519276336] [gz_ros2_control]: System Successfully configured!
+[ign gazebo-1] [INFO] [1793251081.519315656] [resource_manager]: Successful 'configure' of hardware 'GazeboSimSystem'
+[ign gazebo-1] [INFO] [1793251081.519345021] [resource_manager]: 'activate' hardware 'GazeboSimSystem' 
+[ign gazebo-1] [INFO] [1793251081.519373412] [resource_manager]: Successful 'activate' of hardware 'GazeboSimSystem'
+[ign gazebo-1] [INFO] [1793251081.519590412] [gz_ros2_control]: The position_proportional_gain has been set to: 0.1
+[ign gazebo-1] [INFO] [1793251081.519648257] [gz_ros2_control]: Loading joint: robotiq_85_left_knuckle_joint
+[ign gazebo-1] [INFO] [1793251081.519677478] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251081.519714877] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.519743028] [gz_ros2_control]: 			 found initial value: 0.000000
+[ign gazebo-1] [INFO] [1793251081.519774634] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251081.519807890] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251081.519832330] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.519882253] [gz_ros2_control]: Loading joint: robotiq_85_right_knuckle_joint
+[ign gazebo-1] [INFO] [1793251081.519923862] [gz_ros2_control]: Joint 'robotiq_85_right_knuckle_joint'is mimicking joint 'robotiq_85_left_knuckle_joint' with multiplier: -1
+[ign gazebo-1] [INFO] [1793251081.519949861] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251081.519973507] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.520002157] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251081.520030467] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251081.520068569] [gz_ros2_control]: Loading joint: robotiq_85_left_inner_knuckle_joint
+[ign gazebo-1] [INFO] [1793251081.520104903] [gz_ros2_control]: Joint 'robotiq_85_left_inner_knuckle_joint'is mimicking joint 'robotiq_85_left_knuckle_joint' with multiplier: 1
+[ign gazebo-1] [INFO] [1793251081.520135850] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251081.520164101] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.520188029] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251081.520211744] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251081.520251762] [gz_ros2_control]: Loading joint: robotiq_85_right_inner_knuckle_joint
+[ign gazebo-1] [INFO] [1793251081.520287691] [gz_ros2_control]: Joint 'robotiq_85_right_inner_knuckle_joint'is mimicking joint 'robotiq_85_left_knuckle_joint' with multiplier: -1
+[ign gazebo-1] [INFO] [1793251081.520312838] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251081.520338906] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.520366892] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251081.520394059] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251081.520438410] [gz_ros2_control]: Loading joint: robotiq_85_left_finger_tip_joint
+[ign gazebo-1] [INFO] [1793251081.520475209] [gz_ros2_control]: Joint 'robotiq_85_left_finger_tip_joint'is mimicking joint 'robotiq_85_left_knuckle_joint' with multiplier: -1
+[ign gazebo-1] [INFO] [1793251081.520501773] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251081.520526055] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.520556807] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251081.520585821] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251081.520634277] [gz_ros2_control]: Loading joint: robotiq_85_right_finger_tip_joint
+[ign gazebo-1] [INFO] [1793251081.520670434] [gz_ros2_control]: Joint 'robotiq_85_right_finger_tip_joint'is mimicking joint 'robotiq_85_left_knuckle_joint' with multiplier: 1
+[ign gazebo-1] [INFO] [1793251081.520720417] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251081.520745640] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251081.520792552] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251081.520830440] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251081.520867716] [resource_manager]: Initialize hardware 'RobotiqGripperHardwareInterface' 
+[ign gazebo-1] [INFO] [1793251081.520906930] [resource_manager]: Successful initialization of hardware 'RobotiqGripperHardwareInterface'
+[ign gazebo-1] [INFO] [1793251081.520984099] [resource_manager]: 'configure' hardware 'RobotiqGripperHardwareInterface' 
+[ign gazebo-1] [INFO] [1793251081.521001592] [gz_ros2_control]: System Successfully configured!
+[ign gazebo-1] [INFO] [1793251081.521037010] [resource_manager]: Successful 'configure' of hardware 'RobotiqGripperHardwareInterface'
+[ign gazebo-1] [INFO] [1793251081.521061764] [resource_manager]: 'activate' hardware 'RobotiqGripperHardwareInterface' 
+[ign gazebo-1] [INFO] [1793251081.521079674] [resource_manager]: Successful 'activate' of hardware 'RobotiqGripperHardwareInterface'
+[ign gazebo-1] [INFO] [1793251081.521095308] [gz_ros2_control]: Loading controller_manager
+[ign gazebo-1] [WARN] [1793251081.584208469] [gz_ros2_control]:  Desired controller update period (0.01 s) is slower than the gazebo simulation period (0.001 s).
+[ign gazebo-1] [INFO] [1793251082.206602021] [controller_manager]: Loading controller 'joint_state_broadcaster'
+[spawner-6] [INFO] [1793251082.234422385] [spawner_joint_state_broadcaster]: [94mLoaded [1mjoint_state_broadcaster[0m
+[ign gazebo-1] [INFO] [1793251082.240141554] [controller_manager]: Configuring controller 'joint_state_broadcaster'
+[ign gazebo-1] [INFO] [1793251082.241204402] [joint_state_broadcaster]: Publishing state interfaces defined in 'joints' and 'interfaces' parameters.
+[ign gazebo-1] [WARN] [1793251082.241243627] [joint_state_broadcaster]: Mapping from 'position' to interface 'position' will not be done, because 'position' is defined in 'interface' parameter.
+[ign gazebo-1] [WARN] [1793251082.241256695] [joint_state_broadcaster]: Mapping from 'velocity' to interface 'velocity' will not be done, because 'velocity' is defined in 'interface' parameter.
+[ign gazebo-1] [WARN] [1793251082.241265581] [joint_state_broadcaster]: Mapping from 'effort' to interface 'effort' will not be done, because 'effort' is defined in 'interface' parameter.
+[ign gazebo-1] [ERROR] [1793251082.342537544] [controller_manager]: Can't activate controller 'joint_state_broadcaster': State interface with key 'robotiq_85_left_knuckle_joint/effort' does not exist
+[ign gazebo-1] [ERROR] [1793251082.342653509] [controller_manager]: Could not activate controller : 'joint_state_broadcaster'
+[spawner-6] [ERROR] [1793251082.354373986] [spawner_joint_state_broadcaster]: [91mFailed to activate controller : joint_state_broadcaster[0m
+[ERROR] [spawner-6]: process has died [pid 9143, exit code 1, cmd '/opt/ros/humble/lib/controller_manager/spawner joint_state_broadcaster --controller-manager-timeout 60 --switch-timeout 30 --service-call-timeout 30 --ros-args'].
+[INFO] [spawner-10]: process started with pid [9333]
+[ign gazebo-1] [INFO] [1793251083.549217942] [controller_manager]: Loading controller 'arm_controller'
+[ign gazebo-1] [WARN] [1793251083.581323818] [arm_controller]: [Deprecated]: "allow_nonzero_velocity_at_trajectory_end" is set to true. The default behavior will change to false.
+[spawner-10] [INFO] [1793251083.645002756] [spawner_arm_controller]: [94mLoaded [1marm_controller[0m
+[ign gazebo-1] [INFO] [1793251083.646867984] [controller_manager]: Configuring controller 'arm_controller'
+[ign gazebo-1] [INFO] [1793251083.647205390] [arm_controller]: No specific joint names are used for command interfaces. Using 'joints' parameter.
+[ign gazebo-1] [INFO] [1793251083.647252954] [arm_controller]: Command interfaces are [position] and state interfaces are [position].
+[ign gazebo-1] [INFO] [1793251083.647319541] [arm_controller]: Using 'splines' interpolation method.
+[ign gazebo-1] [INFO] [1793251083.650648115] [arm_controller]: Controller state will be published at 50.00 Hz.
+[ign gazebo-1] [INFO] [1793251083.655646786] [arm_controller]: Action status changes will be monitored at 20.00 Hz.
+[spawner-10] [INFO] [1793251083.711270032] [spawner_arm_controller]: [92mConfigured and activated [1marm_controller[0m
+[INFO] [spawner-10]: process has finished cleanly [pid 9333]
+[INFO] [spawner-11]: process started with pid [9360]
+[spawner-11] [INFO] [1793251084.676471768] [spawner_robotiq_gripper_controller]: waiting for service /controller_manager/list_controllers to become available...
+[ign gazebo-1] terminate called after throwing an instance of 'rclcpp::exceptions::RCLError'
+[ign gazebo-1]   what():  failed to send response: cannot publish data, at ./src/rmw_response.cpp:166, at ./src/rcl/service.c:314
+[ign gazebo-1] Stack trace (most recent call last) in thread 9322:
+[ign gazebo-1] #17   Object "[0xffffffffffffffff]", at 0xffffffffffffffff, in 
+[ign gazebo-1] #16   Object "/lib/x86_64-linux-gnu/libc.so.6", at 0x723f4dd268df, in 
+[ign gazebo-1] #15   Object "/lib/x86_64-linux-gnu/libc.so.6", at 0x723f4dc94a82, in 
+[ign gazebo-1] #14   Object "/lib/x86_64-linux-gnu/libstdc++.so.6", at 0x723f4a4dc252, in 
+[ign gazebo-1] #13   Object "/opt/ros/humble/lib/librclcpp.so", at 0x723f276f7259, in rclcpp::executors::MultiThreadedExecutor::run(unsigned long)
+[ign gazebo-1] #12   Object "/opt/ros/humble/lib/librclcpp.so", at 0x723f276efd65, in rclcpp::Executor::execute_any_executable(rclcpp::AnyExecutable&)
+[ign gazebo-1] #11   Object "/opt/ros/humble/lib/librclcpp.so", at 0x723f276ef9f9, in rclcpp::Executor::execute_service(std::shared_ptr<rclcpp::ServiceBase>)
+[ign gazebo-1] #10   Object "/opt/ros/humble/lib/librclcpp.so", at 0x723f276f1805, in 
+[ign gazebo-1] #9    Object "/opt/ros/humble/lib/libcontroller_manager.so", at 0x723f2c2884ae, in 
+[ign gazebo-1] #8    Object "/opt/ros/humble/lib/libcontroller_manager.so", at 0x723f2c28823c, in 
+[ign gazebo-1] #7    Object "/opt/ros/humble/lib/librclcpp.so", at 0x723f276e9c08, in rclcpp::exceptions::throw_from_rcl_error(int, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, rcutils_error_state_s const*, void (*)())
+[ign gazebo-1] #6    Object "/lib/x86_64-linux-gnu/libstdc++.so.6", at 0x723f4a4ae1fd, in std::rethrow_exception(std::__exception_ptr::exception_ptr)
+[ign gazebo-1] #5    Object "/lib/x86_64-linux-gnu/libstdc++.so.6", at 0x723f4a4ae276, in std::terminate()
+[ign gazebo-1] #4    Object "/lib/x86_64-linux-gnu/libstdc++.so.6", at 0x723f4a4ae20b, in 
+[ign gazebo-1] #3    Object "/lib/x86_64-linux-gnu/libstdc++.so.6", at 0x723f4a4a2b9d, in 
+[ign gazebo-1] #2    Object "/lib/x86_64-linux-gnu/libc.so.6", at 0x723f4dc287f2, in abort
+[ign gazebo-1] #1    Object "/lib/x86_64-linux-gnu/libc.so.6", at 0x723f4dc42475, in raise
+[ign gazebo-1] #0    Object "/lib/x86_64-linux-gnu/libc.so.6", at 0x723f4dc969bc, in pthread_kill
+[ign gazebo-1] Aborted (Signal sent by tkill() 9135 1000)
+[ign gazebo-1] Aborted (core dumped)
+[ERROR] [ign gazebo-1]: process has died [pid 9132, exit code 134, cmd 'ruby /usr/bin/ign gazebo -s /home/shiva/ur5/ur5_ws/install/ur5_bringup/share/ur5_bringup/worlds/ur5_pick_place.sdf --force-version 6'].
+[spawner-11] [WARN] [1793251115.180231301] [spawner_robotiq_gripper_controller]: Failed getting a result from calling /controller_manager/list_controllers in 30.0. (Attempt 1 of 3.)
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/table at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/tray at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/table at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/tray at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/table at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/tray at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/table at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/tray at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/table at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/tray at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/table at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/tray at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/table at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/tray at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/table at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/tray at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/table at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/tray at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/table at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/tray at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/table at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/tray at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/table at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/tray at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/table at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/tray at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/table at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/tray at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/table at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/tray at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/table at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/tray at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/table at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] Warning: TF_OLD_DATA ignoring data from the past for frame move_group/tray at time 0.000000 according to authority Authority undetectable
+[move_group-7] Possible reasons are listed at http://wiki.ros.org/tf/Errors%20explained
+[move_group-7]          at line 294 in ./src/buffer_core.cpp
+[move_group-7] [WARN] [1793251119.157353643] [tf2_buffer]: Detected jump back in time. Clearing TF buffer.
+[move_group-7] [WARN] [1793251119.157410059] [tf2_buffer]: Detected jump back in time. Clearing TF buffer.
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [spawner-11]: sending signal 'SIGINT' to process[spawner-11]
+[INFO] [robotiq_mimic_publisher.py-9]: sending signal 'SIGINT' to process[robotiq_mimic_publisher.py-9]
+[INFO] [scene_publisher_node.py-8]: sending signal 'SIGINT' to process[scene_publisher_node.py-8]
+[INFO] [move_group-7]: sending signal 'SIGINT' to process[move_group-7]
+[INFO] [robot_state_publisher-5]: sending signal 'SIGINT' to process[robot_state_publisher-5]
+[INFO] [parameter_bridge-4]: sending signal 'SIGINT' to process[parameter_bridge-4]
+[INFO] [parameter_bridge-3]: sending signal 'SIGINT' to process[parameter_bridge-3]
+[move_group-7] [INFO] [1793251125.206216644] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[parameter_bridge-3] [INFO] [1793251125.206234115] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[parameter_bridge-4] [INFO] [1793251125.206233230] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[robot_state_publisher-5] [INFO] [1793251125.208154878] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[robotiq_mimic_publisher.py-9] Traceback (most recent call last):
+[robotiq_mimic_publisher.py-9]   File "/home/shiva/ur5/ur5_ws/install/ur5_bringup/lib/ur5_bringup/robotiq_mimic_publisher.py", line 97, in <module>
+[robotiq_mimic_publisher.py-9]     main()
+[robotiq_mimic_publisher.py-9]   File "/home/shiva/ur5/ur5_ws/install/ur5_bringup/lib/ur5_bringup/robotiq_mimic_publisher.py", line 90, in main
+[robotiq_mimic_publisher.py-9]     node.destroy_node()
+[robotiq_mimic_publisher.py-9]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/node.py", line 1687, in destroy_node
+[robotiq_mimic_publisher.py-9]     self.destroy_subscription(self._subscriptions[0])
+[robotiq_mimic_publisher.py-9]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/node.py", line 1583, in destroy_subscription
+[robotiq_mimic_publisher.py-9]     subscription.destroy()
+[robotiq_mimic_publisher.py-9]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/subscription.py", line 80, in destroy
+[robotiq_mimic_publisher.py-9]     self.handle.destroy_when_not_in_use()
+[robotiq_mimic_publisher.py-9] KeyboardInterrupt
+[scene_publisher_node.py-8] Traceback (most recent call last):
+[scene_publisher_node.py-8]   File "/home/shiva/ur5/ur5_ws/install/ur5_bringup/lib/ur5_bringup/scene_publisher_node.py", line 75, in <module>
+[scene_publisher_node.py-8]     main()
+[scene_publisher_node.py-8]   File "/home/shiva/ur5/ur5_ws/install/ur5_bringup/lib/ur5_bringup/scene_publisher_node.py", line 68, in main
+[scene_publisher_node.py-8]     node.destroy_node()
+[scene_publisher_node.py-8]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/node.py", line 1691, in destroy_node
+[robot_state_publisher-5] [INFO] [1793251125.248938206] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[scene_publisher_node.py-8]     self.destroy_service(self._services[0])
+[scene_publisher_node.py-8]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/node.py", line 1615, in destroy_service
+[parameter_bridge-4] [INFO] [1793251125.250463345] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[move_group-7] [INFO] [1793251125.251762583] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[scene_publisher_node.py-8]     service.destroy()
+[scene_publisher_node.py-8]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/service.py", line 93, in destroy
+[scene_publisher_node.py-8]     self.__service.destroy_when_not_in_use()
+[scene_publisher_node.py-8] KeyboardInterrupt
+[parameter_bridge-3] [INFO] [1793251125.253742934] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [parameter_bridge-4]: process has finished cleanly [pid 9139]
+[INFO] [parameter_bridge-3]: process has finished cleanly [pid 9137]
+[ERROR] [scene_publisher_node.py-8]: process has died [pid 9147, exit code -2, cmd '/home/shiva/ur5/ur5_ws/install/ur5_bringup/lib/ur5_bringup/scene_publisher_node.py --ros-args -r __node:=ur5_scene_publisher --params-file /tmp/launch_params_cv2_882u'].
+[ERROR] [robotiq_mimic_publisher.py-9]: process has died [pid 9150, exit code -2, cmd '/home/shiva/ur5/ur5_ws/install/ur5_bringup/lib/ur5_bringup/robotiq_mimic_publisher.py --ros-args -r __node:=robotiq_mimic_publisher --params-file /tmp/launch_params_qejx6dvm'].
+[move_group-7] [INFO] [1793251125.416721810] [moveit.ros_planning_interface.moveit_cpp]: Deleting MoveItCpp
+[move_group-7] [INFO] [1793251125.418263792] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Stopped publishing maintained planning scene.
+[move_group-7] [INFO] [1793251125.421564540] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Stopping world geometry monitor
+[move_group-7] [INFO] [1793251125.422712902] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Stopping planning scene monitor
+[move_group-7] Warning: class_loader.ClassLoader: SEVERE WARNING!!! Attempting to unload library while objects created by this loader exist in the heap! You should delete your objects before attempting to unload the library or destroying the ClassLoader. The library will NOT be unloaded.
+[move_group-7]          at line 127 in ./src/class_loader.cpp
+[INFO] [robot_state_publisher-5]: process has finished cleanly [pid 9141]
+[move_group-7] Stack trace (most recent call last):
+[move_group-7] #16   Object "", at 0xffffffffffffffff, in 
+[move_group-7] #15   Object "/opt/ros/humble/lib/moveit_ros_move_group/move_group", at 0x5dd7a6d9a704, in 
+[move_group-7] #14   Source "../csu/libc-start.c", line 392, in __libc_start_main_impl [0x785b68029e3f]
+[move_group-7] #13   Source "../sysdeps/nptl/libc_start_call_main.h", line 58, in __libc_start_call_main [0x785b68029d8f]
+[move_group-7] #12   Object "/opt/ros/humble/lib/moveit_ros_move_group/move_group", at 0x5dd7a6d9963b, in 
+[move_group-7] #11   Object "/opt/ros/humble/lib/moveit_ros_move_group/move_group", at 0x5dd7a6d9b6e9, in 
+[move_group-7] #10   Object "/opt/ros/humble/lib/libmoveit_cpp.so.2.5.10", at 0x785b68c14836, in moveit_cpp::MoveItCpp::~MoveItCpp()
+[move_group-7] #9    Object "/opt/ros/humble/lib/libmoveit_cpp.so.2.5.10", at 0x785b68c12b99, in 
+[move_group-7] #8    Object "/opt/ros/humble/lib/libmoveit_trajectory_execution_manager.so.2.5.10", at 0x785b67ed13a5, in trajectory_execution_manager::TrajectoryExecutionManager::~TrajectoryExecutionManager()
+[move_group-7] #7    Object "/opt/ros/humble/lib/libmoveit_trajectory_execution_manager.so.2.5.10", at 0x785b67ee42c9, in 
+[move_group-7] #6    Object "/opt/ros/humble/lib/librclcpp.so", at 0x785b6887595c, in rclcpp::Node::~Node()
+[move_group-7] #5    Object "/opt/ros/humble/lib/librclcpp.so", at 0x785b688758fe, in rclcpp::Node::~Node()
+[move_group-7] #4    Object "/opt/ros/humble/lib/librclcpp.so", at 0x785b6884fe19, in 
+[move_group-7] #3    Object "/opt/ros/humble/lib/librclcpp.so", at 0x785b6887eef9, in 
+[move_group-7] #2    Object "/opt/ros/humble/lib/librclcpp.so", at 0x785b6887ee40, in rclcpp::node_interfaces::NodeBase::~NodeBase()
+[move_group-7] #1    Object "/opt/ros/humble/lib/librclcpp.so", at 0x785b6884fe19, in 
+[move_group-7] #0    Object "/opt/ros/humble/lib/librclcpp.so", at 0x785b68854d51, in rclcpp::CallbackGroup::~CallbackGroup()
+[move_group-7] Segmentation fault (Address not mapped to object [0x785b2e889798])
+[ERROR] [move_group-7]: process has died [pid 9145, exit code -11, cmd '/opt/ros/humble/lib/moveit_ros_move_group/move_group --ros-args --params-file /tmp/launch_params_afptl03s --params-file /tmp/launch_params_0cdv5qyl --params-file /tmp/launch_params_wr34n1jc --params-file /tmp/launch_params_xcbgulbj --params-file /tmp/launch_params_1uhhvyok'].
+[move_group-7] [0m
+[ERROR] [spawner-11]: process[spawner-11] failed to terminate '5' seconds after receiving 'SIGINT', escalating to 'SIGTERM'
+[INFO] [spawner-11]: sending signal 'SIGTERM' to process[spawner-11]
+[ERROR] [spawner-11]: process has died [pid 9360, exit code -15, cmd '/opt/ros/humble/lib/controller_manager/spawner robotiq_gripper_controller --controller-manager-timeout 60 --switch-timeout 30 --service-call-timeout 30 --ros-args'].

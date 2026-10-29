@@ -49,6 +49,7 @@
    <xacro:arg name="sim_ignition" default="false" />
    <xacro:arg name="simulation_controllers" default="" />
    <xacro:arg name="simulated_grasp" default="false" />
+   <xacro:arg name="controller_mode" default="position" />
    <!-- <xacro:arg name="simulation_controllers" default="$(find-pkg-share ur_yt_sim)/config/ur5_controllers_gripper.yaml" /> -->
 
 
@@ -127,6 +128,7 @@
      reverse_port="$(arg reverse_port)"
      script_sender_port="$(arg script_sender_port)"
      trajectory_port="$(arg trajectory_port)"
+     controller_mode="$(arg controller_mode)"
      >
      <origin xyz="1.10 0 0.34" rpy="0 0 1.5707963267948966" />
    </xacro:ur_robot>
@@ -161,6 +163,43 @@
     </xacro:if>
     <!-- Gazebo plugins -->
     <gazebo reference="world">
+    </gazebo>
+    <!-- Joint force/torque sensors for DART transmitted wrench evaluation -->
+    <gazebo reference="$(arg tf_prefix)shoulder_pan_joint">
+      <sensor name="$(arg tf_prefix)shoulder_pan_ft" type="force_torque">
+        <always_on>true</always_on>
+        <update_rate>1000</update_rate>
+      </sensor>
+    </gazebo>
+    <gazebo reference="$(arg tf_prefix)shoulder_lift_joint">
+      <sensor name="$(arg tf_prefix)shoulder_lift_ft" type="force_torque">
+        <always_on>true</always_on>
+        <update_rate>1000</update_rate>
+      </sensor>
+    </gazebo>
+    <gazebo reference="$(arg tf_prefix)elbow_joint">
+      <sensor name="$(arg tf_prefix)elbow_joint_ft" type="force_torque">
+        <always_on>true</always_on>
+        <update_rate>1000</update_rate>
+      </sensor>
+    </gazebo>
+    <gazebo reference="$(arg tf_prefix)wrist_1_joint">
+      <sensor name="$(arg tf_prefix)wrist_1_ft" type="force_torque">
+        <always_on>true</always_on>
+        <update_rate>1000</update_rate>
+      </sensor>
+    </gazebo>
+    <gazebo reference="$(arg tf_prefix)wrist_2_joint">
+      <sensor name="$(arg tf_prefix)wrist_2_ft" type="force_torque">
+        <always_on>true</always_on>
+        <update_rate>1000</update_rate>
+      </sensor>
+    </gazebo>
+    <gazebo reference="$(arg tf_prefix)wrist_3_joint">
+      <sensor name="$(arg tf_prefix)wrist_3_ft" type="force_torque">
+        <always_on>true</always_on>
+        <update_rate>1000</update_rate>
+      </sensor>
     </gazebo>
     <gazebo>
       <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">

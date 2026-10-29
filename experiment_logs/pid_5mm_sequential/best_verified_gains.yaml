@@ -1,0 +1,36 @@
+shoulder_pan_joint:
+  p: 270.0
+  i: 6.25
+  d: 6.0
+  i_clamp: 50.0
+  ff_velocity_scale: 0.0
+shoulder_lift_joint:
+  p: 750.0
+  i: 19.125
+  d: 14.0
+  i_clamp: 74.375
+  ff_velocity_scale: 0.0
+elbow_joint:
+  p: 360.0
+  i: 12.0
+  d: 5.5
+  i_clamp: 32.0
+  ff_velocity_scale: 0.0
+wrist_1_joint:
+  p: 60.0
+  i: 3.0
+  d: 0.7
+  i_clamp: 12.0
+  ff_velocity_scale: 0.0
+wrist_2_joint:
+  p: 67.5
+  i: 3.75
+  d: 0.3825
+  i_clamp: 18.75
+  ff_velocity_scale: 0.0
+wrist_3_joint:
+  p: 12.0
+  i: 0.68
+  d: 0.07
+  i_clamp: 3.4
+  ff_velocity_scale: 0.0

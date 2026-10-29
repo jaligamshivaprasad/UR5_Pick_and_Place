@@ -198,7 +198,7 @@ private:
   {
     std::vector<SavedSegment> segments;
     if (!load_path(segments)) return false;
-    if (!validate_path_structure(segments)) return false;
+    if (!validate_path_structure(segments, !with_grasp)) return false;
 
     if (with_grasp) {
       if (!set_attachment(false)) return false;
@@ -224,6 +224,17 @@ private:
       if (!validate_saved_path(segments, *straight_state, *pick_state)) return false;
     }
     if (!move_joint("current -> straight", "straight", state)) return false;
+
+    // Preserve the original three-segment saved paths for motion-only replay.
+    // Grasping still requires the four-segment approach/descent sequence below.
+    if (!with_grasp) {
+      if (!validate_segment_boundaries(segments, *state)) return false;
+      for (const auto &segment : segments) {
+        if (!execute_saved_segment(segment, state)) return false;
+      }
+      RCLCPP_INFO(get_logger(), "Saved pick-and-place path replayed successfully");
+      return true;
+    }
 
     // Segment 0: straight -> pre_pick (joint move)
     if (!execute_saved_segment(segments[0], state)) return false;
@@ -606,15 +617,18 @@ private:
     return true;
   }
 
-  bool validate_path_structure(const std::vector<SavedSegment> &segments)
+  bool validate_path_structure(const std::vector<SavedSegment> &segments, bool allow_legacy)
   {
-    const std::vector<std::string> expected = {
+    std::vector<std::string> expected = {
       "straight_to_prepick", "prepick_to_pick", "pick_to_place", "place_to_straight"};
+    if (allow_legacy && segments.size() == 3) {
+      expected = {"straight_to_pick", "pick_to_place", "place_to_straight"};
+    }
     const std::vector<std::string> expected_joints = {
       "shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint",
       "wrist_1_joint", "wrist_2_joint", "wrist_3_joint"};
     if (segments.size() != expected.size()) {
-      RCLCPP_ERROR(get_logger(), "path01 must contain exactly four segments");
+      RCLCPP_ERROR(get_logger(), "Saved path must contain four segments (or three for motion-only legacy replay)");
       return false;
     }
     for (size_t s = 0; s < segments.size(); ++s) {

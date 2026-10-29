@@ -1,0 +1,36 @@
+Controller startup: {}
+Traceback (most recent call last):
+  File "/home/shiva/ur5/ur5_ws/ur5_bringup/scripts/tune_fixed_pid.py", line 256, in worker
+    controllers = call(ListControllers, '/controller_manager/list_controllers').controller
+  File "/home/shiva/ur5/ur5_ws/ur5_bringup/scripts/tune_fixed_pid.py", line 188, in call
+    spin_until(future.done, 12)
+  File "/home/shiva/ur5/ur5_ws/ur5_bringup/scripts/tune_fixed_pid.py", line 179, in spin_until
+    rclpy.spin_once(node, timeout_sec=.02)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 208, in spin_once
+    executor.spin_once(timeout_sec=timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 812, in spin_once
+    self._spin_once_impl(timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 801, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 784, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 681, in _wait_for_ready_callbacks
+    wait_set.wait(timeout_nsec)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/shiva/ur5/ur5_ws/ur5_bringup/scripts/tune_fixed_pid.py", line 431, in <module>
+    raise SystemExit(main())
+  File "/home/shiva/ur5/ur5_ws/ur5_bringup/scripts/tune_fixed_pid.py", line 355, in main
+    return worker(args)
+  File "/home/shiva/ur5/ur5_ws/ur5_bringup/scripts/tune_fixed_pid.py", line 338, in worker
+    rclpy.shutdown()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 130, in shutdown
+    _shutdown(context=context)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/utilities.py", line 58, in shutdown
+    return context.shutdown()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/context.py", line 102, in shutdown
+    self.__context.shutdown()
+rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:241

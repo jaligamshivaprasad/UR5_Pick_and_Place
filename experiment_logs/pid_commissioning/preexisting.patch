@@ -1,0 +1,293 @@
+diff --git a/ur5_bringup/CMakeLists.txt b/ur5_bringup/CMakeLists.txt
+index 982a29f..8fbac13 100644
+--- a/ur5_bringup/CMakeLists.txt
++++ b/ur5_bringup/CMakeLists.txt
+@@ -29,6 +29,9 @@ install(TARGETS pick_place_node
+ install(DIRECTORY launch scripts worlds
+   DESTINATION share/${PROJECT_NAME}
+ )
++install(FILES EFFORT_MODE.md
++  DESTINATION share/${PROJECT_NAME}
++)
+ 
+ install(PROGRAMS
+   scripts/scene_publisher_node.py
+diff --git a/ur5_bringup/launch/pick_place.launch.py b/ur5_bringup/launch/pick_place.launch.py
+index db2c08e..b424b1c 100644
+--- a/ur5_bringup/launch/pick_place.launch.py
++++ b/ur5_bringup/launch/pick_place.launch.py
+@@ -2,9 +2,11 @@ import os
+ 
+ from launch import LaunchDescription
+ from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+-from launch.substitutions import LaunchConfiguration
++from launch.conditions import IfCondition
++from launch.substitutions import LaunchConfiguration, PythonExpression
+ from launch.launch_description_sources import PythonLaunchDescriptionSource
+ from launch_ros.actions import Node
++from launch_ros.substitutions import FindPackageShare
+ from ament_index_python.packages import get_package_share_directory
+ from moveit_configs_utils import MoveItConfigsBuilder
+ 
+@@ -25,6 +27,19 @@ def generate_launch_description():
+     )
+     headless = DeclareLaunchArgument("headless", default_value="false")
+     rviz = DeclareLaunchArgument("rviz", default_value="true")
++    controller_mode = DeclareLaunchArgument(
++        "controller_mode",
++        default_value="position",
++        description="Arm controller configuration: position (baseline) or effort (experimental, spawned inactive)",
++        choices=["position", "effort"],
++    )
++    controller_yaml = PythonExpression([
++        "'", FindPackageShare("ur5_moveit_config"),
++        "/config/ros2_controllers_effort.yaml' if '",
++        LaunchConfiguration("controller_mode"), "' == 'effort' else '",
++        FindPackageShare("ur5_moveit_config"),
++        "/config/ros2_controllers_position.yaml'",
++    ])
+     moveit_config = (
+         MoveItConfigsBuilder("ur5", package_name="ur5_moveit_config")
+         .robot_description(
+@@ -33,7 +48,7 @@ def generate_launch_description():
+                 "sim_ignition": "true",
+                 "sim_gazebo": "false",
+                 "name": "GazeboSimSystem",
+-                "simulation_controllers": "$(find ur5_moveit_config)/config/ros2_controllers.yaml",
++                "simulation_controllers": controller_yaml,
+                 "simulated_grasp": LaunchConfiguration("grasping"),
+             },
+         )
+@@ -57,11 +72,15 @@ def generate_launch_description():
+             "simulated_grasp": LaunchConfiguration("grasping"),
+             "headless": LaunchConfiguration("headless"),
+             "rviz": LaunchConfiguration("rviz"),
++            "controller_mode": LaunchConfiguration("controller_mode"),
+         }.items(),
+     )
+     node = Node(
+         package="ur5_bringup",
+         executable="pick_place_node",
++        condition=IfCondition(PythonExpression([
++            "'", LaunchConfiguration("controller_mode"), "' == 'position'"
++        ])),
+         output="screen",
+         parameters=[
+             moveit_config.to_dict(),
+@@ -80,5 +99,6 @@ def generate_launch_description():
+     return LaunchDescription([
+         plan_only, velocity, acceleration, save_path, replay_path, path_file, grasping,
+         headless, rviz,
++        controller_mode,
+         bringup, node,
+     ])
+diff --git a/ur5_bringup/launch/ur5_bringup.launch.py b/ur5_bringup/launch/ur5_bringup.launch.py
+index 16e2483..d6b6c6e 100644
+--- a/ur5_bringup/launch/ur5_bringup.launch.py
++++ b/ur5_bringup/launch/ur5_bringup.launch.py
+@@ -35,6 +35,19 @@ def generate_launch_description():
+         default_value="true",
+         description="Start RViz2 visualization",
+     )
++    controller_mode_arg = DeclareLaunchArgument(
++        "controller_mode",
++        default_value="position",
++        description="Arm controller configuration: position (baseline) or effort (experimental, spawned inactive)",
++        choices=["position", "effort"],
++    )
++    controller_yaml = PythonExpression([
++        "'", FindPackageShare("ur5_moveit_config"),
++        "/config/ros2_controllers_effort.yaml' if '",
++        LaunchConfiguration("controller_mode"), "' == 'effort' else '",
++        FindPackageShare("ur5_moveit_config"),
++        "/config/ros2_controllers_position.yaml'",
++    ])
+ 
+     moveit_config = (
+         MoveItConfigsBuilder("ur5", package_name="ur5_moveit_config")
+@@ -42,7 +55,7 @@ def generate_launch_description():
+             "sim_ignition": "true",
+             "sim_gazebo": "false",
+             "name": "GazeboSimSystem",
+-            "simulation_controllers": "$(find ur5_moveit_config)/config/ros2_controllers.yaml",
++            "simulation_controllers": controller_yaml,
+             "simulated_grasp": LaunchConfiguration("simulated_grasp"),
+         })
+         .robot_description_semantic(file_path="config/ur5.srdf")
+@@ -57,9 +70,8 @@ def generate_launch_description():
+         ),
+         launch_arguments={
+             "gz_args": PythonExpression([
+-                "'-r -s ", LaunchConfiguration("world"), "' if '",
+-                LaunchConfiguration("headless"), "' == 'true' else '-r ",
+-                LaunchConfiguration("world"), "'"
++                "('-s ' if '", LaunchConfiguration("headless"),
++                "' == 'true' else '') + '", LaunchConfiguration("world"), "'"
+             ])
+         }.items(),
+     )
+@@ -134,11 +146,24 @@ def generate_launch_description():
+                    "--switch-timeout", "30", "--service-call-timeout", "30"],
+         output="screen",
+     )
+-    arm_spawner = Node(
++    position_arm_spawner = Node(
+         package="controller_manager",
+         executable="spawner",
+         arguments=["arm_controller", "--controller-manager-timeout", "60",
+                    "--switch-timeout", "30", "--service-call-timeout", "30"],
++        condition=IfCondition(PythonExpression([
++            "'", LaunchConfiguration("controller_mode"), "' == 'position'"
++        ])),
++        output="screen",
++    )
++    effort_arm_spawner = Node(
++        package="controller_manager",
++        executable="spawner",
++        arguments=["arm_controller", "--inactive", "--controller-manager-timeout", "60",
++                   "--switch-timeout", "30", "--service-call-timeout", "30"],
++        condition=IfCondition(PythonExpression([
++            "'", LaunchConfiguration("controller_mode"), "' == 'effort'"
++        ])),
+         output="screen",
+     )
+     gripper_spawner = Node(
+@@ -230,6 +255,7 @@ def generate_launch_description():
+         headless_arg,
+         world_arg,
+         rviz_arg,
++        controller_mode_arg,
+         ign_gazebo,
+         spawn_robot,
+         clock_bridge,
+@@ -237,8 +263,20 @@ def generate_launch_description():
+         grasp_bridge,
+         rsp_node,
+         jsb_spawner,
+-        RegisterEventHandler(OnProcessExit(target_action=jsb_spawner, on_exit=[arm_spawner])),
+-        RegisterEventHandler(OnProcessExit(target_action=arm_spawner, on_exit=[gripper_spawner])),
++        RegisterEventHandler(OnProcessExit(target_action=jsb_spawner, on_exit=[position_arm_spawner])),
++        RegisterEventHandler(OnProcessExit(target_action=jsb_spawner, on_exit=[effort_arm_spawner])),
++        RegisterEventHandler(
++            OnProcessExit(target_action=position_arm_spawner, on_exit=[gripper_spawner]),
++            condition=IfCondition(PythonExpression([
++                "'", LaunchConfiguration("controller_mode"), "' == 'position'"
++            ])),
++        ),
++        RegisterEventHandler(
++            OnProcessExit(target_action=effort_arm_spawner, on_exit=[gripper_spawner]),
++            condition=IfCondition(PythonExpression([
++                "'", LaunchConfiguration("controller_mode"), "' == 'effort'"
++            ])),
++        ),
+         move_group_node,
+         rviz_node,
+         scene_publisher,
+diff --git a/ur5_description/urdf/ur5.ros2_control.xacro b/ur5_description/urdf/ur5.ros2_control.xacro
+index 7d5b955..9b3f423 100644
+--- a/ur5_description/urdf/ur5.ros2_control.xacro
++++ b/ur5_description/urdf/ur5.ros2_control.xacro
+@@ -69,6 +69,7 @@
+       <joint name="${tf_prefix}shoulder_pan_joint">
+         <command_interface name="position"/>
+         <command_interface name="velocity"/>
++        <command_interface name="effort"/>
+         <state_interface name="position">
+           <!-- initial position for the FakeSystem and simulation -->
+           <param name="initial_value">${initial_positions['shoulder_pan_joint']}</param>
+@@ -79,6 +80,7 @@
+       <joint name="${tf_prefix}shoulder_lift_joint">
+         <command_interface name="position"/>
+         <command_interface name="velocity"/>
++        <command_interface name="effort"/>
+         <state_interface name="position">
+           <!-- initial position for the FakeSystem and simulation -->
+           <param name="initial_value">${initial_positions['shoulder_lift_joint']}</param>
+@@ -89,6 +91,7 @@
+       <joint name="${tf_prefix}elbow_joint">
+         <command_interface name="position"/>
+         <command_interface name="velocity"/>
++        <command_interface name="effort"/>
+         <state_interface name="position">
+           <!-- initial position for the FakeSystem and simulation -->
+           <param name="initial_value">${initial_positions['elbow_joint']}</param>
+@@ -99,6 +102,7 @@
+       <joint name="${tf_prefix}wrist_1_joint">
+         <command_interface name="position"/>
+         <command_interface name="velocity"/>
++        <command_interface name="effort"/>
+         <state_interface name="position">
+           <!-- initial position for the FakeSystem and simulation -->
+           <param name="initial_value">${initial_positions['wrist_1_joint']}</param>
+@@ -109,6 +113,7 @@
+       <joint name="${tf_prefix}wrist_2_joint">
+         <command_interface name="position"/>
+         <command_interface name="velocity"/>
++        <command_interface name="effort"/>
+         <state_interface name="position">
+           <!-- initial position for the FakeSystem and simulation -->
+           <param name="initial_value">${initial_positions['wrist_2_joint']}</param>
+@@ -119,6 +124,7 @@
+       <joint name="${tf_prefix}wrist_3_joint">
+         <command_interface name="position"/>
+         <command_interface name="velocity"/>
++        <command_interface name="effort"/>
+         <state_interface name="position">
+           <!-- initial position for the FakeSystem and simulation -->
+           <param name="initial_value">${initial_positions['wrist_3_joint']}</param>
+diff --git a/ur5_moveit_config/config/joint_limits.yaml b/ur5_moveit_config/config/joint_limits.yaml
+index 5213f7f..c5e953d 100644
+--- a/ur5_moveit_config/config/joint_limits.yaml
++++ b/ur5_moveit_config/config/joint_limits.yaml
+@@ -1,7 +1,7 @@
+ # joint_limits.yaml allows the dynamics properties specified in the URDF to be overwritten or augmented as needed
+ 
+-default_velocity_scaling_factor: 0.2
+-default_acceleration_scaling_factor: 0.2
++default_velocity_scaling_factor: 0.5
++default_acceleration_scaling_factor: 0.5
+ 
+ joint_limits:
+   elbow_joint:
+diff --git a/ur5_moveit_config/config/ros2_controllers.yaml b/ur5_moveit_config/config/ros2_controllers.yaml
+index 4683d22..5d52e87 100644
+--- a/ur5_moveit_config/config/ros2_controllers.yaml
++++ b/ur5_moveit_config/config/ros2_controllers.yaml
+@@ -34,9 +34,7 @@ joint_state_broadcaster:
+       - robotiq_85_left_finger_tip_joint_mimic
+       - robotiq_85_right_finger_tip_joint_mimic
+     interfaces:
+-      - position
+-      - velocity
+-
++      - effort
+ arm_controller:
+   ros__parameters:
+     joints:
+@@ -47,9 +45,13 @@ arm_controller:
+       - wrist_2_joint
+       - wrist_3_joint
+     command_interfaces:
++      - effort
+       - position
++      - velocity
+     state_interfaces:
++      - effort
+       - position
++      - velocity
+     open_loop_control: true
+     allow_integration_in_goal_trajectories: true
+ 
+@@ -58,8 +60,12 @@ robotiq_gripper_controller:
+     joints:
+       - robotiq_85_left_knuckle_joint
+     command_interfaces:
++      - effort
+       - position
++      - velocity
+     state_interfaces:
++      - effort
+       - position
++      - velocity
+     open_loop_control: true
+     allow_integration_in_goal_trajectories: true

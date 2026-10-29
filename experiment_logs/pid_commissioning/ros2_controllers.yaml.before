@@ -1,0 +1,71 @@
+controller_manager:
+  ros__parameters:
+    use_sim_time: true
+    # Keep the controller manager at 100 Hz. Gazebo's 1 ms physics step is
+    # intentionally faster than the controller loop; this is a performance
+    # tradeoff and does not prevent the controllers from operating correctly.
+    update_rate: 100
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    robotiq_gripper_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+joint_state_broadcaster:
+  ros__parameters:
+    use_local_topics: false
+    # gz_ros2_control exports the physical follower-joint states with a *_mimic
+    # suffix. The mimic publisher remaps those measured states to URDF joint names.
+    joints:
+      - shoulder_pan_joint
+      - shoulder_lift_joint
+      - elbow_joint
+      - wrist_1_joint
+      - wrist_2_joint
+      - wrist_3_joint
+      - robotiq_85_left_knuckle_joint
+      - robotiq_85_right_knuckle_joint_mimic
+      - robotiq_85_left_inner_knuckle_joint_mimic
+      - robotiq_85_right_inner_knuckle_joint_mimic
+      - robotiq_85_left_finger_tip_joint_mimic
+      - robotiq_85_right_finger_tip_joint_mimic
+    interfaces:
+      - effort
+arm_controller:
+  ros__parameters:
+    joints:
+      - shoulder_pan_joint
+      - shoulder_lift_joint
+      - elbow_joint
+      - wrist_1_joint
+      - wrist_2_joint
+      - wrist_3_joint
+    command_interfaces:
+      - effort
+      - position
+      - velocity
+    state_interfaces:
+      - effort
+      - position
+      - velocity
+    open_loop_control: true
+    allow_integration_in_goal_trajectories: true
+
+robotiq_gripper_controller:
+  ros__parameters:
+    joints:
+      - robotiq_85_left_knuckle_joint
+    command_interfaces:
+      - effort
+      - position
+      - velocity
+    state_interfaces:
+      - effort
+      - position
+      - velocity
+    open_loop_control: true
+    allow_integration_in_goal_trajectories: true

@@ -1,0 +1,214 @@
+{
+  "status": "passed",
+  "mode": "effort",
+  "gains": {
+    "shoulder_pan_joint": {
+      "p": 270.0,
+      "i": 6.25,
+      "d": 6.0,
+      "i_clamp": 50.0,
+      "ff_velocity_scale": 0.0
+    },
+    "shoulder_lift_joint": {
+      "p": 750.0,
+      "i": 19.125,
+      "d": 14.0,
+      "i_clamp": 74.375,
+      "ff_velocity_scale": 0.0
+    },
+    "elbow_joint": {
+      "p": 360.0,
+      "i": 12.0,
+      "d": 5.5,
+      "i_clamp": 32.0,
+      "ff_velocity_scale": 0.0
+    },
+    "wrist_1_joint": {
+      "p": 60.0,
+      "i": 3.0,
+      "d": 0.7,
+      "i_clamp": 12.0,
+      "ff_velocity_scale": 0.0
+    },
+    "wrist_2_joint": {
+      "p": 67.5,
+      "i": 3.75,
+      "d": 0.3825,
+      "i_clamp": 18.75,
+      "ff_velocity_scale": 0.0
+    },
+    "wrist_3_joint": {
+      "p": 12.0,
+      "i": 0.68,
+      "d": 0.07,
+      "i_clamp": 3.4,
+      "ff_velocity_scale": 0.0
+    }
+  },
+  "trajectory_sha256": "980beaff36c79de5d1235dfeae70c41760815f612d7cf256bdcd6a152ded1c19",
+  "frame": "base_link",
+  "tcp": "tool0",
+  "payload_kg": 0.1,
+  "measured_effort": "unavailable (not synchronized by this runner)",
+  "command_effort": "JTC output.effort, directly logged",
+  "safety": "continuous URDF hardware clamp active",
+  "gain_readback": {
+    "gains.shoulder_pan_joint.p": 270.0,
+    "gains.shoulder_pan_joint.i": 6.25,
+    "gains.shoulder_pan_joint.d": 6.0,
+    "gains.shoulder_pan_joint.i_clamp": 50.0,
+    "gains.shoulder_pan_joint.ff_velocity_scale": 0.0,
+    "gains.shoulder_lift_joint.p": 750.0,
+    "gains.shoulder_lift_joint.i": 19.125,
+    "gains.shoulder_lift_joint.d": 14.0,
+    "gains.shoulder_lift_joint.i_clamp": 74.375,
+    "gains.shoulder_lift_joint.ff_velocity_scale": 0.0,
+    "gains.elbow_joint.p": 360.0,
+    "gains.elbow_joint.i": 12.0,
+    "gains.elbow_joint.d": 5.5,
+    "gains.elbow_joint.i_clamp": 32.0,
+    "gains.elbow_joint.ff_velocity_scale": 0.0,
+    "gains.wrist_1_joint.p": 60.0,
+    "gains.wrist_1_joint.i": 3.0,
+    "gains.wrist_1_joint.d": 0.7,
+    "gains.wrist_1_joint.i_clamp": 12.0,
+    "gains.wrist_1_joint.ff_velocity_scale": 0.0,
+    "gains.wrist_2_joint.p": 67.5,
+    "gains.wrist_2_joint.i": 3.75,
+    "gains.wrist_2_joint.d": 0.3825,
+    "gains.wrist_2_joint.i_clamp": 18.75,
+    "gains.wrist_2_joint.ff_velocity_scale": 0.0,
+    "gains.wrist_3_joint.p": 12.0,
+    "gains.wrist_3_joint.i": 0.68,
+    "gains.wrist_3_joint.d": 0.07,
+    "gains.wrist_3_joint.i_clamp": 3.4,
+    "gains.wrist_3_joint.ff_velocity_scale": 0.0
+  },
+  "controllers": {
+    "joint_state_broadcaster": {
+      "state": "active",
+      "claims": []
+    },
+    "arm_controller": {
+      "state": "active",
+      "claims": [
+        "shoulder_pan_joint/effort",
+        "shoulder_lift_joint/effort",
+        "elbow_joint/effort",
+        "wrist_1_joint/effort",
+        "wrist_2_joint/effort",
+        "wrist_3_joint/effort"
+      ]
+    },
+    "robotiq_gripper_controller": {
+      "state": "active",
+      "claims": [
+        "robotiq_85_left_knuckle_joint/position"
+      ]
+    }
+  },
+  "command_interfaces": {
+    "elbow_joint/effort": {
+      "available": true,
+      "claimed": true
+    },
+    "elbow_joint/position": {
+      "available": true,
+      "claimed": false
+    },
+    "elbow_joint/velocity": {
+      "available": true,
+      "claimed": false
+    },
+    "robotiq_85_left_knuckle_joint/position": {
+      "available": true,
+      "claimed": true
+    },
+    "shoulder_lift_joint/effort": {
+      "available": true,
+      "claimed": true
+    },
+    "shoulder_lift_joint/position": {
+      "available": true,
+      "claimed": false
+    },
+    "shoulder_lift_joint/velocity": {
+      "available": true,
+      "claimed": false
+    },
+    "shoulder_pan_joint/effort": {
+      "available": true,
+      "claimed": true
+    },
+    "shoulder_pan_joint/position": {
+      "available": true,
+      "claimed": false
+    },
+    "shoulder_pan_joint/velocity": {
+      "available": true,
+      "claimed": false
+    },
+    "wrist_1_joint/effort": {
+      "available": true,
+      "claimed": true
+    },
+    "wrist_1_joint/position": {
+      "available": true,
+      "claimed": false
+    },
+    "wrist_1_joint/velocity": {
+      "available": true,
+      "claimed": false
+    },
+    "wrist_2_joint/effort": {
+      "available": true,
+      "claimed": true
+    },
+    "wrist_2_joint/position": {
+      "available": true,
+      "claimed": false
+    },
+    "wrist_2_joint/velocity": {
+      "available": true,
+      "claimed": false
+    },
+    "wrist_3_joint/effort": {
+      "available": true,
+      "claimed": true
+    },
+    "wrist_3_joint/position": {
+      "available": true,
+      "claimed": false
+    },
+    "wrist_3_joint/velocity": {
+      "available": true,
+      "claimed": false
+    }
+  },
+  "small_motion_actual_rad": 0.02860266133095446,
+  "metrics": {
+    "ee_rmse_mm": 47.24512989435864,
+    "ee_max_mm": 86.57493030707047,
+    "ee_final_path_mm": 42.26480632643303,
+    "ee_final_settled_mm": 41.58571938245287,
+    "joint_rmse_rad": [
+      0.03537635685147825,
+      0.029381362788741337,
+      0.023927244891375352,
+      0.020698061790827303,
+      0.04307584839279628,
+      0.0953203352846194
+    ],
+    "joint_max_abs_rad": [
+      0.05682304003733518,
+      0.06722621558831943,
+      0.0611656523993368,
+      0.05391625347200324,
+      0.09340843907045304,
+      0.21381635334042737
+    ],
+    "cycle_sec": 8.161000000000001,
+    "samples": 397
+  },
+  "samples": 1106
+}

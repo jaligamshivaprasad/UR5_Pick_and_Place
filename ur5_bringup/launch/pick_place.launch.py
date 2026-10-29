@@ -2,9 +2,11 @@ import os
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.substitutions import LaunchConfiguration
+from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory
 from moveit_configs_utils import MoveItConfigsBuilder
 
@@ -25,6 +27,34 @@ def generate_launch_description():
     )
     headless = DeclareLaunchArgument("headless", default_value="false")
     rviz = DeclareLaunchArgument("rviz", default_value="true")
+    world = DeclareLaunchArgument(
+        "world",
+        default_value=PathJoinSubstitution([
+            FindPackageShare("ur5_bringup"),
+            "worlds",
+            "ur5_pick_place.sdf",
+        ]),
+        description="Ignition Gazebo world containing the UR5 pick-and-place scene",
+    )
+    controller_mode = DeclareLaunchArgument(
+        "controller_mode",
+        default_value="position",
+        description="Arm controller configuration: position (baseline) or effort (experimental, spawned inactive)",
+        choices=["position", "effort"],
+    )
+    default_controller_yaml = PythonExpression([
+        "'", FindPackageShare("ur5_moveit_config"),
+        "/config/ros2_controllers_effort.yaml' if '",
+        LaunchConfiguration("controller_mode"), "' == 'effort' else '",
+        FindPackageShare("ur5_moveit_config"),
+        "/config/ros2_controllers_position.yaml'",
+    ])
+    controllers_file = DeclareLaunchArgument(
+        "controllers_file",
+        default_value=default_controller_yaml,
+        description="Controller YAML shared by Ignition Gazebo and the task's MoveIt configuration",
+    )
+    controller_yaml = LaunchConfiguration("controllers_file")
     moveit_config = (
         MoveItConfigsBuilder("ur5", package_name="ur5_moveit_config")
         .robot_description(
@@ -33,8 +63,9 @@ def generate_launch_description():
                 "sim_ignition": "true",
                 "sim_gazebo": "false",
                 "name": "GazeboSimSystem",
-                "simulation_controllers": "$(find ur5_moveit_config)/config/ros2_controllers.yaml",
+                "simulation_controllers": controller_yaml,
                 "simulated_grasp": LaunchConfiguration("grasping"),
+                "controller_mode": LaunchConfiguration("controller_mode"),
             },
         )
         .robot_description_semantic(file_path="config/ur5.srdf")
@@ -57,11 +88,17 @@ def generate_launch_description():
             "simulated_grasp": LaunchConfiguration("grasping"),
             "headless": LaunchConfiguration("headless"),
             "rviz": LaunchConfiguration("rviz"),
+            "controller_mode": LaunchConfiguration("controller_mode"),
+            "controllers_file": controller_yaml,
+            "world": LaunchConfiguration("world"),
         }.items(),
     )
     node = Node(
         package="ur5_bringup",
         executable="pick_place_node",
+        condition=IfCondition(PythonExpression([
+            "'", LaunchConfiguration("controller_mode"), "' == 'position'"
+        ])),
         output="screen",
         parameters=[
             moveit_config.to_dict(),
@@ -79,6 +116,7 @@ def generate_launch_description():
     )
     return LaunchDescription([
         plan_only, velocity, acceleration, save_path, replay_path, path_file, grasping,
-        headless, rviz,
+        headless, rviz, world,
+        controller_mode, controllers_file,
         bringup, node,
     ])

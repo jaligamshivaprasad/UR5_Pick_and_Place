@@ -1,0 +1,6 @@
+Controller startup: {}
+Controller startup: {'joint_state_broadcaster': 'unconfigured'}
+Controller startup: {'joint_state_broadcaster': 'inactive'}
+Controller startup: {'joint_state_broadcaster': 'active'}
+Controller startup: {'joint_state_broadcaster': 'active', 'arm_controller': 'unconfigured'}
+Controller startup: {'joint_state_broadcaster': 'active', 'arm_controller': 'inactive'}

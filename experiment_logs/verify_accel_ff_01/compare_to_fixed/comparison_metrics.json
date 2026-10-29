@@ -1,0 +1,140 @@
+{
+  "baseline": {
+    "all_ee_rmse_mm": 8.18825454553722,
+    "all_ee_max_mm": 31.55008748705438,
+    "path_ee_rmse_mm": 9.991772002706966,
+    "path_ee_max_mm": 31.55008748705438,
+    "hold_ee_rmse_mm": 0.013760821344970942,
+    "final_settled_mm": 2.137021948979323,
+    "joints": {
+      "shoulder_pan_joint": {
+        "path_rmse_rad": 0.006633865307288438,
+        "path_rmse_deg": 0.38009248396588446,
+        "path_max_deg": 2.211876055052873,
+        "all_rmse_deg": 0.31377072642647164,
+        "peak_torque_Nm": 13.25109597103793,
+        "limit_Nm": 150.0,
+        "margin_pct": 91.16593601930805
+      },
+      "shoulder_lift_joint": {
+        "path_rmse_rad": 0.00654373841203051,
+        "path_rmse_deg": 0.3749285932469875,
+        "path_max_deg": 0.9435295390231586,
+        "all_rmse_deg": 0.30779278962039525,
+        "peak_torque_Nm": 15.679770533347577,
+        "limit_Nm": 150.0,
+        "margin_pct": 89.54681964443495
+      },
+      "elbow_joint": {
+        "path_rmse_rad": 0.006127068392226651,
+        "path_rmse_deg": 0.351055159662594,
+        "path_max_deg": 0.8656941123722088,
+        "all_rmse_deg": 0.2874055967939918,
+        "peak_torque_Nm": 8.369460209336584,
+        "limit_Nm": 150.0,
+        "margin_pct": 94.42035986044229
+      },
+      "wrist_1_joint": {
+        "path_rmse_rad": 0.007939634265538197,
+        "path_rmse_deg": 0.45490753429278985,
+        "path_max_deg": 2.336013462779579,
+        "all_rmse_deg": 0.37091362938875655,
+        "peak_torque_Nm": 3.0759474032513476,
+        "limit_Nm": 28.0,
+        "margin_pct": 89.01447355981662
+      },
+      "wrist_2_joint": {
+        "path_rmse_rad": 0.009026635562529983,
+        "path_rmse_deg": 0.5171881209356657,
+        "path_max_deg": 1.3702607151075448,
+        "all_rmse_deg": 0.4872928504682094,
+        "peak_torque_Nm": 2.0050995726075937,
+        "limit_Nm": 28.0,
+        "margin_pct": 92.83893009783002
+      },
+      "wrist_3_joint": {
+        "path_rmse_rad": 0.03413697796373495,
+        "path_rmse_deg": 1.9559047626531076,
+        "path_max_deg": 9.841663120726995,
+        "all_rmse_deg": 1.574616846369795,
+        "peak_torque_Nm": 3.0808205936168926,
+        "limit_Nm": 28.0,
+        "margin_pct": 88.9970693085111
+      }
+    }
+  },
+  "optimized": {
+    "all_ee_rmse_mm": 7.263936275606031,
+    "all_ee_max_mm": 25.922473616031688,
+    "path_ee_rmse_mm": 9.23245903443147,
+    "path_ee_max_mm": 25.922473616031688,
+    "hold_ee_rmse_mm": 0.013481525472043333,
+    "final_settled_mm": 3.554298371534284,
+    "joints": {
+      "shoulder_pan_joint": {
+        "path_rmse_rad": 0.005750006153131215,
+        "path_rmse_deg": 0.3294510847486728,
+        "path_max_deg": 1.4250268748379713,
+        "all_rmse_deg": 0.2670251893016829,
+        "peak_torque_Nm": 8.592166361243835,
+        "limit_Nm": 150.0,
+        "margin_pct": 94.27188909250411
+      },
+      "shoulder_lift_joint": {
+        "path_rmse_rad": 0.006043590702663458,
+        "path_rmse_deg": 0.3462722403671198,
+        "path_max_deg": 0.8318865294975233,
+        "all_rmse_deg": 0.2724115740079649,
+        "peak_torque_Nm": 13.243147735784808,
+        "limit_Nm": 150.0,
+        "margin_pct": 91.17123484281014
+      },
+      "elbow_joint": {
+        "path_rmse_rad": 0.005946024643861176,
+        "path_rmse_deg": 0.3406821169740238,
+        "path_max_deg": 0.8497200842217599,
+        "all_rmse_deg": 0.2677899125606928,
+        "peak_torque_Nm": 8.111501738351992,
+        "limit_Nm": 150.0,
+        "margin_pct": 94.592332174432
+      },
+      "wrist_1_joint": {
+        "path_rmse_rad": 0.008156481157408302,
+        "path_rmse_deg": 0.46733194599747657,
+        "path_max_deg": 2.394115620503423,
+        "all_rmse_deg": 0.3679404510062505,
+        "peak_torque_Nm": 3.1682916332767648,
+        "limit_Nm": 28.0,
+        "margin_pct": 88.68467273829727
+      },
+      "wrist_2_joint": {
+        "path_rmse_rad": 0.009313417399537238,
+        "path_rmse_deg": 0.5336195098371901,
+        "path_max_deg": 1.4068249131611925,
+        "all_rmse_deg": 0.4981126981596229,
+        "peak_torque_Nm": 1.9887690279850814,
+        "limit_Nm": 28.0,
+        "margin_pct": 92.89725347148186
+      },
+      "wrist_3_joint": {
+        "path_rmse_rad": 0.03306304745762389,
+        "path_rmse_deg": 1.8943730771625955,
+        "path_max_deg": 9.113118950565273,
+        "all_rmse_deg": 1.4752321899636311,
+        "peak_torque_Nm": 2.8518531270106817,
+        "limit_Nm": 28.0,
+        "margin_pct": 89.81481026067614
+      }
+    }
+  },
+  "improvements": {
+    "all_ee_rmse_reduction_mm": 0.9243182699311889,
+    "all_ee_rmse_reduction_pct": 11.288343135778101,
+    "path_ee_rmse_reduction_mm": 0.7593129682754967,
+    "path_ee_rmse_reduction_pct": 7.5993824525798175,
+    "max_ee_reduction_mm": 5.627613871022692,
+    "max_ee_reduction_pct": 17.837078497268234,
+    "j4_rmse_reduction_deg": 0.0029731783825060476,
+    "j4_rmse_reduction_pct": 0.8015824027296281
+  }
+}

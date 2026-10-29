@@ -1,0 +1,568 @@
+#!/usr/bin/env python3
+"""Sequential 6-Joint Fixed-PID Optimizer for < 5mm EE Pick-and-Place Accuracy.
+
+Implements the user-approved sequential single-joint tuning strategy:
+1. Runs straight-to-pick / pre-pick trajectory under 20% velocity/acceleration.
+2. Evaluates one joint at a time: tests Kp, Kd, Ki (+ matching i_clamp) iteratively.
+3. Minimizes joint error towards the <= 0.0005 rad (0.5 mm) target while respecting discrete stability.
+4. Proceeds sequentially across all 6 joints (Pan -> Lift -> Elbow -> Wrist 1 -> Wrist 2 -> Wrist 3).
+5. Executes full pick-and-place replay with 100g blue box grasp for 3 repeated verification runs.
+"""
+import argparse
+import copy
+import csv
+import hashlib
+import json
+import math
+import os
+from pathlib import Path
+import signal
+import subprocess
+import sys
+import time
+
+import numpy as np
+import yaml
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / 'ur5_data_logger'))
+from ur5_data_logger.schema import CSV_COLUMNS, JOINTS
+from ur5_data_logger.fk import VerifiedFK
+from ur5_data_logger.effort_sync import EffortSynchronizer
+
+LIMITS = np.array([150., 150., 150., 28., 28., 28.])
+
+# Initial verified baseline seed:
+SEED = {
+    'shoulder_pan_joint': dict(p=180., i=5., d=6.0, i_clamp=40., ff_velocity_scale=0.),
+    'shoulder_lift_joint': dict(p=500., i=18., d=14.0, i_clamp=70., ff_velocity_scale=0.),
+    'elbow_joint': dict(p=240., i=12., d=5.5, i_clamp=32., ff_velocity_scale=0.),
+    'wrist_1_joint': dict(p=40., i=3., d=0.70, i_clamp=12., ff_velocity_scale=0.),
+    'wrist_2_joint': dict(p=45., i=3.0, d=0.45, i_clamp=15., ff_velocity_scale=0.),
+    'wrist_3_joint': dict(p=8., i=0.8, d=0.07, i_clamp=4., ff_velocity_scale=0.),
+}
+
+# Physically verified discrete-time stability bounds (T = 0.01s):
+BOUNDS = {
+    'p': ([100., 300., 150., 20., 20., 3.], [350., 800., 450., 85., 70., 14.]),
+    'd': ([3., 8., 3., 0.3, 0.2, 0.03], [14., 22., 10., 1.10, 0.55, 0.07]),
+    'i': ([1., 8., 5., 1., 1., 0.2], [14., 40., 30., 8.0, 6.0, 2.0]),
+}
+
+
+def read_path(path):
+    segments = []
+    for line in Path(path).read_text().splitlines():
+        fields = line.split()
+        if not fields or fields[0].startswith('#'):
+            continue
+        if fields[0] == 'SEGMENT':
+            segments.append({'name': fields[1], 'points': []})
+        elif fields[0] == 'JOINTS':
+            if fields[1:] != list(JOINTS):
+                raise ValueError('saved path joint ordering mismatch')
+        elif fields[0] == 'POINTS':
+            segments[-1]['count'] = int(fields[1])
+        elif fields[0] == 'POINT':
+            if len(fields) != 24 or fields[3] != 'POS' or fields[10] != 'VEL' or fields[17] != 'ACC':
+                raise ValueError('invalid saved point')
+            sec, ns = int(fields[1]), int(fields[2])
+            if sec < 0 or not 0 <= ns < 1000000000:
+                raise ValueError('invalid saved timestamp')
+            point = (sec + ns * 1e-9, list(map(float, fields[4:10])),
+                     list(map(float, fields[11:17])), list(map(float, fields[18:24])))
+            if not np.isfinite(np.array(point[1:])).all():
+                raise ValueError('nonfinite saved point')
+            segments[-1]['points'].append(point)
+    if not segments:
+        raise ValueError('empty saved path')
+    for s in segments:
+        pts = s['points']
+        if len(pts) != s['count'] or len(pts) < 2 or pts[0][0] != 0 or any(b[0] <= a[0] for a, b in zip(pts, pts[1:])):
+            raise ValueError('invalid saved point count/times')
+    for a, b in zip(segments, segments[1:]):
+        if np.max(np.abs(np.array(a['points'][-1][1]) - b['points'][0][1])) > .02:
+            raise ValueError('discontinuous saved segments')
+    return segments
+
+
+def stop_group(proc):
+    if proc is None:
+        return
+    try:
+        pgid = os.getpgid(proc.pid)
+    except Exception:
+        pgid = None
+    for sig, timeout in [(signal.SIGINT, 8), (signal.SIGTERM, 4), (signal.SIGKILL, 2)]:
+        if pgid is not None:
+            try:
+                os.killpg(pgid, sig)
+            except ProcessLookupError:
+                break
+        try:
+            proc.wait(timeout=timeout)
+            break
+        except subprocess.TimeoutExpired:
+            continue
+    try:
+        subprocess.run(['pkill', '-9', '-P', str(proc.pid)], capture_output=True, timeout=2)
+    except Exception:
+        pass
+
+
+def worker(args):
+    import rclpy
+    from rclpy.node import Node
+    from rclpy.qos import QoSProfile, DurabilityPolicy
+    from rclpy.action import ActionClient
+    from rcl_interfaces.srv import GetParameters
+    from controller_manager_msgs.srv import ListControllers, ListHardwareInterfaces
+    from control_msgs.msg import DynamicJointState, JointTrajectoryControllerState
+    from control_msgs.action import FollowJointTrajectory
+    from std_msgs.msg import String, Empty
+    from trajectory_msgs.msg import JointTrajectoryPoint
+    from builtin_interfaces.msg import Duration
+
+    out = Path(args.output).resolve()
+    config = yaml.safe_load(Path(args.config).read_text())
+    gains = config['arm_controller']['ros__parameters'].get('gains', {})
+    segments = read_path(args.path)
+    rclpy.init()
+    node = Node('sequential_pid_trial')
+    records, states = [], []
+    effort_sync = EffortSynchronizer(JOINTS, tolerance=0.015)
+    phase = 'startup'
+    fk = None
+    fault = None
+    initial = np.array(segments[0]['points'][0][1])
+
+    attach_pub = node.create_publisher(Empty, '/pick_place/grasp/attach', 10)
+    detach_pub = node.create_publisher(Empty, '/pick_place/grasp/detach', 10)
+
+    def description(msg):
+        nonlocal fk
+        fk = VerifiedFK(msg.data, 'base_link', 'tool0', JOINTS)
+        (out / 'robot.urdf').write_text(msg.data)
+
+    def finalize_effort_matches(matches):
+        nonlocal fault
+        for match in matches:
+            row = match.payload
+            if match.efforts is not None:
+                for joint in JOINTS:
+                    row[joint+'__measured_effort_Nm'] = float(match.efforts[joint])
+            records.append(row)
+            if args.mode == 'effort' and match.required and match.error and fault is None:
+                errors = {
+                    'missing_effort_fields': 'measured effort unavailable: named effort fields are missing for one or more arm joints',
+                    'nonfinite_effort': 'measured effort unavailable: non-finite joint effort feedback was received',
+                    'timestamp_mismatch': 'measured effort unavailable: controller and dynamic-state timestamps did not synchronize within 15 ms',
+                }
+                fault = errors[match.error]
+
+    def dynamic_state(msg):
+        finalize_effort_matches(effort_sync.add_message(msg))
+
+    def state(msg):
+        nonlocal fault
+        try:
+            order = [list(msg.joint_names).index(j) for j in JOINTS]
+            ref = np.array([msg.desired.positions[k] for k in order])
+            act = np.array([msg.actual.positions[k] for k in order])
+            vel = np.array([msg.actual.velocities[k] for k in order]) if len(msg.actual.velocities) == 6 else np.full(6, np.nan)
+            torque = np.array([msg.output.effort[k] for k in order]) if len(msg.output.effort) == 6 else np.full(6, np.nan)
+            stamp = msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9
+            states.append((stamp, act, vel, torque))
+            if not np.isfinite(ref).all() or not np.isfinite(act).all():
+                fault = 'nonfinite joint state'
+            if args.mode == 'effort' and phase != 'startup':
+                if not np.isfinite(torque).all() or not np.isfinite(vel).all():
+                    fault = 'missing effort output/velocity telemetry'
+                elif np.any(np.abs(torque) >= .95 * LIMITS):
+                    fault = 'command effort exceeds 95% of model torque limit'
+                elif np.max(np.abs(vel)) > 5.0 or np.max(np.abs(ref-act)) > .85:
+                    fault = 'velocity/tracking stability gate failed'
+            row = dict.fromkeys(CSV_COLUMNS, float('nan'))
+            payload_mass = 0.10 if phase == 'path/pick_to_place' else 0.0
+            row.update(time_sec=stamp, trajectory_id=phase, controller_mode=args.mode, payload_kg=payload_mass)
+            for k, j in enumerate(JOINTS):
+                for key, val in [('reference_position_rad', ref[k]), ('actual_position_rad', act[k]),
+                                 ('position_error_rad', ref[k]-act[k]), ('actual_velocity_rad_s', vel[k]),
+                                 ('commanded_effort_Nm', torque[k])]:
+                    row[j+'__'+key] = float(val)
+                if len(msg.desired.velocities) == 6:
+                    row[j+'__reference_velocity_rad_s'] = msg.desired.velocities[order[k]]
+                for key, param in [('Kp', 'p'), ('Ki', 'i'), ('Kd', 'd')]:
+                    if j in gains:
+                        row[j+'__'+key] = gains[j][param]
+            if fk:
+                r, a = fk.xyz(ref), fk.xyz(act)
+                for k, axis in enumerate('xyz'):
+                    row['reference_ee_'+axis+'_m'] = r[k]
+                    row['actual_ee_'+axis+'_m'] = a[k]
+                    row['ee_error_'+axis+'_mm'] = (r[k]-a[k])*1000
+                row['ee_error_3d_mm'] = float(np.linalg.norm(r-a)*1000)
+            finalize_effort_matches(effort_sync.queue(
+                stamp, row, required=(args.mode == 'effort' and phase != 'startup')))
+        except (IndexError, ValueError) as e:
+            fault = str(e)
+
+    node.create_subscription(String, '/robot_description', description,
+                             QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL))
+    node.create_subscription(JointTrajectoryControllerState, '/arm_controller/controller_state', state, 100)
+    node.create_subscription(DynamicJointState, '/dynamic_joint_states', dynamic_state, 100)
+
+    def spin_until(predicate, seconds=15, check=True):
+        deadline = time.monotonic()+seconds
+        while not predicate():
+            if check and fault:
+                raise RuntimeError(fault)
+            if time.monotonic() > deadline:
+                raise TimeoutError('wall-time watchdog expired in '+phase)
+            rclpy.spin_once(node, timeout_sec=.02)
+        if check and fault:
+            raise RuntimeError(fault)
+
+    def call(kind, name, request=None):
+        client = node.create_client(kind, name)
+        if not client.wait_for_service(timeout_sec=10):
+            raise RuntimeError('missing service '+name)
+        future = client.call_async(request or kind.Request())
+        spin_until(future.done, 12)
+        result = future.result()
+        node.destroy_client(client)
+        return result
+
+    def observe(seconds):
+        start = states[-1][0]
+        spin_until(lambda: states[-1][0]-start >= seconds, max(15, seconds*5))
+
+    arm = ActionClient(node, FollowJointTrajectory, '/arm_controller/follow_joint_trajectory')
+
+    def execute(points, name, check_result=True):
+        nonlocal phase
+        phase = name
+        if not arm.wait_for_server(timeout_sec=15):
+            raise RuntimeError('trajectory action server not available: '+name)
+        goal = FollowJointTrajectory.Goal()
+        goal.trajectory.joint_names = list(JOINTS)
+        for t, q, v, a in points:
+            ns = round(t*1e9)
+            goal.trajectory.points.append(JointTrajectoryPoint(
+                positions=list(q), velocities=list(v), accelerations=list(a),
+                time_from_start=Duration(sec=ns//1000000000, nanosec=ns%1000000000)))
+        future = arm.send_goal_async(goal)
+        spin_until(future.done)
+        handle = future.result()
+        if not handle.accepted:
+            raise RuntimeError('trajectory rejected: '+name)
+        result = handle.get_result_async()
+        spin_until(result.done, points[-1][0]*5+15)
+        response = result.result()
+        if check_result and (response.status != 4 or response.result.error_code != 0):
+            raise RuntimeError('trajectory failed: '+name+' '+str(response.result))
+        return response
+
+    proc = None
+    result = {'status': 'failed', 'mode': args.mode,
+              'gains': 'not applicable' if args.mode == 'position' else gains,
+              'trajectory_sha256': hashlib.sha256(Path(args.path).read_bytes()).hexdigest(),
+              'frame': 'base_link', 'tcp': 'tool0', 'payload_kg': 0.10,
+              'measured_effort': 'Gazebo transmitted joint effort from /dynamic_joint_states, synchronized by simulation timestamp',
+              'command_effort': 'JTC output.effort, directly logged',
+              'safety': 'continuous URDF hardware clamp active'}
+    log = (out/'launch.log').open('w')
+    try:
+        proc = subprocess.Popen(['ros2', 'launch', 'ur5_bringup', 'ur5_bringup.launch.py',
+                                 'headless:=true', 'rviz:=false', 'controller_mode:='+args.mode,
+                                 'simulated_grasp:=true',
+                                 'controllers_file:='+str(Path(args.config).resolve())],
+                                stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+        list_client = node.create_client(ListControllers, '/controller_manager/list_controllers')
+        if not list_client.wait_for_service(timeout_sec=45):
+            raise RuntimeError('controller manager did not initialize')
+        expected = {'joint_state_broadcaster': 'active', 'robotiq_gripper_controller': 'active',
+                    'arm_controller': 'active'}
+        deadline = time.monotonic()+45
+        while True:
+            future = list_client.call_async(ListControllers.Request())
+            spin_until(future.done, 8)
+            controllers = future.result().controller
+            observed = {c.name: c.state for c in controllers}
+            if all(any(c.name == k and c.state == v for c in controllers) for k, v in expected.items()):
+                break
+            if time.monotonic() > deadline:
+                raise RuntimeError('controller startup states did not converge: ' + str(observed))
+            time.sleep(0.5)
+            rclpy.spin_once(node, timeout_sec=.1)
+        node.destroy_client(list_client)
+
+        if args.mode == 'effort':
+            names = [f'gains.{j}.{key}' for j in JOINTS for key in ('p', 'i', 'd', 'i_clamp', 'ff_velocity_scale')]
+            response = call(GetParameters, '/arm_controller/get_parameters', GetParameters.Request(names=names))
+            values = [v.double_value for v in response.values]
+            wanted = [float(gains[j][key]) for j in JOINTS for key in ('p', 'i', 'd', 'i_clamp', 'ff_velocity_scale')]
+            if values != wanted:
+                raise RuntimeError('active controller gain readback mismatch')
+            result['gain_readback'] = dict(zip(names, values))
+
+        controllers = call(ListControllers, '/controller_manager/list_controllers').controller
+        result['controllers'] = {c.name: {'state': c.state, 'claims': list(c.claimed_interfaces)} for c in controllers}
+        interfaces = call(ListHardwareInterfaces, '/controller_manager/list_hardware_interfaces')
+        result['command_interfaces'] = {i.name: {'available': i.is_available, 'claimed': i.is_claimed} for i in interfaces.command_interfaces}
+        result['state_interfaces'] = {i.name: {'available': i.is_available, 'claimed': i.is_claimed} for i in interfaces.state_interfaces}
+        missing_effort_interfaces = [
+            j+'/effort' for j in JOINTS
+            if not any(i.name == j+'/effort' and i.is_available for i in interfaces.state_interfaces)
+        ]
+        if missing_effort_interfaces:
+            raise RuntimeError('measured effort unavailable: missing state interfaces '+str(missing_effort_interfaces))
+
+        spin_until(lambda: len(states) > 25 and fk is not None, seconds=15)
+        if effort_sync.dynamic_messages == 0:
+            raise RuntimeError('measured effort unavailable: /dynamic_joint_states was not received')
+        if np.max(np.abs(states[-1][1]-initial)) > .025:
+            raise RuntimeError('fresh initial state differs from saved start: ' + str(list(np.abs(states[-1][1]-initial))))
+
+        # 1. Stationary Hold Gate
+        phase = 'hold'
+        execute([(0., initial, [0.]*6, [0.]*6), (2., initial, [0.]*6, [0.]*6)], 'hold')
+        observe(1.)
+        if np.max(np.abs(states[-1][1]-initial)) > .05:
+            raise RuntimeError('stationary holding drift exceeds 0.05 rad')
+
+        # 2. Small Motion Actuation Gate
+        q = initial.copy()
+        q[0] += .03
+        before = states[-1][1].copy()
+        execute([(0., initial, [0.]*6, [0.]*6), (1., q, [0.]*6, [0.]*6)], 'small_joint_1')
+        observe(2.)
+        result['small_motion_actual_rad'] = float(states[-1][1][0]-before[0])
+        if abs(result['small_motion_actual_rad']) < .015:
+            raise RuntimeError('actuation gate failed: 0.03 rad command produced less than 0.015 rad motion')
+
+        # 3. Return to Start Gate
+        execute([(0., q, [0.]*6, [0.]*6), (1., initial, [0.]*6, [0.]*6)], 'return_to_start')
+        observe(2.)
+        if np.max(np.abs(states[-1][1]-initial)) > .025:
+            raise RuntimeError('failed to return to repeatable initial pose')
+
+        # 4. Trajectory Replay with Optional Grasp
+        # If tuning joint-by-joint, can execute first segment (straight_to_pick) for speed.
+        # If executing full verify trial, execute all 3 segments with 100g grasp attach/detach.
+        segs_to_run = segments if args.full_trajectory else [segments[0]]
+        for segment in segs_to_run:
+            if segment['name'] == 'pick_to_place':
+                # Attach 100g blue box at start of pick_to_place
+                attach_pub.publish(Empty())
+                time.sleep(0.1)
+            elif segment['name'] == 'place_to_straight':
+                # Detach 100g blue box before returning
+                detach_pub.publish(Empty())
+                time.sleep(0.1)
+            execute(segment['points'], 'path/'+segment['name'])
+
+        phase = 'settle'
+        observe(2.)
+        finalize_effort_matches(effort_sync.finalize_ready(force=True))
+        effort_error = effort_sync.strict_error()
+        if effort_error:
+            raise RuntimeError(effort_error)
+        result['status'] = 'passed'
+    except Exception as e:
+        result['reason'] = str(e)
+    finally:
+        finalize_effort_matches(effort_sync.finalize_ready(force=True))
+        result['measured_effort_telemetry'] = effort_sync.metadata()
+        stop_group(proc)
+        log.close()
+        with (out/'joint_trajectory_log.csv').open('w') as f:
+            writer = csv.DictWriter(f, fieldnames=CSV_COLUMNS)
+            writer.writeheader()
+            writer.writerows(records)
+        path_rows = [r for r in records if r['trajectory_id'].startswith('path/')]
+        if path_rows:
+            error = np.array([r['ee_error_3d_mm'] for r in path_rows])
+            joint_error = np.array([[r[j+'__position_error_rad'] for j in JOINTS] for r in path_rows])
+            result['metrics'] = dict(
+                ee_rmse_mm=float(np.sqrt(np.mean(error**2))),
+                ee_max_mm=float(max(error)),
+                ee_final_path_mm=float(error[-1]),
+                ee_final_settled_mm=float(records[-1]['ee_error_3d_mm']),
+                joint_rmse_rad=list(np.sqrt(np.mean(joint_error**2, axis=0))),
+                joint_max_abs_rad=list(np.max(np.abs(joint_error), axis=0)),
+                cycle_sec=path_rows[-1]['time_sec']-path_rows[0]['time_sec'],
+                samples=len(path_rows)
+            )
+        result['samples'] = len(records)
+        (out/'result.json').write_text(json.dumps(result, indent=2, allow_nan=False))
+        node.destroy_node()
+        rclpy.shutdown()
+    return 0 if result['status'] == 'passed' else 2
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--path', default=str(ROOT/'path01'))
+    parser.add_argument('--output', default=str(ROOT/'experiment_logs/pid_5mm_sequential'))
+    parser.add_argument('--mode', choices=['position', 'effort'], default='effort')
+    parser.add_argument('--config')
+    parser.add_argument('--worker', action='store_true', help=argparse.SUPPRESS)
+    parser.add_argument('--full-trajectory', action='store_true', help='Execute all segments instead of tuning segment')
+    parser.add_argument('--repeats', type=int, default=3)
+    args = parser.parse_args()
+    read_path(args.path)
+
+    if args.worker:
+        return worker(args)
+
+    output = Path(args.output).resolve()
+    output.mkdir(parents=True, exist_ok=True)
+    history = []
+
+    def run_trial(candidate_gains, label, full_traj=False):
+        out = output/label
+        out.mkdir(exist_ok=True)
+        source = ROOT/'ur5_moveit_config/config/ros2_controllers_effort.yaml'
+        config = yaml.safe_load(source.read_text())
+        if candidate_gains:
+            config['arm_controller']['ros__parameters']['gains'] = candidate_gains
+        (out/'controllers.yaml').write_text(yaml.safe_dump(config, sort_keys=False))
+        trial_domain = str((50 + len(history)) % 100)
+        env = dict(os.environ, ROS_DOMAIN_ID=trial_domain,
+                   IGN_PARTITION=f'ur5_5mm_{os.getpid()}_{label}',
+                   GZ_PARTITION=f'ur5_5mm_{os.getpid()}_{label}')
+        cmd = [sys.executable, str(Path(__file__).resolve()), '--worker', '--mode', 'effort',
+               '--config', str(out/'controllers.yaml'), '--path', str(Path(args.path).resolve()),
+               '--output', str(out)]
+        if full_traj:
+            cmd.append('--full-trajectory')
+        with (out/'worker.log').open('w') as log:
+            proc = subprocess.Popen(cmd, env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+            try:
+                proc.wait(timeout=210)
+            except BaseException:
+                stop_group(proc)
+                raise
+        stop_group(proc)
+        subprocess.run(['pkill', '-9', '-f', 'ign gazebo'], capture_output=True)
+        subprocess.run(['pkill', '-9', '-f', 'robot_state_publisher'], capture_output=True)
+        subprocess.run(['pkill', '-9', '-f', 'parameter_bridge'], capture_output=True)
+        subprocess.run(['pkill', '-9', '-f', 'spawner'], capture_output=True)
+        time.sleep(1)
+        result_path = out/'result.json'
+        res = json.loads(result_path.read_text()) if result_path.exists() else {'status': 'failed', 'reason': 'worker crash'}
+        res['trial'] = label
+        history.append(res)
+        (output/'history.json').write_text(json.dumps(history, indent=2))
+        m = res.get('metrics', {})
+        print(f"[{label}] {res['status']} | EE RMSE: {m.get('ee_rmse_mm', 0):.2f} mm | J4 Max: {m.get('joint_max_abs_rad', [0,0,0,0])[3]*180/np.pi:.2f}°", flush=True)
+        return res
+
+    # 1. Baseline trial with SEED gains
+    print("=== Step 1: Running Baseline Seed Trial ===", flush=True)
+    best_gains = copy.deepcopy(SEED)
+    baseline = run_trial(best_gains, 'effort_seed_baseline', full_traj=False)
+    if baseline['status'] != 'passed':
+        print("Baseline seed failed commissioning gates! Aborting.")
+        return 2
+
+    # Sequential Single-Joint Tuning Hierarchy
+    # Azimuthal pan first, then wrist 1 (highest droop), then elbow, lift, wrist 2, wrist 3.
+    tuning_sequence = [
+        'shoulder_pan_joint',
+        'wrist_1_joint',
+        'elbow_joint',
+        'shoulder_lift_joint',
+        'wrist_2_joint',
+        'wrist_3_joint'
+    ]
+
+    print("\n=== Step 2: Executing Sequential Single-Joint Tuning ===", flush=True)
+    candidate_id = 0
+
+    for joint in tuning_sequence:
+        j_idx = list(JOINTS).index(joint)
+        print(f"\n--- Tuning Joint: {joint} (J{j_idx+1}) ---", flush=True)
+
+        def joint_score(res):
+            if res.get('status') != 'passed' or 'metrics' not in res:
+                return float('inf')
+            m = res['metrics']
+            # Composite optimization for current joint: prioritize current joint RMSE + peak error + overall EE RMSE
+            j_rmse = m['joint_rmse_rad'][j_idx]
+            j_max = m['joint_max_abs_rad'][j_idx]
+            return float(j_rmse * 1000.0 + j_max * 500.0 + m['ee_rmse_mm'])
+
+        current_res = baseline
+        best_j_score = joint_score(current_res)
+
+        # Tune Kp (Stiffness)
+        for factor in (1.25, 1.20, 0.85):
+            candidate = copy.deepcopy(best_gains)
+            val = float(np.clip(candidate[joint]['p'] * factor, BOUNDS['p'][0][j_idx], BOUNDS['p'][1][j_idx]))
+            if val == candidate[joint]['p']:
+                continue
+            candidate[joint]['p'] = val
+            label = f"cand_{candidate_id:03d}_{joint}_kp_{val:.1f}"
+            candidate_id += 1
+            res = run_trial(candidate, label, full_traj=False)
+            sc = joint_score(res)
+            if res.get('status') == 'passed' and sc < best_j_score:
+                print(f"  Accepted Kp={val:.1f} (score: {best_j_score:.2f} -> {sc:.2f})", flush=True)
+                best_gains = candidate
+                best_j_score = sc
+                current_res = res
+
+        # Tune Kd (Active Derivative Damping)
+        for factor in (1.20, 0.85):
+            candidate = copy.deepcopy(best_gains)
+            val = float(np.clip(candidate[joint]['d'] * factor, BOUNDS['d'][0][j_idx], BOUNDS['d'][1][j_idx]))
+            if val == candidate[joint]['d']:
+                continue
+            candidate[joint]['d'] = val
+            label = f"cand_{candidate_id:03d}_{joint}_kd_{val:.2f}"
+            candidate_id += 1
+            res = run_trial(candidate, label, full_traj=False)
+            sc = joint_score(res)
+            if res.get('status') == 'passed' and sc < best_j_score:
+                print(f"  Accepted Kd={val:.2f} (score: {best_j_score:.2f} -> {sc:.2f})", flush=True)
+                best_gains = candidate
+                best_j_score = sc
+                current_res = res
+
+        # Tune Ki (Gravity Integration) and i_clamp
+        for factor in (1.25, 0.85):
+            candidate = copy.deepcopy(best_gains)
+            val = float(np.clip(candidate[joint]['i'] * factor, BOUNDS['i'][0][j_idx], BOUNDS['i'][1][j_idx]))
+            if val == candidate[joint]['i']:
+                continue
+            candidate[joint]['i'] = val
+            ratio = val / SEED[joint]['i']
+            candidate[joint]['i_clamp'] = float(np.clip(SEED[joint]['i_clamp'] * ratio, LIMITS[j_idx] * 0.1, LIMITS[j_idx] * 0.75))
+            label = f"cand_{candidate_id:03d}_{joint}_ki_{val:.2f}"
+            candidate_id += 1
+            res = run_trial(candidate, label, full_traj=False)
+            sc = joint_score(res)
+            if res.get('status') == 'passed' and sc < best_j_score:
+                print(f"  Accepted Ki={val:.2f}, clamp={candidate[joint]['i_clamp']:.1f} (score: {best_j_score:.2f} -> {sc:.2f})", flush=True)
+                best_gains = candidate
+                best_j_score = sc
+                current_res = res
+
+        print(f"Completed tuning for {joint}. Current gains: {best_gains[joint]}", flush=True)
+
+    # 3. Full Pick-and-Place Verification Trials with 100g Grasp
+    print("\n=== Step 3: Executing 3 Repeated Full Verification Runs with 100g Payload ===", flush=True)
+    repeated = [run_trial(best_gains, f'verify_{k:02d}', full_traj=True) for k in range(args.repeats)]
+    if all(r.get('status') == 'passed' for r in repeated):
+        (output/'best_verified_gains.yaml').write_text(yaml.safe_dump(best_gains, sort_keys=False))
+        print("\nAll verification trials passed successfully! Gains exported to best_verified_gains.yaml", flush=True)
+        return 0
+    else:
+        print("\nVerification trials failed gate checks!", flush=True)
+        return 2
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

@@ -1,0 +1,356 @@
+[INFO] [launch]: All log files can be found below /home/shiva/.ros/log/2026-10-29-10-49-07-190140-shiva-IdeaPad-L340-15IRH-Gaming-10123
+[INFO] [launch]: Default logging verbosity is set to INFO
+WARNING:root:[33;21mCannot infer SRDF from `/home/shiva/ur5/ur5_ws/install/ur5_moveit_config/share/ur5_moveit_config`. -- using config/ur5.srdf[0m
+[INFO] [ign gazebo-1]: process started with pid [10136]
+[INFO] [create-2]: process started with pid [10138]
+[INFO] [parameter_bridge-3]: process started with pid [10141]
+[INFO] [parameter_bridge-4]: process started with pid [10143]
+[INFO] [robot_state_publisher-5]: process started with pid [10145]
+[INFO] [spawner-6]: process started with pid [10147]
+[INFO] [move_group-7]: process started with pid [10149]
+[INFO] [scene_publisher_node.py-8]: process started with pid [10151]
+[INFO] [robotiq_mimic_publisher.py-9]: process started with pid [10153]
+[create-2] [INFO] [1793251148.524181006] [ros_gz_sim]: Requesting list of world names.
+[parameter_bridge-3] [INFO] [1793251148.717399816] [ros_gz_bridge]: Creating GZ->ROS Bridge: [/clock (ignition.msgs.Clock) -> /clock (rosgraph_msgs/msg/Clock)] (Lazy 0)
+[robot_state_publisher-5] [INFO] [1793251148.772225889] [robot_state_publisher]: got segment base
+[robot_state_publisher-5] [INFO] [1793251148.774059079] [robot_state_publisher]: got segment base_link
+[robot_state_publisher-5] [INFO] [1793251148.774094055] [robot_state_publisher]: got segment base_link_inertia
+[robot_state_publisher-5] [INFO] [1793251148.774119364] [robot_state_publisher]: got segment flange
+[robot_state_publisher-5] [INFO] [1793251148.774135982] [robot_state_publisher]: got segment forearm_link
+[robot_state_publisher-5] [INFO] [1793251148.774147844] [robot_state_publisher]: got segment ft_frame
+[robot_state_publisher-5] [INFO] [1793251148.774159436] [robot_state_publisher]: got segment ground_plane
+[robot_state_publisher-5] [INFO] [1793251148.774170814] [robot_state_publisher]: got segment robotiq_85_base_link
+[robot_state_publisher-5] [INFO] [1793251148.774182325] [robot_state_publisher]: got segment robotiq_85_left_finger_link
+[robot_state_publisher-5] [INFO] [1793251148.774203909] [robot_state_publisher]: got segment robotiq_85_left_finger_tip_link
+[robot_state_publisher-5] [INFO] [1793251148.774224792] [robot_state_publisher]: got segment robotiq_85_left_inner_knuckle_link
+[robot_state_publisher-5] [INFO] [1793251148.774247225] [robot_state_publisher]: got segment robotiq_85_left_knuckle_link
+[robot_state_publisher-5] [INFO] [1793251148.774269004] [robot_state_publisher]: got segment robotiq_85_right_finger_link
+[robot_state_publisher-5] [INFO] [1793251148.774288380] [robot_state_publisher]: got segment robotiq_85_right_finger_tip_link
+[robot_state_publisher-5] [INFO] [1793251148.774304253] [robot_state_publisher]: got segment robotiq_85_right_inner_knuckle_link
+[robot_state_publisher-5] [INFO] [1793251148.774324622] [robot_state_publisher]: got segment robotiq_85_right_knuckle_link
+[robot_state_publisher-5] [INFO] [1793251148.774345461] [robot_state_publisher]: got segment shoulder_link
+[robot_state_publisher-5] [INFO] [1793251148.774361402] [robot_state_publisher]: got segment tool0
+[robot_state_publisher-5] [INFO] [1793251148.774375603] [robot_state_publisher]: got segment upper_arm_link
+[robot_state_publisher-5] [INFO] [1793251148.774386885] [robot_state_publisher]: got segment world
+[robot_state_publisher-5] [INFO] [1793251148.774398434] [robot_state_publisher]: got segment wrist_1_link
+[robot_state_publisher-5] [INFO] [1793251148.774409768] [robot_state_publisher]: got segment wrist_2_link
+[robot_state_publisher-5] [INFO] [1793251148.774423207] [robot_state_publisher]: got segment wrist_3_link
+[move_group-7] [INFO] [1793251148.821983527] [moveit_rdf_loader.rdf_loader]: Loaded robot model in 0 seconds
+[move_group-7] [INFO] [1793251148.822095575] [moveit_robot_model.robot_model]: Loading robot model 'ur5'...
+[move_group-7] [INFO] [1793251148.822114762] [moveit_robot_model.robot_model]: No root/virtual joint specified in SRDF. Assuming fixed joint
+[parameter_bridge-4] [INFO] [1793251149.014294785] [gazebo_pose_bridge]: Creating GZ->ROS Bridge: [/world/ur5_pick_place/dynamic_pose/info (ignition.msgs.Pose_V) -> /world/ur5_pick_place/dynamic_pose/info (tf2_msgs/msg/TFMessage)] (Lazy 0)
+[move_group-7] [INFO] [1793251149.102279087] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Publishing maintained planning scene on 'monitored_planning_scene'
+[move_group-7] [INFO] [1793251149.102562819] [moveit.ros_planning_interface.moveit_cpp]: Listening to 'joint_states' for joint states
+[move_group-7] [INFO] [1793251149.107449053] [moveit_ros.current_state_monitor]: Listening to joint states on topic 'joint_states'
+[move_group-7] [INFO] [1793251149.110246940] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Listening to '/attached_collision_object' for attached collision objects
+[move_group-7] [INFO] [1793251149.110285595] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Starting planning scene monitor
+[move_group-7] [INFO] [1793251149.113158892] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Listening to '/planning_scene'
+[move_group-7] [INFO] [1793251149.113198445] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Starting world geometry update monitor for collision objects, attached objects, octomap updates.
+[move_group-7] [INFO] [1793251149.115749640] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Listening to 'collision_object'
+[move_group-7] [INFO] [1793251149.116558165] [moveit_ros.planning_scene_monitor.planning_scene_monitor]: Listening to 'planning_scene_world' for planning scene world geometry
+[move_group-7] [WARN] [1793251149.116828617] [moveit.ros.occupancy_map_monitor.middleware_handle]: Resolution not specified for Octomap. Assuming resolution = 0.1 instead
+[move_group-7] [ERROR] [1793251149.116853270] [moveit.ros.occupancy_map_monitor.middleware_handle]: No 3D sensor plugin(s) defined for octomap updates
+[move_group-7] [INFO] [1793251149.122156347] [moveit.ros_planning_interface.moveit_cpp]: Loading planning pipeline 'ompl'
+[move_group-7] [INFO] [1793251149.150999701] [moveit.ros_planning.planning_pipeline]: Using planning interface 'OMPL'
+[move_group-7] [INFO] [1793251149.155581084] [moveit_ros.add_time_optimal_parameterization]: Param 'ompl.path_tolerance' was not set. Using default value: 0.100000
+[move_group-7] [INFO] [1793251149.155616865] [moveit_ros.add_time_optimal_parameterization]: Param 'ompl.resample_dt' was not set. Using default value: 0.100000
+[move_group-7] [INFO] [1793251149.155629634] [moveit_ros.add_time_optimal_parameterization]: Param 'ompl.min_angle_change' was not set. Using default value: 0.001000
+[move_group-7] [INFO] [1793251149.155661586] [moveit_ros.fix_workspace_bounds]: Param 'ompl.default_workspace_bounds' was not set. Using default value: 10.000000
+[move_group-7] [INFO] [1793251149.155702150] [moveit_ros.fix_start_state_bounds]: Param 'ompl.start_state_max_bounds_error' was not set. Using default value: 0.050000
+[move_group-7] [INFO] [1793251149.155715324] [moveit_ros.fix_start_state_bounds]: Param 'ompl.start_state_max_dt' was not set. Using default value: 0.500000
+[move_group-7] [INFO] [1793251149.155744018] [moveit_ros.fix_start_state_collision]: Param 'ompl.start_state_max_dt' was not set. Using default value: 0.500000
+[move_group-7] [INFO] [1793251149.155754733] [moveit_ros.fix_start_state_collision]: Param 'ompl.jiggle_fraction' was not set. Using default value: 0.020000
+[move_group-7] [INFO] [1793251149.155765722] [moveit_ros.fix_start_state_collision]: Param 'ompl.max_sampling_attempts' was not set. Using default value: 100
+[move_group-7] [INFO] [1793251149.155792574] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Add Time Optimal Parameterization'
+[move_group-7] [INFO] [1793251149.155802435] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Fix Workspace Bounds'
+[move_group-7] [INFO] [1793251149.155811177] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Fix Start State Bounds'
+[move_group-7] [INFO] [1793251149.155819013] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Fix Start State In Collision'
+[move_group-7] [INFO] [1793251149.155829177] [moveit.ros_planning.planning_pipeline]: Using planning request adapter 'Fix Start State Path Constraints'
+[move_group-7] [INFO] [1793251149.160883013] [moveit.ros_planning_interface.moveit_cpp]: Loading planning pipeline 'pilz_industrial_motion_planner'
+[move_group-7] [INFO] [1793251149.165493429] [moveit.pilz_industrial_motion_planner.joint_limits_aggregator]: Reading limits from namespace robot_description_planning
+[move_group-7] [WARN] [1793251149.176708289] [move_group]: Ignoring cartesian limits parameters for rotational acceleration / deceleration; these parameters are deprecated and are automatically calculated from translational to rotational ratio.
+[move_group-7] [INFO] [1793251149.177721672] [moveit.pilz_industrial_motion_planner]: Available plugins: pilz_industrial_motion_planner/PlanningContextLoaderCIRC pilz_industrial_motion_planner/PlanningContextLoaderLIN pilz_industrial_motion_planner/PlanningContextLoaderPTP 
+[move_group-7] [INFO] [1793251149.177746165] [moveit.pilz_industrial_motion_planner]: About to load: pilz_industrial_motion_planner/PlanningContextLoaderCIRC
+[move_group-7] [INFO] [1793251149.180906582] [moveit.pilz_industrial_motion_planner]: Registered Algorithm [CIRC]
+[move_group-7] [INFO] [1793251149.180941134] [moveit.pilz_industrial_motion_planner]: About to load: pilz_industrial_motion_planner/PlanningContextLoaderLIN
+[move_group-7] [INFO] [1793251149.182835844] [moveit.pilz_industrial_motion_planner]: Registered Algorithm [LIN]
+[move_group-7] [INFO] [1793251149.182867781] [moveit.pilz_industrial_motion_planner]: About to load: pilz_industrial_motion_planner/PlanningContextLoaderPTP
+[move_group-7] [INFO] [1793251149.185912140] [moveit.pilz_industrial_motion_planner]: Registered Algorithm [PTP]
+[move_group-7] [INFO] [1793251149.185954734] [moveit.ros_planning.planning_pipeline]: Using planning interface 'Pilz Industrial Motion Planner'
+[move_group-7] [INFO] [1793251149.288240979] [moveit.plugins.moveit_simple_controller_manager]: Added FollowJointTrajectory controller for arm_controller
+[move_group-7] [INFO] [1793251149.293645482] [moveit.plugins.moveit_simple_controller_manager]: Added FollowJointTrajectory controller for robotiq_gripper_controller
+[move_group-7] [INFO] [1793251149.294180771] [moveit.plugins.moveit_simple_controller_manager]: Returned 2 controllers in list
+[move_group-7] [INFO] [1793251149.294293307] [moveit.plugins.moveit_simple_controller_manager]: Returned 2 controllers in list
+[move_group-7] [INFO] [1793251149.295046560] [moveit_ros.trajectory_execution_manager]: Trajectory execution is managing controllers
+[move_group-7] [INFO] [1793251149.295073019] [move_group.move_group]: MoveGroup debug mode is ON
+[move_group-7] [INFO] [1793251149.339810180] [moveit_move_group_default_capabilities.tf_publisher_capability]: Initializing MoveGroupTfPublisher with a frame publishing rate of 10
+[move_group-7] [INFO] [1793251149.342986238] [moveit.pilz_industrial_motion_planner.move_group_sequence_action]: initialize move group sequence action
+[move_group-7] [INFO] [1793251149.350103513] [moveit.pilz_industrial_motion_planner.joint_limits_aggregator]: Reading limits from namespace robot_description_planning
+[move_group-7] [WARN] [1793251149.350250310] [move_group]: Failed loading deceleration limits
+[move_group-7] [WARN] [1793251149.350357894] [move_group]: Failed loading deceleration limits
+[move_group-7] [WARN] [1793251149.350437379] [move_group]: Failed loading deceleration limits
+[move_group-7] [WARN] [1793251149.350512500] [move_group]: Failed loading deceleration limits
+[move_group-7] [WARN] [1793251149.350589002] [move_group]: Failed loading deceleration limits
+[move_group-7] [WARN] [1793251149.350661944] [move_group]: Failed loading deceleration limits
+[move_group-7] [WARN] [1793251149.350754651] [move_group]: Failed loading deceleration limits
+[move_group-7] [WARN] [1793251149.350801235] [move_group]: Ignoring cartesian limits parameters for rotational acceleration / deceleration; these parameters are deprecated and are automatically calculated from translational to rotational ratio.
+[move_group-7] [INFO] [1793251149.350859797] [move_group.move_group]: 
+[move_group-7] 
+[move_group-7] ********************************************************
+[move_group-7] * MoveGroup using: 
+[move_group-7] *     - ApplyPlanningSceneService
+[move_group-7] *     - ClearOctomapService
+[move_group-7] *     - CartesianPathService
+[move_group-7] *     - ExecuteTrajectoryAction
+[move_group-7] *     - GetPlanningSceneService
+[move_group-7] *     - KinematicsService
+[move_group-7] *     - MoveAction
+[move_group-7] *     - StateValidationService
+[move_group-7] *     - MotionPlanService
+[move_group-7] *     - QueryPlannersService
+[move_group-7] *     - StateValidationService
+[move_group-7] *     - TfPublisher
+[move_group-7] *     - SequenceAction
+[move_group-7] ********************************************************
+[move_group-7] 
+[move_group-7] [INFO] [1793251149.350899348] [moveit_move_group_capabilities_base.move_group_context]: MoveGroup context using planning plugin ompl_interface/OMPLPlanner
+[move_group-7] [INFO] [1793251149.350918658] [moveit_move_group_capabilities_base.move_group_context]: MoveGroup context initialization complete
+[move_group-7] [96mLoading 'move_group/ApplyPlanningSceneService'...
+[move_group-7] [0m[96mLoading 'move_group/ClearOctomapService'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupCartesianPathService'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupExecuteTrajectoryAction'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupGetPlanningSceneService'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupKinematicsService'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupMoveAction'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupMultiStateValidationService'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupPlanService'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupQueryPlannersService'...
+[move_group-7] [0m[96mLoading 'move_group/MoveGroupStateValidationService'...
+[move_group-7] [0m[96mLoading 'move_group/TfPublisher'...
+[move_group-7] [0m[96mLoading 'pilz_industrial_motion_planner/MoveGroupSequenceAction'...
+[move_group-7] [0m[92m
+[move_group-7] You can start planning now!
+[move_group-7] 
+[spawner-6] [INFO] [1793251149.366685797] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[robotiq_mimic_publisher.py-9] [INFO] [1793251149.429610668] [robotiq_mimic_publisher]: Robotiq Mimic Publisher Started
+[create-2] [INFO] [1793251149.523049319] [ros_gz_sim]: Requested creation of entity.
+[create-2] [INFO] [1793251149.523107638] [ros_gz_sim]: OK creation of entity.
+[INFO] [create-2]: process has finished cleanly [pid 10138]
+[scene_publisher_node.py-8] [INFO] [1793251149.983529287] [ur5_scene_publisher]: UR5 Planning Scene Publisher started.
+[ign gazebo-1] [INFO] [1793251151.237519254] [GazeboSimROS2ControlPlugin]: robot_param_node is robot_state_publisher
+[ign gazebo-1] [INFO] [1793251151.237566309] [GazeboSimROS2ControlPlugin]: robot_param_node is robot_description
+[ign gazebo-1] [ERROR] [1793251151.781608611] [gz_ros2_control]: robot_state_publisher service not available, waiting again...
+[ign gazebo-1] [ERROR] [1793251152.282440270] [gz_ros2_control]: robot_state_publisher service not available, waiting again...
+[ign gazebo-1] [INFO] [1793251152.352730075] [gz_ros2_control]: connected to service!! robot_state_publisher asking for robot_description
+[ign gazebo-1] [INFO] [1793251152.354411174] [gz_ros2_control]: Received URDF from param server
+[ign gazebo-1] [INFO] [1793251152.359808154] [gz_ros2_control]: [gz_ros2_control] Fixed joint ['base_joint'] (Entity='68') is skipped.
+[ign gazebo-1] [INFO] [1793251152.373988606] [gz_ros2_control]: The position_proportional_gain has been set to: 0.1
+[ign gazebo-1] [INFO] [1793251152.374095170] [gz_ros2_control]: Loading joint: shoulder_pan_joint
+[ign gazebo-1] [INFO] [1793251152.374126717] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251152.374149418] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.374172564] [gz_ros2_control]: 			 found initial value: -1.713678
+[ign gazebo-1] [INFO] [1793251152.374194527] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251152.374211135] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251152.374227144] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251152.374243814] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.374274977] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251152.374298522] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251152.374331417] [gz_ros2_control]: Loading joint: shoulder_lift_joint
+[ign gazebo-1] [INFO] [1793251152.374350775] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251152.374367287] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.374384034] [gz_ros2_control]: 			 found initial value: -1.530794
+[ign gazebo-1] [INFO] [1793251152.374402410] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251152.374430626] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251152.374458519] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251152.374476831] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.374501295] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251152.374530552] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251152.374561929] [gz_ros2_control]: Loading joint: elbow_joint
+[ign gazebo-1] [INFO] [1793251152.374582773] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251152.374602890] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.374619928] [gz_ros2_control]: 			 found initial value: -0.057014
+[ign gazebo-1] [INFO] [1793251152.374639802] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251152.374655799] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251152.374691529] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251152.374712291] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.374736969] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251152.374756668] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251152.374788032] [gz_ros2_control]: Loading joint: wrist_1_joint
+[ign gazebo-1] [INFO] [1793251152.374818430] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251152.374838157] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.374855886] [gz_ros2_control]: 			 found initial value: -1.485175
+[ign gazebo-1] [INFO] [1793251152.374875848] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251152.374893097] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251152.374909716] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251152.374926013] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.374950511] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251152.374974338] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251152.375007786] [gz_ros2_control]: Loading joint: wrist_2_joint
+[ign gazebo-1] [INFO] [1793251152.375030294] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251152.375047736] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.375066091] [gz_ros2_control]: 			 found initial value: -6.213661
+[ign gazebo-1] [INFO] [1793251152.375087500] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251152.375104713] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251152.375120352] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251152.375135316] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.375158346] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251152.375179432] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251152.375209422] [gz_ros2_control]: Loading joint: wrist_3_joint
+[ign gazebo-1] [INFO] [1793251152.375240288] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251152.375259911] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.375277614] [gz_ros2_control]: 			 found initial value: 1.550191
+[ign gazebo-1] [INFO] [1793251152.375300071] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251152.375335614] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251152.375354122] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251152.375370267] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.375426900] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251152.375458714] [gz_ros2_control]: 		 effort
+[ign gazebo-1] [INFO] [1793251152.375657290] [resource_manager]: Initialize hardware 'GazeboSimSystem' 
+[ign gazebo-1] [INFO] [1793251152.375810562] [resource_manager]: Successful initialization of hardware 'GazeboSimSystem'
+[ign gazebo-1] [INFO] [1793251152.375935309] [resource_manager]: 'configure' hardware 'GazeboSimSystem' 
+[ign gazebo-1] [INFO] [1793251152.375952616] [gz_ros2_control]: System Successfully configured!
+[ign gazebo-1] [INFO] [1793251152.375988513] [resource_manager]: Successful 'configure' of hardware 'GazeboSimSystem'
+[ign gazebo-1] [INFO] [1793251152.376049258] [resource_manager]: 'activate' hardware 'GazeboSimSystem' 
+[ign gazebo-1] [INFO] [1793251152.376078009] [resource_manager]: Successful 'activate' of hardware 'GazeboSimSystem'
+[ign gazebo-1] [INFO] [1793251152.376305107] [gz_ros2_control]: The position_proportional_gain has been set to: 0.1
+[ign gazebo-1] [INFO] [1793251152.376360914] [gz_ros2_control]: Loading joint: robotiq_85_left_knuckle_joint
+[ign gazebo-1] [INFO] [1793251152.376387220] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251152.376407521] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.376426483] [gz_ros2_control]: 			 found initial value: 0.000000
+[ign gazebo-1] [INFO] [1793251152.376447819] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251152.376466121] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251152.376482513] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.376521832] [gz_ros2_control]: Loading joint: robotiq_85_right_knuckle_joint
+[ign gazebo-1] [INFO] [1793251152.376552018] [gz_ros2_control]: Joint 'robotiq_85_right_knuckle_joint'is mimicking joint 'robotiq_85_left_knuckle_joint' with multiplier: -1
+[ign gazebo-1] [INFO] [1793251152.376574736] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251152.376592206] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.376611238] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251152.376628912] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251152.376659053] [gz_ros2_control]: Loading joint: robotiq_85_left_inner_knuckle_joint
+[ign gazebo-1] [INFO] [1793251152.376696824] [gz_ros2_control]: Joint 'robotiq_85_left_inner_knuckle_joint'is mimicking joint 'robotiq_85_left_knuckle_joint' with multiplier: 1
+[ign gazebo-1] [INFO] [1793251152.376719513] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251152.376736208] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.376753234] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251152.376770519] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251152.376804085] [gz_ros2_control]: Loading joint: robotiq_85_right_inner_knuckle_joint
+[ign gazebo-1] [INFO] [1793251152.376834950] [gz_ros2_control]: Joint 'robotiq_85_right_inner_knuckle_joint'is mimicking joint 'robotiq_85_left_knuckle_joint' with multiplier: -1
+[ign gazebo-1] [INFO] [1793251152.376855449] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251152.376872388] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.376889987] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251152.376924787] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251152.376956165] [gz_ros2_control]: Loading joint: robotiq_85_left_finger_tip_joint
+[ign gazebo-1] [INFO] [1793251152.376984174] [gz_ros2_control]: Joint 'robotiq_85_left_finger_tip_joint'is mimicking joint 'robotiq_85_left_knuckle_joint' with multiplier: -1
+[ign gazebo-1] [INFO] [1793251152.377004871] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251152.377026375] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.377068652] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251152.377090024] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251152.377122180] [gz_ros2_control]: Loading joint: robotiq_85_right_finger_tip_joint
+[ign gazebo-1] [INFO] [1793251152.377150330] [gz_ros2_control]: Joint 'robotiq_85_right_finger_tip_joint'is mimicking joint 'robotiq_85_left_knuckle_joint' with multiplier: 1
+[ign gazebo-1] [INFO] [1793251152.377173657] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1793251152.377199380] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1793251152.377220649] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1793251152.377240089] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1793251152.377269073] [resource_manager]: Initialize hardware 'RobotiqGripperHardwareInterface' 
+[ign gazebo-1] [INFO] [1793251152.377324795] [resource_manager]: Successful initialization of hardware 'RobotiqGripperHardwareInterface'
+[ign gazebo-1] [INFO] [1793251152.377390938] [resource_manager]: 'configure' hardware 'RobotiqGripperHardwareInterface' 
+[ign gazebo-1] [INFO] [1793251152.377405501] [gz_ros2_control]: System Successfully configured!
+[ign gazebo-1] [INFO] [1793251152.377435748] [resource_manager]: Successful 'configure' of hardware 'RobotiqGripperHardwareInterface'
+[ign gazebo-1] [INFO] [1793251152.377454631] [resource_manager]: 'activate' hardware 'RobotiqGripperHardwareInterface' 
+[ign gazebo-1] [INFO] [1793251152.377468815] [resource_manager]: Successful 'activate' of hardware 'RobotiqGripperHardwareInterface'
+[ign gazebo-1] [INFO] [1793251152.377481960] [gz_ros2_control]: Loading controller_manager
+[ign gazebo-1] [WARN] [1793251152.431727885] [gz_ros2_control]:  Desired controller update period (0.01 s) is slower than the gazebo simulation period (0 s).
+[ign gazebo-1] [INFO] [1793251153.217960396] [controller_manager]: Loading controller 'joint_state_broadcaster'
+[spawner-6] [INFO] [1793251153.238844452] [spawner_joint_state_broadcaster]: [94mLoaded [1mjoint_state_broadcaster[0m
+[ign gazebo-1] [INFO] [1793251153.240728052] [controller_manager]: Configuring controller 'joint_state_broadcaster'
+[ign gazebo-1] [INFO] [1793251153.241014671] [joint_state_broadcaster]: 'joints' or 'interfaces' parameter is empty. All available state interfaces will be published
+[spawner-6] [INFO] [1793251153.638301815] [spawner_joint_state_broadcaster]: [92mConfigured and activated [1mjoint_state_broadcaster[0m
+[INFO] [spawner-6]: process has finished cleanly [pid 10147]
+[INFO] [spawner-10]: process started with pid [10349]
+[ign gazebo-1] [INFO] [1793251154.558064074] [controller_manager]: Loading controller 'arm_controller'
+[ign gazebo-1] [WARN] [1793251154.584824061] [arm_controller]: [Deprecated]: "allow_nonzero_velocity_at_trajectory_end" is set to true. The default behavior will change to false.
+[spawner-10] [INFO] [1793251154.638756569] [spawner_arm_controller]: [94mLoaded [1marm_controller[0m
+[ign gazebo-1] [INFO] [1793251154.722404462] [controller_manager]: Configuring controller 'arm_controller'
+[ign gazebo-1] [INFO] [1793251154.722810170] [arm_controller]: No specific joint names are used for command interfaces. Using 'joints' parameter.
+[ign gazebo-1] [INFO] [1793251154.722861237] [arm_controller]: Command interfaces are [position] and state interfaces are [position].
+[ign gazebo-1] [INFO] [1793251154.722909324] [arm_controller]: Using 'splines' interpolation method.
+[ign gazebo-1] [INFO] [1793251154.724917350] [arm_controller]: Controller state will be published at 50.00 Hz.
+[ign gazebo-1] [INFO] [1793251154.728008776] [arm_controller]: Action status changes will be monitored at 20.00 Hz.
+[spawner-10] [INFO] [1793251154.769612943] [spawner_arm_controller]: [92mConfigured and activated [1marm_controller[0m
+[INFO] [spawner-10]: process has finished cleanly [pid 10349]
+[INFO] [spawner-11]: process started with pid [10372]
+[ign gazebo-1] [INFO] [1793251155.766506149] [controller_manager]: Loading controller 'robotiq_gripper_controller'
+[ign gazebo-1] [WARN] [1793251155.788954503] [robotiq_gripper_controller]: [Deprecated]: "allow_nonzero_velocity_at_trajectory_end" is set to true. The default behavior will change to false.
+[spawner-11] [INFO] [1793251155.855032640] [spawner_robotiq_gripper_controller]: [94mLoaded [1mrobotiq_gripper_controller[0m
+[ign gazebo-1] [INFO] [1793251155.857157648] [controller_manager]: Configuring controller 'robotiq_gripper_controller'
+[ign gazebo-1] [INFO] [1793251155.857354598] [robotiq_gripper_controller]: No specific joint names are used for command interfaces. Using 'joints' parameter.
+[ign gazebo-1] [INFO] [1793251155.857391391] [robotiq_gripper_controller]: Command interfaces are [position] and state interfaces are [position].
+[ign gazebo-1] [INFO] [1793251155.857414535] [robotiq_gripper_controller]: Using 'splines' interpolation method.
+[ign gazebo-1] [INFO] [1793251155.858116278] [robotiq_gripper_controller]: Controller state will be published at 50.00 Hz.
+[ign gazebo-1] [INFO] [1793251155.861441450] [robotiq_gripper_controller]: Action status changes will be monitored at 20.00 Hz.
+[spawner-11] [INFO] [1793251155.896616975] [spawner_robotiq_gripper_controller]: [92mConfigured and activated [1mrobotiq_gripper_controller[0m
+[INFO] [spawner-11]: process has finished cleanly [pid 10372]
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [robotiq_mimic_publisher.py-9]: sending signal 'SIGINT' to process[robotiq_mimic_publisher.py-9]
+[INFO] [scene_publisher_node.py-8]: sending signal 'SIGINT' to process[scene_publisher_node.py-8]
+[INFO] [move_group-7]: sending signal 'SIGINT' to process[move_group-7]
+[INFO] [robot_state_publisher-5]: sending signal 'SIGINT' to process[robot_state_publisher-5]
+[INFO] [parameter_bridge-4]: sending signal 'SIGINT' to process[parameter_bridge-4]
+[INFO] [parameter_bridge-3]: sending signal 'SIGINT' to process[parameter_bridge-3]
+[INFO] [ign gazebo-1]: sending signal 'SIGINT' to process[ign gazebo-1]
+[move_group-7] [INFO] [1793251156.356367657] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[robot_state_publisher-5] [INFO] [1793251156.356504351] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ERROR] [move_group-7]: process has died [pid 10149, exit code -2, cmd '/opt/ros/humble/lib/moveit_ros_move_group/move_group --ros-args --params-file /tmp/launch_params_p9fgchc_ --params-file /tmp/launch_params_ku65gqju --params-file /tmp/launch_params_9ykjoaxd --params-file /tmp/launch_params_oxzx4ovc --params-file /tmp/launch_params_j5fk975y'].
+[parameter_bridge-4] [INFO] [1793251156.356582943] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[parameter_bridge-3] [INFO] [1793251156.357118022] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ign gazebo-1] [INFO] [1793251156.358130916] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ign gazebo-1] [INFO] [1793251156.358318355] [controller_manager]: Shutdown request received....
+[ign gazebo-1] [INFO] [1793251156.358472884] [controller_manager]: Shutting down all controllers in the controller manager.
+[ign gazebo-1] [INFO] [1793251156.358727338] [controller_manager]: Deactivating controller 'joint_state_broadcaster'
+[ign gazebo-1] [INFO] [1793251156.358942436] [controller_manager]: Shutting down controller 'joint_state_broadcaster'
+[ign gazebo-1] [INFO] [1793251156.359141352] [controller_manager]: Deactivating controller 'arm_controller'
+[ign gazebo-1] [INFO] [1793251156.359312953] [controller_manager]: Shutting down controller 'arm_controller'
+[ign gazebo-1] [INFO] [1793251156.359421367] [controller_manager]: Deactivating controller 'robotiq_gripper_controller'
+[ign gazebo-1] [INFO] [1793251156.359542523] [controller_manager]: Shutting down controller 'robotiq_gripper_controller'
+[ign gazebo-1] [INFO] [1793251156.359743583] [resource_manager]: 'deactivate' hardware 'RobotiqGripperHardwareInterface' 
+[ign gazebo-1] [INFO] [1793251156.359824848] [resource_manager]: Successful 'deactivate' of hardware 'RobotiqGripperHardwareInterface'
+[ign gazebo-1] [INFO] [1793251156.359852902] [resource_manager]: 'shutdown' hardware 'RobotiqGripperHardwareInterface' 
+[ign gazebo-1] [INFO] [1793251156.359883535] [resource_manager]: Successful 'shutdown' of hardware 'RobotiqGripperHardwareInterface'
+[ign gazebo-1] [INFO] [1793251156.359912333] [resource_manager]: 'deactivate' hardware 'GazeboSimSystem' 
+[ign gazebo-1] [INFO] [1793251156.359941082] [resource_manager]: Successful 'deactivate' of hardware 'GazeboSimSystem'
+[ign gazebo-1] [INFO] [1793251156.359963808] [resource_manager]: 'shutdown' hardware 'GazeboSimSystem' 
+[ign gazebo-1] [INFO] [1793251156.359989744] [resource_manager]: Successful 'shutdown' of hardware 'GazeboSimSystem'
+[ign gazebo-1] [INFO] [1793251156.360014970] [controller_manager]: Shutting down the controller manager.
+[robotiq_mimic_publisher.py-9] Traceback (most recent call last):
+[robotiq_mimic_publisher.py-9]   File "/home/shiva/ur5/ur5_ws/install/ur5_bringup/lib/ur5_bringup/robotiq_mimic_publisher.py", line 97, in <module>
+[robotiq_mimic_publisher.py-9]     main()
+[robotiq_mimic_publisher.py-9]   File "/home/shiva/ur5/ur5_ws/install/ur5_bringup/lib/ur5_bringup/robotiq_mimic_publisher.py", line 90, in main
+[robotiq_mimic_publisher.py-9]     node.destroy_node()
+[robotiq_mimic_publisher.py-9]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/node.py", line 1687, in destroy_node
+[scene_publisher_node.py-8] Traceback (most recent call last):
+[scene_publisher_node.py-8]   File "/home/shiva/ur5/ur5_ws/install/ur5_bringup/lib/ur5_bringup/scene_publisher_node.py", line 75, in <module>
+[scene_publisher_node.py-8]     main()
+[scene_publisher_node.py-8]   File "/home/shiva/ur5/ur5_ws/install/ur5_bringup/lib/ur5_bringup/scene_publisher_node.py", line 68, in main
+[scene_publisher_node.py-8]     node.destroy_node()
+[scene_publisher_node.py-8]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/node.py", line 1691, in destroy_node
+[scene_publisher_node.py-8]     self.destroy_service(self._services[0])
+[scene_publisher_node.py-8]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/node.py", line 1615, in destroy_service
+[scene_publisher_node.py-8]     service.destroy()
+[scene_publisher_node.py-8]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/service.py", line 93, in destroy
+[scene_publisher_node.py-8]     self.__service.destroy_when_not_in_use()
+[scene_publisher_node.py-8] KeyboardInterrupt
+[robotiq_mimic_publisher.py-9]     self.destroy_subscription(self._subscriptions[0])
+[robotiq_mimic_publisher.py-9]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/node.py", line 1583, in destroy_subscription
+[robotiq_mimic_publisher.py-9]     subscription.destroy()
+[robotiq_mimic_publisher.py-9]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/subscription.py", line 80, in destroy
+[robotiq_mimic_publisher.py-9]     self.handle.destroy_when_not_in_use()
+[robotiq_mimic_publisher.py-9] KeyboardInterrupt
+[robot_state_publisher-5] [INFO] [1793251156.411375231] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[parameter_bridge-4] [INFO] [1793251156.419307851] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[parameter_bridge-3] [INFO] [1793251156.426874764] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[move_group-7] [0m
+[INFO] [parameter_bridge-3]: process has finished cleanly [pid 10141]
+[INFO] [parameter_bridge-4]: process has finished cleanly [pid 10143]
+[ERROR] [robotiq_mimic_publisher.py-9]: process has died [pid 10153, exit code -2, cmd '/home/shiva/ur5/ur5_ws/install/ur5_bringup/lib/ur5_bringup/robotiq_mimic_publisher.py --ros-args -r __node:=robotiq_mimic_publisher --params-file /tmp/launch_params_8dga3lba'].
+[ERROR] [scene_publisher_node.py-8]: process has died [pid 10151, exit code -2, cmd '/home/shiva/ur5/ur5_ws/install/ur5_bringup/lib/ur5_bringup/scene_publisher_node.py --ros-args -r __node:=ur5_scene_publisher --params-file /tmp/launch_params_lkev7s00'].
+[INFO] [robot_state_publisher-5]: process has finished cleanly [pid 10145]
+[ERROR] [ign gazebo-1]: process has died [pid 10136, exit code -2, cmd 'ruby /usr/bin/ign gazebo -s /home/shiva/ur5/ur5_ws/install/ur5_bringup/share/ur5_bringup/worlds/ur5_pick_place.sdf --force-version 6'].
