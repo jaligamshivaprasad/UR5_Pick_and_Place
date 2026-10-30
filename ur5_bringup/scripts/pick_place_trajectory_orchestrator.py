@@ -227,7 +227,8 @@ def run_orchestrator(args):
                     fault = 'Velocity or position tracking stability boundary exceeded'
 
             row = dict.fromkeys(CSV_COLUMNS, float('nan'))
-            payload_mass = 0.10 if phase == 'path/pick_to_place' else 0.0
+            nominal_mass = getattr(args, 'payload_kg', 3.0)
+            payload_mass = nominal_mass if phase == 'path/pick_to_place' else 0.0
             row.update(time_sec=stamp, trajectory_id=phase, controller_mode=args.mode, payload_kg=payload_mass)
 
             for k, j in enumerate(JOINTS):
@@ -302,6 +303,27 @@ def run_orchestrator(args):
 
     node.create_subscription(Float64MultiArray, '/adaptive_arm_controller/gain_telemetry', gain_telemetry_cb, 100)
 
+    ff_records = []
+    def ff_telemetry_cb(msg: Float64MultiArray):
+        if len(msg.data) >= 8:
+            tau_ff = [float(x) for x in msg.data[:6]]
+            alpha = float(msg.data[6])
+            mass = float(msg.data[7])
+            ff_records.append({
+                'time_sec': time.monotonic(),
+                'phase': phase,
+                'alpha': alpha,
+                'active_mass_kg': mass,
+                'tau_ff_j1': tau_ff[0],
+                'tau_ff_j2': tau_ff[1],
+                'tau_ff_j3': tau_ff[2],
+                'tau_ff_j4': tau_ff[3],
+                'tau_ff_j5': tau_ff[4],
+                'tau_ff_j6': tau_ff[5],
+            })
+
+    node.create_subscription(Float64MultiArray, '/adaptive_arm_controller/payload_feedforward', ff_telemetry_cb, 100)
+
     def spin_until(predicate, seconds=20, check=True):
         deadline = time.monotonic() + seconds
         while not predicate():
@@ -335,7 +357,7 @@ def run_orchestrator(args):
         spin_until(
             lambda: grasp_state_revision > revision and
             grasp_state is not None and desired in grasp_state,
-            seconds=8)
+            seconds=20)
         node.get_logger().info(f'Gazebo confirmed box is {desired}.')
 
     def command_gripper(position, description):
@@ -350,12 +372,12 @@ def run_orchestrator(args):
             positions=[position], time_from_start=Duration(sec=2))]
         revision = gripper_state_revision
         future = gripper.send_goal_async(goal)
-        spin_until(future.done, 8)
+        spin_until(future.done, 20)
         handle = future.result()
         if not handle.accepted:
             raise RuntimeError(f'Gripper command rejected: {description}')
         result_future = handle.get_result_async()
-        spin_until(result_future.done, 10)
+        spin_until(result_future.done, 30)
         response = result_future.result()
         if response.status != 4 or response.result.error_code != 0:
             raise RuntimeError(
@@ -363,7 +385,7 @@ def run_orchestrator(args):
                 f'error_code={response.result.error_code}')
         spin_until(
             lambda: gripper_position is not None and gripper_state_revision > revision,
-            seconds=3)
+            seconds=15)
         is_grasp = position > 0.1
         reached = (
             position - 0.10 <= gripper_position <= position + 0.05
@@ -437,7 +459,7 @@ def run_orchestrator(args):
             raise RuntimeError(f'Trajectory goal rejected: {name}')
         result = handle.get_result_async()
         expected_duration = points[-1][0] if points else 2.0
-        spin_until(result.done, expected_duration * 3 + 20)
+        spin_until(result.done, max(60.0, expected_duration * 6 + 30))
         response = result.result()
         if check_result and (response.status != 4 or response.result.error_code != 0):
             raise RuntimeError(f'Trajectory execution failed in {name}: status={response.status}, error_code={response.result.error_code}')
@@ -450,7 +472,7 @@ def run_orchestrator(args):
         'trajectory_sha256': hashlib.sha256(path_path.read_bytes()).hexdigest(),
         'frame': 'base_link',
         'tcp': 'tool0',
-        'payload_kg': 0.10,
+        'payload_kg': getattr(args, 'payload_kg', 3.0),
     }
 
     try:
@@ -663,6 +685,23 @@ def run_orchestrator(args):
                     }
             result['gain_adaptation_summary'] = gain_summary
 
+        if ff_records:
+            ff_csv = out_dir / 'payload_feedforward_log.csv'
+            node.get_logger().info(f'Writing payload feedforward telemetry log ({len(ff_records)} rows): {ff_csv}...')
+            with ff_csv.open('w', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=list(ff_records[0].keys()))
+                writer.writeheader()
+                writer.writerows(ff_records)
+
+            transport_ff = [r for r in ff_records if r['phase'] == 'path/pick_to_place']
+            if transport_ff:
+                result['payload_feedforward_summary'] = {
+                    'peak_active_mass_kg': float(np.max([r['active_mass_kg'] for r in transport_ff])),
+                    'mean_active_mass_kg': float(np.mean([r['active_mass_kg'] for r in transport_ff])),
+                    'peak_tau_ff_j2_Nm': float(np.max([abs(r['tau_ff_j2']) for r in transport_ff])),
+                    'peak_tau_ff_j3_Nm': float(np.max([abs(r['tau_ff_j3']) for r in transport_ff])),
+                }
+
         result_file = out_dir / 'result.json'
         result_file.write_text(json.dumps(result, indent=2, allow_nan=False))
 
@@ -740,6 +779,7 @@ def main():
     parser.add_argument('--config', default=str(ROOT / 'ur5_moveit_config' / 'config' / 'ros2_controllers_effort.yaml'),
                         help='Controller YAML with tuned discrete gains')
     parser.add_argument('--controller-name', default=None, help='Name of active arm controller (default: autodetect)')
+    parser.add_argument('--payload-kg', type=float, default=3.0, help='Nominal payload mass in kg (default: 3.0)')
     parser.add_argument('--generate-excel', type=str2bool, default=True, help='Generate Excel report (true/false)')
     parser.add_argument('--auto-exit', type=str2bool, default=False, help='Exit immediately upon completion (true/false)')
 

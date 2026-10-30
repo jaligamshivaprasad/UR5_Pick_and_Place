@@ -325,6 +325,20 @@ controller_interface::return_type AdaptiveArmController::update(
     }
   }
 
+  double mass_param = 0.0;
+  if (get_node()->get_parameter("payload_nominal_mass", mass_param)) {
+    if (mass_param > 0.0 && std::abs(mass_param - payload_params_.mass) > 1e-4) {
+      payload_params_.mass = mass_param;
+      payload_compensator_.set_parameters(payload_params_);
+      if (payload_compensator_.is_attached()) {
+        payload_compensator_.set_payload_attached(true, payload_params_.mass, payload_params_.com_offset);
+      }
+      RCLCPP_INFO(
+        get_node()->get_logger(), "Online parameter update: payload_nominal_mass = %.3f kg",
+        payload_params_.mass);
+    }
+  }
+
   // Base update: handles trajectory interpolation (state_desired_), state feedback reading (state_current_),
   // tracking error calculation (state_error_), goal tolerances, and FollowJointTrajectory action feedback.
   // Note: with use_closed_loop_pid_adapter_ = false, base does NOT execute pids_->computeCommand().

@@ -87,3 +87,4 @@ private:
 }  // namespace ur5_adaptive_control
 
 #endif  // UR5_ADAPTIVE_CONTROL__PAYLOAD_COMPENSATOR_HPP_
+

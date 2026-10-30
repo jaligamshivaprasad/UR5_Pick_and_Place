@@ -171,3 +171,4 @@ colcon build --packages-select ur5_adaptive_control
 source install/setup.bash
 ```
 No modifications were made to `arm_controller` baseline gains, Gazebo physics, or trajectory definitions. Baseline recovery is guaranteed.
+
