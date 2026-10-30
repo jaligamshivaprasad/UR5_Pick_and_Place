@@ -36,6 +36,7 @@ install(FILES EFFORT_MODE.md
 install(PROGRAMS
   scripts/scene_publisher_node.py
   scripts/robotiq_mimic_publisher.py
+  scripts/pick_place_trajectory_orchestrator.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

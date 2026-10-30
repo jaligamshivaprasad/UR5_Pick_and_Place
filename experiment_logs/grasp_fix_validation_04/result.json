@@ -1,0 +1,83 @@
+{
+  "status": "failed",
+  "mode": "effort",
+  "trajectory_file": "/home/shiva/ur5/ur5_ws/path01",
+  "trajectory_sha256": "17c484a66a42e1712fc4e9ca606cd7cc68f816ea268f48a443a876505d5117a6",
+  "frame": "base_link",
+  "tcp": "tool0",
+  "payload_kg": 0.1,
+  "gain_readbacks": {
+    "gains.shoulder_pan_joint.p": 380.0,
+    "gains.shoulder_pan_joint.i": 8.0,
+    "gains.shoulder_pan_joint.d": 6.0,
+    "gains.shoulder_pan_joint.i_clamp": 50.0,
+    "gains.shoulder_lift_joint.p": 900.0,
+    "gains.shoulder_lift_joint.i": 23.90625,
+    "gains.shoulder_lift_joint.d": 14.0,
+    "gains.shoulder_lift_joint.i_clamp": 92.96875,
+    "gains.elbow_joint.p": 540.0,
+    "gains.elbow_joint.i": 15.0,
+    "gains.elbow_joint.d": 5.5,
+    "gains.elbow_joint.i_clamp": 40.0,
+    "gains.wrist_1_joint.p": 75.0,
+    "gains.wrist_1_joint.i": 3.75,
+    "gains.wrist_1_joint.d": 0.7,
+    "gains.wrist_1_joint.i_clamp": 15.0,
+    "gains.wrist_2_joint.p": 84.375,
+    "gains.wrist_2_joint.i": 4.6875,
+    "gains.wrist_2_joint.d": 0.4,
+    "gains.wrist_2_joint.i_clamp": 21.0,
+    "gains.wrist_3_joint.p": 40.0,
+    "gains.wrist_3_joint.i": 3.0,
+    "gains.wrist_3_joint.d": 0.02,
+    "gains.wrist_3_joint.i_clamp": 3.0
+  },
+  "reason": "Released box is outside tray: position=[0.4339679053831876, 0.20025299583932657, 0.364999978768255]",
+  "measured_effort_telemetry": {
+    "source": "/dynamic_joint_states named effort interface; gz_ros2_control/Gazebo JointTransmittedWrench feedback",
+    "meaning": "simulated transmitted joint effort, not a physical torque-sensor measurement",
+    "alignment": "nearest simulation timestamp within +/- 0.020 s; no stale or commanded-effort fallback",
+    "dynamic_messages_received": 3512,
+    "required_post_startup_rows": 3057,
+    "matched_post_startup_rows": 3057,
+    "post_startup_coverage": 1.0,
+    "failure_counts": {
+      "missing_effort_fields": 0,
+      "nonfinite_effort": 0,
+      "timestamp_mismatch": 0
+    }
+  },
+  "metrics": {
+    "ee_rmse_mm": 32.63290148825869,
+    "ee_max_mm": 120.64788614077368,
+    "ee_final_path_mm": 1.5427285125830112,
+    "ee_final_settled_mm": 1.5427285125830112,
+    "wrist_3_jitter_rad_s": 0.06195642751728395,
+    "joint_rmse_rad": [
+      0.0314909380585328,
+      0.013951281461211744,
+      0.01322674487421532,
+      0.04658703127089036,
+      0.0472539456741983,
+      0.018392201949692277
+    ],
+    "joint_max_abs_rad": [
+      0.12628029108381722,
+      0.044257361705852816,
+      0.03689906803598475,
+      0.21664223369060975,
+      0.2329196169589558,
+      0.07875889951570714
+    ],
+    "peak_commanded_torque_Nm": [
+      49.20981692645611,
+      41.64339943799348,
+      20.536882265809574,
+      16.33641776861512,
+      20.84834295090144,
+      3.345395132265576
+    ],
+    "cycle_sec": 22.879999999999995,
+    "samples": 2267
+  }
+}
