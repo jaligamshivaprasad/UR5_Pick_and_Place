@@ -1,0 +1,176 @@
+{
+  "status": "passed",
+  "mode": "effort",
+  "trajectory_file": "/home/shiva/ur5/ur5_ws/path01",
+  "trajectory_sha256": "667d4142153beacacd946612571b9cad54c6c060f1630b32ac6873255ed50f1e",
+  "frame": "base_link",
+  "tcp": "tool0",
+  "payload_kg": 0.75,
+  "active_controller": "adaptive_arm_controller",
+  "gain_readbacks": {
+    "gains.shoulder_pan_joint.p": 380.0,
+    "gains.shoulder_pan_joint.i": 8.0,
+    "gains.shoulder_pan_joint.d": 6.0,
+    "gains.shoulder_pan_joint.i_clamp": 50.0,
+    "gains.shoulder_lift_joint.p": 900.0,
+    "gains.shoulder_lift_joint.i": 23.90625,
+    "gains.shoulder_lift_joint.d": 14.0,
+    "gains.shoulder_lift_joint.i_clamp": 92.96875,
+    "gains.elbow_joint.p": 540.0,
+    "gains.elbow_joint.i": 15.0,
+    "gains.elbow_joint.d": 5.5,
+    "gains.elbow_joint.i_clamp": 40.0,
+    "gains.wrist_1_joint.p": 75.0,
+    "gains.wrist_1_joint.i": 3.75,
+    "gains.wrist_1_joint.d": 0.7,
+    "gains.wrist_1_joint.i_clamp": 15.0,
+    "gains.wrist_2_joint.p": 84.375,
+    "gains.wrist_2_joint.i": 4.6875,
+    "gains.wrist_2_joint.d": 0.4,
+    "gains.wrist_2_joint.i_clamp": 21.0,
+    "gains.wrist_3_joint.p": 40.0,
+    "gains.wrist_3_joint.i": 3.0,
+    "gains.wrist_3_joint.d": 0.02,
+    "gains.wrist_3_joint.i_clamp": 3.0
+  },
+  "grasp_verification": {
+    "box_pose_at_pick": true,
+    "gripper_position_feedback": true,
+    "attachment_feedback": true,
+    "physical_contact_sensor": false,
+    "limitation": "No contact/force grasp sensor is configured; physical contact is not independently verified."
+  },
+  "measured_effort_telemetry": {
+    "source": "/dynamic_joint_states named effort interface; gz_ros2_control/Gazebo JointTransmittedWrench feedback",
+    "meaning": "simulated transmitted joint effort, not a physical torque-sensor measurement",
+    "alignment": "nearest simulation timestamp within +/- 0.020 s; no stale or commanded-effort fallback",
+    "dynamic_messages_received": 2954,
+    "required_post_startup_rows": 2619,
+    "matched_post_startup_rows": 2619,
+    "post_startup_coverage": 1.0,
+    "failure_counts": {
+      "missing_effort_fields": 0,
+      "nonfinite_effort": 0,
+      "timestamp_mismatch": 0
+    }
+  },
+  "metrics": {
+    "ee_rmse_mm": 0.7730872086403676,
+    "ee_max_mm": 3.1394425296739654,
+    "ee_final_path_mm": 0.1658404610662244,
+    "ee_final_settled_mm": 0.03742202140113436,
+    "wrist_3_jitter_rad_s": 0.07335296926805436,
+    "joint_rmse_rad": [
+      0.0007547486127451546,
+      0.00040143738606695514,
+      0.00033370571152254645,
+      0.0006839739253879922,
+      0.0005412438904789439,
+      0.00030938954517996755
+    ],
+    "joint_max_abs_rad": [
+      0.003806527161658635,
+      0.0023278095068635096,
+      0.0020570154599691692,
+      0.005044772780365747,
+      0.005180385591753378,
+      0.00381644103478207
+    ],
+    "peak_commanded_torque_Nm": [
+      2.2560314959665964,
+      11.499058521457032,
+      7.231505070105737,
+      1.4634045603819215,
+      0.546745783837731,
+      0.1552347248048083
+    ],
+    "cycle_sec": 16.11,
+    "samples": 1612
+  },
+  "gain_adaptation_summary": {
+    "shoulder_pan_joint": {
+      "kp_initial": 380.0,
+      "kp_min": 380.0,
+      "kp_max": 394.7446787426887,
+      "kp_final": 380.00605024400846,
+      "kd_initial": 6.0,
+      "kd_min": 6.0,
+      "kd_max": 6.125891094864759,
+      "kd_final": 6.0000113823216275,
+      "states_observed": [
+        "ACTIVE"
+      ]
+    },
+    "shoulder_lift_joint": {
+      "kp_initial": 900.0,
+      "kp_min": 900.0,
+      "kp_max": 934.7322819589355,
+      "kp_final": 900.0143653989936,
+      "kd_initial": 14.0,
+      "kd_min": 14.0,
+      "kd_max": 14.292889621144132,
+      "kd_final": 14.000042282698255,
+      "states_observed": [
+        "ACTIVE"
+      ]
+    },
+    "elbow_joint": {
+      "kp_initial": 540.0,
+      "kp_min": 540.0,
+      "kp_max": 560.84432939231,
+      "kp_final": 540.0085473102818,
+      "kd_initial": 5.5,
+      "kd_min": 5.5,
+      "kd_max": 5.617150473258756,
+      "kd_final": 5.5000129352079306,
+      "states_observed": [
+        "ACTIVE"
+      ]
+    },
+    "wrist_1_joint": {
+      "kp_initial": 75.0,
+      "kp_min": 75.0,
+      "kp_max": 77.9236028555547,
+      "kp_final": 75.00120951810511,
+      "kd_initial": 0.7,
+      "kd_min": 0.7,
+      "kd_max": 0.7175450419900128,
+      "kd_final": 0.7000019710631652,
+      "states_observed": [
+        "ACTIVE"
+      ]
+    },
+    "wrist_2_joint": {
+      "kp_initial": 84.375,
+      "kp_min": 84.375,
+      "kp_max": 87.63355258800367,
+      "kp_final": 84.37632303067987,
+      "kd_initial": 0.4,
+      "kd_min": 0.4,
+      "kd_max": 0.408422506390204,
+      "kd_final": 0.40000082547794596,
+      "states_observed": [
+        "ACTIVE"
+      ]
+    },
+    "wrist_3_joint": {
+      "kp_initial": 40.0,
+      "kp_min": 40.0,
+      "kp_max": 41.543862397596946,
+      "kp_final": 40.00062683724322,
+      "kd_initial": 0.02,
+      "kd_min": 0.02,
+      "kd_max": 0.02041841865768293,
+      "kd_final": 0.020000035357922847,
+      "states_observed": [
+        "ACTIVE"
+      ]
+    }
+  },
+  "payload_feedforward_summary": {
+    "peak_active_mass_kg": 1.5,
+    "mean_active_mass_kg": 0.5130090497737556,
+    "peak_tau_ff_j2_Nm": 11.543171353469392,
+    "peak_tau_ff_j3_Nm": 7.201787961051693
+  }
+}

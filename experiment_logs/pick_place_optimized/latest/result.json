@@ -5,7 +5,8 @@
   "trajectory_sha256": "667d4142153beacacd946612571b9cad54c6c060f1630b32ac6873255ed50f1e",
   "frame": "base_link",
   "tcp": "tool0",
-  "payload_kg": 0.1,
+  "payload_kg": 3.0,
+  "active_controller": "arm_controller",
   "gain_readbacks": {
     "gains.shoulder_pan_joint.p": 380.0,
     "gains.shoulder_pan_joint.i": 8.0,
@@ -43,9 +44,9 @@
     "source": "/dynamic_joint_states named effort interface; gz_ros2_control/Gazebo JointTransmittedWrench feedback",
     "meaning": "simulated transmitted joint effort, not a physical torque-sensor measurement",
     "alignment": "nearest simulation timestamp within +/- 0.020 s; no stale or commanded-effort fallback",
-    "dynamic_messages_received": 3002,
-    "required_post_startup_rows": 2605,
-    "matched_post_startup_rows": 2605,
+    "dynamic_messages_received": 3042,
+    "required_post_startup_rows": 2559,
+    "matched_post_startup_rows": 2559,
     "post_startup_coverage": 1.0,
     "failure_counts": {
       "missing_effort_fields": 0,
@@ -54,36 +55,36 @@
     }
   },
   "metrics": {
-    "ee_rmse_mm": 0.6882411922249497,
-    "ee_max_mm": 1.7997149167891788,
-    "ee_final_path_mm": 0.19711895200445034,
-    "ee_final_settled_mm": 0.17905200189841056,
-    "wrist_3_jitter_rad_s": 0.0738613328877216,
+    "ee_rmse_mm": 14.94226958091274,
+    "ee_max_mm": 32.58485614647996,
+    "ee_final_path_mm": 4.007409775244645,
+    "ee_final_settled_mm": 3.467693544118483,
+    "wrist_3_jitter_rad_s": 0.07380946907591411,
     "joint_rmse_rad": [
-      0.0003476446431463494,
-      0.00046857625903499415,
-      0.000456529610359329,
-      0.0007073514972226173,
-      0.00034694780451082434,
-      0.00010628899925919989
+      0.0044073338040417735,
+      0.01112750279962472,
+      0.011026904783676968,
+      0.015084737331651518,
+      0.004864826557523942,
+      0.002247887046979417
     ],
     "joint_max_abs_rad": [
-      0.0014258470292585201,
-      0.0013542670232964404,
-      0.0014825546811858548,
-      0.0030926117638856443,
-      0.0021625520476229454,
-      0.001464684478613698
+      0.03013772707425655,
+      0.024600570909050212,
+      0.023702189443849386,
+      0.04048008592697161,
+      0.025254456709288498,
+      0.019288343001448993
     ],
     "peak_commanded_torque_Nm": [
-      0.5525339522721169,
-      1.328274522217614,
-      0.8342219267610989,
-      0.24592264991427207,
-      0.19697078738552082,
-      0.05943345168671196
+      11.611154266113894,
+      24.37149440508257,
+      14.01903411282826,
+      3.0746550199651437,
+      2.1713414192371894,
+      0.7857396772400568
     ],
-    "cycle_sec": 16.39,
-    "samples": 1615
+    "cycle_sec": 16.259999999999998,
+    "samples": 1588
   }
 }
