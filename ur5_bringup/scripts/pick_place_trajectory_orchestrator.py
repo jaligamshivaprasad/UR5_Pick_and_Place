@@ -41,7 +41,7 @@ from controller_manager_msgs.srv import ListControllers, ListHardwareInterfaces
 from control_msgs.msg import DynamicJointState, JointTrajectoryControllerState
 from control_msgs.action import FollowJointTrajectory
 from sensor_msgs.msg import JointState
-from std_msgs.msg import String, Empty
+from std_msgs.msg import String, Empty, Float64MultiArray
 from tf2_msgs.msg import TFMessage
 from trajectory_msgs.msg import JointTrajectoryPoint
 from builtin_interfaces.msg import Duration
@@ -120,7 +120,10 @@ def run_orchestrator(args):
     else:
         config_path = config_path.resolve()
     config = yaml.safe_load(config_path.read_text())
-    gains = config['arm_controller']['ros__parameters'].get('gains', {})
+    target_ctrl = getattr(args, 'controller_name', None)
+    if not target_ctrl:
+        target_ctrl = 'adaptive_arm_controller' if ('adaptive_arm_controller' in config and 'arm_controller' not in config) else 'arm_controller'
+    gains = config.get(target_ctrl, config.get('arm_controller', {})).get('ros__parameters', {}).get('gains', {})
 
     rclpy.init(args=sys.argv)
     node = Node('pick_place_trajectory_orchestrator')
@@ -192,6 +195,16 @@ def run_orchestrator(args):
     def dynamic_state_cb(msg: DynamicJointState):
         finalize_effort_matches(effort_sync.add_message(msg))
 
+    # Live effective gains tracking (defaults to nominal YAML gains)
+    live_gains = {}
+    for j in JOINTS:
+        if j in gains:
+            live_gains[j] = {'Kp': float(gains[j].get('p', float('nan'))),
+                             'Ki': float(gains[j].get('i', float('nan'))),
+                             'Kd': float(gains[j].get('d', float('nan')))}
+        else:
+            live_gains[j] = {'Kp': float('nan'), 'Ki': float('nan'), 'Kd': float('nan')}
+
     def controller_state_cb(msg: JointTrajectoryControllerState):
         nonlocal fault
         try:
@@ -225,9 +238,8 @@ def run_orchestrator(args):
                 row[j + '__commanded_effort_Nm'] = float(torque[k])
                 if len(msg.desired.velocities) == 6:
                     row[j + '__reference_velocity_rad_s'] = float(msg.desired.velocities[order[k]])
-                for key, param in [('Kp', 'p'), ('Ki', 'i'), ('Kd', 'd')]:
-                    if j in gains:
-                        row[j + '__' + key] = float(gains[j][param])
+                for key in ('Kp', 'Ki', 'Kd'):
+                    row[j + '__' + key] = float(live_gains[j][key])
 
             if fk:
                 r, a = fk.xyz(ref), fk.xyz(act)
@@ -251,6 +263,45 @@ def run_orchestrator(args):
     node.create_subscription(JointState, '/joint_states', joint_state_cb, 10)
     node.create_subscription(TFMessage, '/world/ur5_pick_place/dynamic_pose/info', pose_cb, 10)
 
+    gain_records = []
+    state_names = {
+        0: 'DISABLED', 1: 'ACTIVE', 2: 'FROZEN_SATURATION',
+        3: 'FROZEN_OSCILLATION', 4: 'FROZEN_FEEDBACK', 5: 'FALLBACK'
+    }
+
+    def gain_telemetry_cb(msg: Float64MultiArray):
+        stride = 10
+        if len(msg.data) < 6 * stride:
+            return
+        now_sec = time.monotonic()
+        for idx, j_name in enumerate(JOINTS):
+            base = idx * stride
+            kp = float(msg.data[base + 0])
+            ki = float(msg.data[base + 1])
+            kd = float(msg.data[base + 2])
+            if j_name in live_gains:
+                live_gains[j_name]['Kp'] = kp
+                live_gains[j_name]['Ki'] = ki
+                live_gains[j_name]['Kd'] = kd
+            gain_records.append({
+                'time_sec': now_sec,
+                'phase': phase,
+                'joint': j_name,
+                'kp': kp,
+                'ki': ki,
+                'kd': kd,
+                'pos_error': float(msg.data[base + 3]),
+                'vel_error': float(msg.data[base + 4]),
+                'ref_vel': float(msg.data[base + 5]),
+                'comp_error': float(msg.data[base + 6]),
+                'effort': float(msg.data[base + 7]),
+                'saturated': bool(round(msg.data[base + 8])),
+                'state_code': int(round(msg.data[base + 9])),
+                'state_name': state_names.get(int(round(msg.data[base + 9])), 'UNKNOWN'),
+            })
+
+    node.create_subscription(Float64MultiArray, '/adaptive_arm_controller/gain_telemetry', gain_telemetry_cb, 100)
+
     def spin_until(predicate, seconds=20, check=True):
         deadline = time.monotonic() + seconds
         while not predicate():
@@ -266,7 +317,7 @@ def run_orchestrator(args):
         start = states[-1][0] if states else 0.0
         spin_until(lambda: (states[-1][0] - start if states else 0.0) >= seconds, max(20, seconds * 5))
 
-    arm = ActionClient(node, FollowJointTrajectory, '/arm_controller/follow_joint_trajectory')
+    arm = None
     gripper = ActionClient(
         node, FollowJointTrajectory,
         '/robotiq_gripper_controller/follow_joint_trajectory')
@@ -408,40 +459,65 @@ def run_orchestrator(args):
         # the readiness signal; detach and confirm it before controller startup
         # or any arm command can move the payload.
         node.get_logger().info('Waiting for initial Gazebo grasp state...')
-        spin_until(lambda: grasp_state is not None, seconds=15, check=False)
+        grasp_deadline = time.monotonic() + 3.0
+        while grasp_state is None and time.monotonic() < grasp_deadline:
+            rclpy.spin_once(node, timeout_sec=0.1)
+        if grasp_state is None:
+            node.get_logger().info('Synchronizing grasp state with running Gazebo simulation...')
+            detach_pub.publish(Empty())
+            grasp_deadline = time.monotonic() + 2.0
+            while grasp_state is None and time.monotonic() < grasp_deadline:
+                rclpy.spin_once(node, timeout_sec=0.1)
+            if grasp_state is None:
+                attach_pub.publish(Empty())
+                spin_until(lambda: grasp_state is not None, seconds=5, check=False)
         set_attachment(False)
 
-        # Wait for controller manager and active arm_controller
-        node.get_logger().info('Waiting for /arm_controller to become active...')
+        # Wait for controller manager and active arm controller
+        node.get_logger().info('Waiting for active arm controller and joint state broadcaster...')
         list_client = node.create_client(ListControllers, '/controller_manager/list_controllers')
         if not list_client.wait_for_service(timeout_sec=60):
             raise RuntimeError('Controller manager did not initialize within 60s')
 
+        active_ctrl = None
         deadline = time.monotonic() + 60
         while True:
             future = list_client.call_async(ListControllers.Request())
             spin_until(future.done, 8)
             controllers = future.result().controller
             observed = {c.name: c.state for c in controllers}
-            if observed.get('arm_controller') == 'active' and observed.get('joint_state_broadcaster') == 'active':
-                node.get_logger().info(f'Controllers active: {observed}')
-                break
+            if observed.get('joint_state_broadcaster') == 'active':
+                req = getattr(args, 'controller_name', None)
+                if req and observed.get(req) == 'active':
+                    active_ctrl = req
+                    break
+                elif not req:
+                    if observed.get('adaptive_arm_controller') == 'active':
+                        active_ctrl = 'adaptive_arm_controller'
+                        break
+                    elif observed.get('arm_controller') == 'active':
+                        active_ctrl = 'arm_controller'
+                        break
             if time.monotonic() > deadline:
                 raise RuntimeError(f'Timed out waiting for controllers to activate. Observed: {observed}')
             time.sleep(0.5)
             rclpy.spin_once(node, timeout_sec=0.1)
         node.destroy_client(list_client)
+        node.get_logger().info(f'Detected active arm controller: {active_ctrl}')
+        result['active_controller'] = active_ctrl
+
+        arm = ActionClient(node, FollowJointTrajectory, f'/{active_ctrl}/follow_joint_trajectory')
 
         # Gain readback check in effort mode
         if args.mode == 'effort':
-            param_client = node.create_client(GetParameters, '/arm_controller/get_parameters')
+            param_client = node.create_client(GetParameters, f'/{active_ctrl}/get_parameters')
             if param_client.wait_for_service(timeout_sec=10):
                 names = [f'gains.{j}.{key}' for j in JOINTS for key in ('p', 'i', 'd', 'i_clamp')]
                 future = param_client.call_async(GetParameters.Request(names=names))
                 spin_until(future.done, 8)
                 readbacks = {names[idx]: v.double_value for idx, v in enumerate(future.result().values)}
                 result['gain_readbacks'] = readbacks
-                node.get_logger().info('Effort controller gain readbacks verified successfully.')
+                node.get_logger().info(f'Effort controller ({active_ctrl}) gain readbacks verified successfully.')
                 node.destroy_client(param_client)
 
         # Wait for telemetry and FK model
@@ -560,6 +636,33 @@ def run_orchestrator(args):
                 'samples': len(path_rows),
             }
 
+        if gain_records:
+            gain_csv = out_dir / 'gain_adaptation_log.csv'
+            node.get_logger().info(f'Writing gain adaptation telemetry log ({len(gain_records)} rows): {gain_csv}...')
+            with gain_csv.open('w', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=list(gain_records[0].keys()))
+                writer.writeheader()
+                writer.writerows(gain_records)
+
+            gain_summary = {}
+            for j in JOINTS:
+                j_rows = [r for r in gain_records if r['joint'] == j]
+                if j_rows:
+                    kp_vals = [r['kp'] for r in j_rows]
+                    kd_vals = [r['kd'] for r in j_rows]
+                    gain_summary[j] = {
+                        'kp_initial': kp_vals[0],
+                        'kp_min': float(np.min(kp_vals)),
+                        'kp_max': float(np.max(kp_vals)),
+                        'kp_final': kp_vals[-1],
+                        'kd_initial': kd_vals[0],
+                        'kd_min': float(np.min(kd_vals)),
+                        'kd_max': float(np.max(kd_vals)),
+                        'kd_final': kd_vals[-1],
+                        'states_observed': list(sorted(set(r['state_name'] for r in j_rows))),
+                    }
+            result['gain_adaptation_summary'] = gain_summary
+
         result_file = out_dir / 'result.json'
         result_file.write_text(json.dumps(result, indent=2, allow_nan=False))
 
@@ -636,6 +739,7 @@ def main():
     parser.add_argument('--mode', choices=['position', 'effort'], default='effort', help='Arm controller mode')
     parser.add_argument('--config', default=str(ROOT / 'ur5_moveit_config' / 'config' / 'ros2_controllers_effort.yaml'),
                         help='Controller YAML with tuned discrete gains')
+    parser.add_argument('--controller-name', default=None, help='Name of active arm controller (default: autodetect)')
     parser.add_argument('--generate-excel', type=str2bool, default=True, help='Generate Excel report (true/false)')
     parser.add_argument('--auto-exit', type=str2bool, default=False, help='Exit immediately upon completion (true/false)')
 

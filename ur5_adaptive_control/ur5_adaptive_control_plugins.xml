@@ -1,0 +1,10 @@
+<library path="ur5_adaptive_control">
+  <class name="ur5_adaptive_control/AdaptiveArmController"
+         type="ur5_adaptive_control::AdaptiveArmController"
+         base_class_type="controller_interface::ControllerInterface">
+    <description>
+      Payload-aware online adaptive PID controller for UR5 arm in ROS 2 Humble.
+    </description>
+  </class>
+</library>
+

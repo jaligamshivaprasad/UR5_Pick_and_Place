@@ -1,0 +1,122 @@
+controller_manager:
+  ros__parameters:
+    use_sim_time: true
+    update_rate: 100
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    adaptive_arm_controller:
+      type: ur5_adaptive_control/AdaptiveArmController
+
+    robotiq_gripper_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+joint_state_broadcaster:
+  ros__parameters:
+    use_local_topics: false
+    joints:
+      - shoulder_pan_joint
+      - shoulder_lift_joint
+      - elbow_joint
+      - wrist_1_joint
+      - wrist_2_joint
+      - wrist_3_joint
+      - robotiq_85_left_knuckle_joint
+      - robotiq_85_right_knuckle_joint_mimic
+      - robotiq_85_left_inner_knuckle_joint_mimic
+      - robotiq_85_right_inner_knuckle_joint_mimic
+      - robotiq_85_left_finger_tip_joint_mimic
+      - robotiq_85_right_finger_tip_joint_mimic
+
+arm_controller:
+  ros__parameters:
+    joints:
+      - shoulder_pan_joint
+      - shoulder_lift_joint
+      - elbow_joint
+      - wrist_1_joint
+      - wrist_2_joint
+      - wrist_3_joint
+    command_interfaces:
+      - effort
+    state_interfaces:
+      - position
+      - velocity
+    open_loop_control: false
+    allow_integration_in_goal_trajectories: true
+    state_publish_rate: 100.0
+    gains:
+      shoulder_pan_joint: {p: 380.0, i: 8.0, d: 6.0, i_clamp: 50.0}
+      shoulder_lift_joint: {p: 900.0, i: 23.90625, d: 14.0, i_clamp: 92.96875}
+      elbow_joint: {p: 540.0, i: 15.0, d: 5.5, i_clamp: 40.0}
+      wrist_1_joint: {p: 75.0, i: 3.75, d: 0.7, i_clamp: 15.0}
+      wrist_2_joint: {p: 84.375, i: 4.6875, d: 0.4, i_clamp: 21.0}
+      wrist_3_joint: {p: 40.0, i: 3.0, d: 0.02, i_clamp: 3.0}
+
+adaptive_arm_controller:
+  ros__parameters:
+    joints:
+      - shoulder_pan_joint
+      - shoulder_lift_joint
+      - elbow_joint
+      - wrist_1_joint
+      - wrist_2_joint
+      - wrist_3_joint
+    command_interfaces:
+      - effort
+    state_interfaces:
+      - position
+      - velocity
+    open_loop_control: false
+    allow_integration_in_goal_trajectories: true
+    state_publish_rate: 100.0
+    adaptation_enabled: true
+    mirror_to_arm_controller_state: true
+    torque_limits: [150.0, 150.0, 150.0, 28.0, 28.0, 28.0]
+    adaptation_rate_hz: 100.0
+    adaptation_gamma_p: 80.0
+    adaptation_gamma_d: 3.0
+    adaptation_gamma_i: 20.0
+    adaptation_sigma_p: 1.0
+    adaptation_sigma_d: 1.2
+    adaptation_sigma_i: 0.5
+    adaptation_lambda: 10.0
+    adaptation_deadband_pos: 0.0005
+    adaptation_deadband_vel: 0.001
+    adaptation_kp_min_ratio: 0.75
+    adaptation_kp_max_ratio: 2.00
+    adaptation_kd_min_ratio: 0.75
+    adaptation_kd_max_ratio: 1.50
+    adaptation_ki_min_ratio: 0.90
+    adaptation_ki_max_ratio: 4.00
+    adaptation_rate_limit_ratio: 6.0
+    filter_cutoff_hz: 20.0
+    payload_feedforward_enabled: true
+    payload_nominal_mass: 3.0
+    payload_com_offset: [0.0, 0.0, 0.1414]
+    payload_ramp_duration_sec: 0.20
+    payload_max_torque_rate: 150.0
+    robot_description_path: "/home/shiva/ur5/ur5_ws/experiment_logs/test_phase4_1_adaptive/robot.urdf"
+    gains:
+      shoulder_pan_joint: {p: 380.0, i: 8.0, d: 6.0, i_clamp: 50.0}
+      shoulder_lift_joint: {p: 900.0, i: 23.90625, d: 14.0, i_clamp: 92.96875}
+      elbow_joint: {p: 540.0, i: 15.0, d: 5.5, i_clamp: 40.0}
+      wrist_1_joint: {p: 75.0, i: 3.75, d: 0.7, i_clamp: 15.0}
+      wrist_2_joint: {p: 84.375, i: 4.6875, d: 0.4, i_clamp: 21.0}
+      wrist_3_joint: {p: 40.0, i: 3.0, d: 0.02, i_clamp: 3.0}
+
+robotiq_gripper_controller:
+  ros__parameters:
+    joints:
+      - robotiq_85_left_knuckle_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+    open_loop_control: false
+    allow_integration_in_goal_trajectories: true
+
