@@ -413,7 +413,10 @@ def run_progressive_tests():
     supervisor.spin_for(1.0)
     q_final = np.array(supervisor.get_arm_positions())
     final_drift = float(np.max(np.abs(q_final - START_POSE)))
-    print(f"  -> Reverted to {FIXED_CONTROLLER}. Drift vs START_POSE = {final_drift:.6f} rad")
+    print(f"  -> Reverted to {FIXED_CONTROLLER}. Drift vs START_POSE = {final_drift:.6f} rad (G3 gate <= 0.02 rad)")
+    if final_drift > 0.02:
+        print("  FAIL: Recovery drift exceeds preserved G3 switching-safety limit")
+        return False
     print("  -> PASS\n")
 
     supervisor.destroy_node()

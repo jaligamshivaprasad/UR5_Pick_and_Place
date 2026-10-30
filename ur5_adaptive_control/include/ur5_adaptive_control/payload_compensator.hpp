@@ -9,6 +9,7 @@
 
 #include <kdl/chain.hpp>
 #include <kdl/chainjnttojacsolver.hpp>
+#include <kdl/chainjnttojacdotsolver.hpp>
 #include <kdl/chainfksolverpos_recursive.hpp>
 #include <kdl/frames.hpp>
 #include <kdl/jntarray.hpp>
@@ -74,10 +75,12 @@ public:
 private:
   KDL::Chain chain_;
   std::unique_ptr<KDL::ChainJntToJacSolver> jac_solver_;
+  std::unique_ptr<KDL::ChainJntToJacDotSolver> jac_dot_solver_;
   std::unique_ptr<KDL::ChainFkSolverPos_recursive> fk_solver_;
 
   // Pre-allocated KDL structures (zero dynamic allocation in compute_feedforward)
   KDL::JntArray kdl_q_;
+  KDL::JntArrayVel kdl_q_vel_;
   KDL::Jacobian kdl_jac_;
   KDL::Frame kdl_frame_;
 

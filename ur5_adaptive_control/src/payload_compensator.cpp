@@ -7,7 +7,7 @@ namespace ur5_adaptive_control
 {
 
 PayloadCompensator::PayloadCompensator()
-: kdl_q_(6), kdl_jac_(6)
+: kdl_q_(6), kdl_q_vel_(6), kdl_jac_(6)
 {
   last_torques_.fill(0.0);
 }
@@ -42,9 +42,11 @@ bool PayloadCompensator::init_from_urdf(
   }
 
   kdl_q_.resize(num_joints);
+  kdl_q_vel_.resize(num_joints);
   kdl_jac_.resize(num_joints);
 
   jac_solver_ = std::make_unique<KDL::ChainJntToJacSolver>(chain_);
+  jac_dot_solver_ = std::make_unique<KDL::ChainJntToJacDotSolver>(chain_);
   fk_solver_ = std::make_unique<KDL::ChainFkSolverPos_recursive>(chain_);
 
   initialized_ = true;
@@ -71,7 +73,9 @@ void PayloadCompensator::set_payload_attached(
   const std::array<double, 3> & inertia_diag) noexcept
 {
   is_attached_ = attached;
-  if (mass > 0.0) {
+  // A detach event must not replace the configured payload mass with the API's
+  // legacy default argument. Preserve it for telemetry and the next attach.
+  if (attached && mass > 0.0) {
     current_params_.mass = mass;
   }
   current_params_.com_offset = com_offset;
@@ -175,10 +179,14 @@ std::array<double, 6> PayloadCompensator::compute_feedforward(
       omega_tool0.z(omega_tool0.z() + kdl_jac_(5, j) * qd[j]);
     }
 
-    // 2. Tool0 linear and angular accelerations: a_tool0 = J_v * qdd, alpha_tool0 = J_w * qdd
+    // 2. Tool0 spatial acceleration from the reference trajectory:
+    //    A_tool0 = J(q) * qdd_ref + Jdot(q, qd_ref) * qd_ref.
+    // KDL's default hybrid representation matches kdl_jac_: base-frame twist at tool0.
     KDL::Vector a_tool0(0.0, 0.0, 0.0);
     KDL::Vector alpha_tool0(0.0, 0.0, 0.0);
     for (unsigned int j = 0; j < 6; ++j) {
+      kdl_q_vel_.q(j) = q[j];
+      kdl_q_vel_.qdot(j) = qd[j];
       a_tool0.x(a_tool0.x() + kdl_jac_(0, j) * qdd[j]);
       a_tool0.y(a_tool0.y() + kdl_jac_(1, j) * qdd[j]);
       a_tool0.z(a_tool0.z() + kdl_jac_(2, j) * qdd[j]);
@@ -186,6 +194,12 @@ std::array<double, 6> PayloadCompensator::compute_feedforward(
       alpha_tool0.y(alpha_tool0.y() + kdl_jac_(4, j) * qdd[j]);
       alpha_tool0.z(alpha_tool0.z() + kdl_jac_(5, j) * qdd[j]);
     }
+    KDL::Twist jdot_qdot = KDL::Twist::Zero();
+    if (jac_dot_solver_->JntToJacDot(kdl_q_vel_, jdot_qdot) < 0) {
+      return last_torques_;
+    }
+    a_tool0 = a_tool0 + jdot_qdot.vel;
+    alpha_tool0 = alpha_tool0 + jdot_qdot.rot;
 
     // 3. Payload COM linear acceleration (including spatial cross-term kinematics):
     // a_com = a_tool0 + alpha_tool0 x r_com_base + omega_tool0 x (omega_tool0 x r_com_base)

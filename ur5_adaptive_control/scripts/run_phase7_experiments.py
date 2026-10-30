@@ -256,7 +256,7 @@ def run_single_trial(cfg):
             f"source /opt/ros/humble/setup.bash && source {ROOT}/install/setup.bash && "
             f"python3 {ROOT}/ur5_bringup/scripts/pick_place_trajectory_orchestrator.py "
             f"--path {ROOT}/path01 --mode effort --controller-name adaptive_arm_controller "
-            f"--payload-kg {mass} --output-dir {out_dir} --auto-exit false"
+            f"--payload-kg {mass} --output-dir {out_dir} --auto-exit true"
         )
         orch_proc = subprocess.run(["bash", "-c", orch_cmd], capture_output=True, text=True)
         print(orch_proc.stdout)

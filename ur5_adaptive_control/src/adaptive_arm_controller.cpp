@@ -213,18 +213,20 @@ controller_interface::CallbackReturn AdaptiveArmController::on_configure(
     "/pick_place/grasp/state", rclcpp::SystemDefaultsQoS(),
     [this](const std_msgs::msg::String::SharedPtr msg) {
       if (!msg) return;
-      if (msg->data.find("attached") != std::string::npos) {
+      // Match the complete state token. In particular, "detached" contains
+      // "attached" and must never engage compensation.
+      if (msg->data == "detached") {
+        payload_compensator_.set_payload_attached(false);
+        RCLCPP_INFO(
+          get_node()->get_logger(),
+          "Payload grasp DETACH detected. Disengaging feedforward ramp.");
+      } else if (msg->data == "attached") {
         payload_compensator_.set_payload_attached(
           true, payload_params_.mass, payload_params_.com_offset);
         RCLCPP_INFO(
           get_node()->get_logger(),
           "Payload grasp ATTACH detected: mass=%.2f kg, offset=[%.4f, %.4f, %.4f]. Engaging feedforward ramp.",
           payload_params_.mass, payload_params_.com_offset[0], payload_params_.com_offset[1], payload_params_.com_offset[2]);
-      } else if (msg->data.find("detached") != std::string::npos) {
-        payload_compensator_.set_payload_attached(false);
-        RCLCPP_INFO(
-          get_node()->get_logger(),
-          "Payload grasp DETACH detected. Disengaging feedforward ramp.");
       }
     });
 

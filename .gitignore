@@ -19,3 +19,7 @@ venv/
 *~
 .DS_Store
 
+# Temporary / backup files
+.~lock.*
+*.backup_*.xlsx
+
