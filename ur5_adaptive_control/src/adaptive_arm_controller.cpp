@@ -58,6 +58,13 @@ controller_interface::CallbackReturn AdaptiveArmController::on_init()
     auto_declare<std::string>(
       "robot_description_path",
       "/home/shiva/ur5/ur5_ws/experiment_logs/test_phase4_1_adaptive/robot.urdf");
+
+    // Phase 7: Dynamic Feedforward & Gain Scheduling parameters
+    auto_declare<bool>("payload_dynamic_feedforward_enabled", false);
+    auto_declare<double>("payload_dynamic_scale", 1.0);
+    auto_declare<bool>("payload_gain_scheduling_enabled", false);
+    auto_declare<double>("payload_gain_scheduling_kp_factor", 0.15);
+    auto_declare<double>("payload_gain_scheduling_kd_factor", 0.08);
   } catch (const std::exception & e) {
     RCLCPP_ERROR(get_node()->get_logger(), "Exception during parameter declaration: %s", e.what());
     return controller_interface::CallbackReturn::ERROR;
@@ -127,6 +134,7 @@ controller_interface::CallbackReturn AdaptiveArmController::on_configure(
     discrete_pids_[i] = DiscretePid(pg, pl);
     if (i < 6) {
       nominal_gains[i] = pg;
+      nominal_gains_[i] = pg;
     }
   }
 
@@ -154,7 +162,7 @@ controller_interface::CallbackReturn AdaptiveArmController::on_configure(
     "Configured AdaptiveArmController for %zu joints. Mode: %s, Adaptation: %s @ %.1f Hz. Single DiscretePid authority active.",
     dof_, operating_mode_.c_str(), adaptation_enabled_ ? "ENABLED" : "DISABLED", adaptation_rate_hz_);
 
-  // 7. Phase 5: Read Payload Feedforward configuration
+  // 7. Phase 5 & Phase 7: Read Payload Feedforward & Dynamic configuration
   payload_feedforward_enabled_ = get_node()->get_parameter("payload_feedforward_enabled").as_bool();
   payload_params_.enabled = payload_feedforward_enabled_;
   payload_params_.mass = get_node()->get_parameter("payload_nominal_mass").as_double();
@@ -164,6 +172,17 @@ controller_interface::CallbackReturn AdaptiveArmController::on_configure(
   }
   payload_params_.ramp_duration = get_node()->get_parameter("payload_ramp_duration_sec").as_double();
   payload_params_.max_torque_rate = get_node()->get_parameter("payload_max_torque_rate").as_double();
+
+  // Phase 7 parameters
+  payload_dynamic_feedforward_enabled_ = get_node()->get_parameter("payload_dynamic_feedforward_enabled").as_bool();
+  payload_dynamic_scale_ = get_node()->get_parameter("payload_dynamic_scale").as_double();
+  payload_params_.dynamic_enabled = payload_dynamic_feedforward_enabled_;
+  payload_params_.dynamic_scale = payload_dynamic_scale_;
+
+  payload_gain_scheduling_enabled_ = get_node()->get_parameter("payload_gain_scheduling_enabled").as_bool();
+  payload_gain_scheduling_kp_factor_ = get_node()->get_parameter("payload_gain_scheduling_kp_factor").as_double();
+  payload_gain_scheduling_kd_factor_ = get_node()->get_parameter("payload_gain_scheduling_kd_factor").as_double();
+
   payload_compensator_.set_parameters(payload_params_);
 
   // Load URDF and initialize PayloadCompensator
@@ -339,6 +358,37 @@ controller_interface::return_type AdaptiveArmController::update(
     }
   }
 
+  bool dyn_param = false;
+  if (get_node()->get_parameter("payload_dynamic_feedforward_enabled", dyn_param)) {
+    if (dyn_param != payload_params_.dynamic_enabled) {
+      payload_dynamic_feedforward_enabled_ = dyn_param;
+      payload_params_.dynamic_enabled = dyn_param;
+      payload_compensator_.set_parameters(payload_params_);
+      RCLCPP_INFO(
+        get_node()->get_logger(), "Online parameter update: payload_dynamic_feedforward_enabled = %s",
+        dyn_param ? "true" : "false");
+    }
+  }
+
+  double scale_param = 0.0;
+  if (get_node()->get_parameter("payload_dynamic_scale", scale_param)) {
+    if (scale_param > 0.0 && std::abs(scale_param - payload_params_.dynamic_scale) > 1e-4) {
+      payload_dynamic_scale_ = scale_param;
+      payload_params_.dynamic_scale = scale_param;
+      payload_compensator_.set_parameters(payload_params_);
+    }
+  }
+
+  bool sched_param = false;
+  if (get_node()->get_parameter("payload_gain_scheduling_enabled", sched_param)) {
+    if (sched_param != payload_gain_scheduling_enabled_) {
+      payload_gain_scheduling_enabled_ = sched_param;
+      RCLCPP_INFO(
+        get_node()->get_logger(), "Online parameter update: payload_gain_scheduling_enabled = %s",
+        sched_param ? "true" : "false");
+    }
+  }
+
   // Base update: handles trajectory interpolation (state_desired_), state feedback reading (state_current_),
   // tracking error calculation (state_error_), goal tolerances, and FollowJointTrajectory action feedback.
   // Note: with use_closed_loop_pid_adapter_ = false, base does NOT execute pids_->computeCommand().
@@ -360,6 +410,23 @@ controller_interface::return_type AdaptiveArmController::update(
   if (should_adapt) {
     last_adaptation_time_ = time;
 
+    // Phase 7: Payload-aware gain scheduling (adjusts nominal reference gains according to active mass)
+    if (payload_gain_scheduling_enabled_) {
+      const double alpha = payload_compensator_.get_ramp_factor();
+      const double mass = payload_compensator_.get_parameters().mass;
+      const double f_sched = alpha * std::clamp(mass / 3.0, 0.0, 1.5);
+      for (size_t i = 0; i < dof_ && i < 6; ++i) {
+        PidGains sched = nominal_gains_[i];
+        sched.p *= (1.0 + payload_gain_scheduling_kp_factor_ * f_sched);
+        sched.d *= (1.0 + payload_gain_scheduling_kd_factor_ * f_sched);
+        gain_adaptation_.get_joint(i).set_nominal_gains(sched);
+      }
+    } else {
+      for (size_t i = 0; i < dof_ && i < 6; ++i) {
+        gain_adaptation_.get_joint(i).set_nominal_gains(nominal_gains_[i]);
+      }
+    }
+
     std::array<double, 6> pos_errors{};
     std::array<double, 6> vel_errors{};
     std::array<double, 6> ref_vels{};
@@ -380,10 +447,15 @@ controller_interface::return_type AdaptiveArmController::update(
 
   // 3. Compute Payload Feedforward (Allocation-free, 100 Hz safe)
   std::array<double, 6> q_current{};
+  std::array<double, 6> qd_desired{};
+  std::array<double, 6> qdd_desired{};
   for (size_t i = 0; i < dof_ && i < 6; ++i) {
     q_current[i] = joint_state_interface_[0][i].get().get_value();
+    qd_desired[i] = (i < state_desired_.velocities.size()) ? state_desired_.velocities[i] : 0.0;
+    qdd_desired[i] = (i < state_desired_.accelerations.size()) ? state_desired_.accelerations[i] : 0.0;
   }
-  last_payload_feedforward_ = payload_compensator_.compute_feedforward(q_current, dt_sec);
+  last_payload_feedforward_ = payload_compensator_.compute_feedforward(
+    q_current, qd_desired, qdd_desired, dt_sec);
 
   // 4. Authoritative Torque Computation via DiscretePid + Payload Feedforward
   if (has_effort_command_interface_) {

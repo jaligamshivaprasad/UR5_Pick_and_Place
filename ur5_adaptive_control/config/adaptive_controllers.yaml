@@ -100,6 +100,11 @@ adaptive_arm_controller:
     payload_com_offset: [0.0, 0.0, 0.1414]
     payload_ramp_duration_sec: 0.20
     payload_max_torque_rate: 150.0
+    payload_dynamic_feedforward_enabled: false
+    payload_dynamic_scale: 1.0
+    payload_gain_scheduling_enabled: false
+    payload_gain_scheduling_kp_factor: 0.15
+    payload_gain_scheduling_kd_factor: 0.08
     robot_description_path: "/home/shiva/ur5/ur5_ws/experiment_logs/test_phase4_1_adaptive/robot.urdf"
     gains:
       shoulder_pan_joint: {p: 380.0, i: 8.0, d: 6.0, i_clamp: 50.0}

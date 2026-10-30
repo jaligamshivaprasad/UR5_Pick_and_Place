@@ -19,9 +19,12 @@ namespace ur5_adaptive_control
 
 struct PayloadParameters
 {
-  bool enabled{false};
-  double mass{0.0};                                    // kg (e.g. 3.0)
+  bool enabled{false};                                 // Master gravity feedforward enable
+  bool dynamic_enabled{false};                         // Phase 7: Dynamic acceleration & velocity feedforward enable
+  double dynamic_scale{1.0};                           // Scaling factor for dynamic terms [0.0 - 2.0]
+  double mass{0.0};                                    // kg (e.g. 0.3, 0.5, 1.0, 3.0)
   std::array<double, 3> com_offset{0.0, 0.0, 0.1414};  // m, relative to tool0 frame
+  std::array<double, 3> inertia_diag{0.0, 0.0, 0.0};   // kg*m^2 principal moments (Ixx, Iyy, Izz)
   double ramp_duration{0.20};                          // seconds for S-curve transition
   double max_torque_rate{150.0};                       // Nm/s max torque slew rate
   std::array<double, 6> max_payload_torques{40.0, 40.0, 40.0, 10.0, 10.0, 10.0}; // Nm safety clamp
@@ -47,11 +50,19 @@ public:
   void set_payload_attached(
     bool attached,
     double mass = 3.0,
-    const std::array<double, 3> & com_offset = {0.0, 0.0, 0.1414}) noexcept;
+    const std::array<double, 3> & com_offset = {0.0, 0.0, 0.1414},
+    const std::array<double, 3> & inertia_diag = {0.0, 0.0, 0.0}) noexcept;
 
-  // Real-time, allocation-free feedforward calculation (100 Hz safe)
+  // Real-time, allocation-free static gravity feedforward (backward compatible)
   std::array<double, 6> compute_feedforward(
     const std::array<double, 6> & q,
+    double dt) noexcept;
+
+  // Real-time, allocation-free gravity + dynamic acceleration & velocity feedforward (Phase 7)
+  std::array<double, 6> compute_feedforward(
+    const std::array<double, 6> & q,
+    const std::array<double, 6> & qd,
+    const std::array<double, 6> & qdd,
     double dt) noexcept;
 
   // Query status
@@ -87,4 +98,3 @@ private:
 }  // namespace ur5_adaptive_control
 
 #endif  // UR5_ADAPTIVE_CONTROL__PAYLOAD_COMPENSATOR_HPP_
-

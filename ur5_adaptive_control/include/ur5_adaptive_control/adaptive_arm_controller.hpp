@@ -90,6 +90,14 @@ private:
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr robot_description_sub_;
   std::array<double, 6> last_payload_feedforward_{};
 
+  // Phase 7: Dynamic Feedforward & Gain Scheduling
+  bool payload_dynamic_feedforward_enabled_{false};
+  double payload_dynamic_scale_{1.0};
+  bool payload_gain_scheduling_enabled_{false};
+  double payload_gain_scheduling_kp_factor_{0.15};
+  double payload_gain_scheduling_kd_factor_{0.08};
+  std::array<PidGains, 6> nominal_gains_{};
+
   // Payload feedforward realtime telemetry publisher
   using PayloadTelemetryMsg = std_msgs::msg::Float64MultiArray;
   using PayloadTelemetryPublisher = realtime_tools::RealtimePublisher<PayloadTelemetryMsg>;

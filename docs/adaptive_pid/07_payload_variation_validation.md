@@ -188,3 +188,4 @@ python3 /home/shiva/ur5/ur5_ws/ur5_adaptive_control/scripts/controller_switcher.
 | Sub-millimeter RMSE | RMSE $< 1.0$ mm for mass $\le 1.0$ kg | **$0.477 \dots 0.848$ mm** | **PASS** |
 | Settled EE accuracy | Final error $< 0.5$ mm | **$0.043 \dots 0.084$ mm** | **PASS** |
 | Baseline recovery | Revert to `arm_controller` without fault | Switch drift: $0.000003$ rad | **PASS** |
+

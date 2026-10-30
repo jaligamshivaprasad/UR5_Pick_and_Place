@@ -224,3 +224,162 @@ TEST(TestPayloadCompensator, SafetyTorqueClampingAndRateLimiting)
   auto tau_clamped = comp.compute_feedforward(q, 0.01);
   EXPECT_NEAR(tau_clamped[1], 10.0, 1e-4); // clamped at 10.0 Nm
 }
+
+TEST(TestPayloadCompensator, DynamicDisabledByDefaultMatchesStaticGravity)
+{
+  std::string urdf = load_urdf();
+  ASSERT_FALSE(urdf.empty());
+
+  PayloadCompensator comp;
+  comp.init_from_urdf(urdf, "base_link", "tool0");
+
+  PayloadParameters params;
+  params.enabled = true;
+  params.dynamic_enabled = false; // explicitly disabled
+  params.mass = 1.0;
+  params.ramp_duration = 0.001;
+  params.max_torque_rate = 10000.0;
+  comp.set_parameters(params);
+  comp.set_payload_attached(true, 1.0);
+
+  std::array<double, 6> q = {-1.9174, -2.3382, -0.9309, -1.4174, -4.7138, 1.1569};
+  std::array<double, 6> qd = {0.2, -0.1, 0.3, -0.2, 0.1, -0.05};
+  std::array<double, 6> qdd = {1.5, -0.8, 1.2, -0.5, 0.3, -0.1};
+
+  // Run a few steps to let ramp settle
+  for (int i = 0; i < 5; ++i) {
+    comp.compute_feedforward(q, 0.01);
+  }
+
+  auto tau_static = comp.compute_feedforward(q, 0.01);
+  auto tau_dyn_disabled = comp.compute_feedforward(q, qd, qdd, 0.01);
+
+  for (size_t i = 0; i < 6; ++i) {
+    EXPECT_NEAR(tau_dyn_disabled[i], tau_static[i], 1e-6);
+  }
+}
+
+TEST(TestPayloadCompensator, DynamicZeroWhenStationary)
+{
+  std::string urdf = load_urdf();
+  ASSERT_FALSE(urdf.empty());
+
+  PayloadCompensator comp;
+  comp.init_from_urdf(urdf, "base_link", "tool0");
+
+  PayloadParameters params;
+  params.enabled = true;
+  params.dynamic_enabled = true; // enabled
+  params.mass = 1.0;
+  params.ramp_duration = 0.001;
+  params.max_torque_rate = 10000.0;
+  comp.set_parameters(params);
+  comp.set_payload_attached(true, 1.0);
+
+  std::array<double, 6> q = {-1.9174, -2.3382, -0.9309, -1.4174, -4.7138, 1.1569};
+  std::array<double, 6> qd_zero{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  std::array<double, 6> qdd_zero{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
+  for (int i = 0; i < 5; ++i) {
+    comp.compute_feedforward(q, 0.01);
+  }
+
+  auto tau_static = comp.compute_feedforward(q, 0.01);
+  auto tau_dyn_zero = comp.compute_feedforward(q, qd_zero, qdd_zero, 0.01);
+
+  for (size_t i = 0; i < 6; ++i) {
+    EXPECT_NEAR(tau_dyn_zero[i], tau_static[i], 1e-6);
+  }
+}
+
+TEST(TestPayloadCompensator, DynamicPureAccelerationJ1)
+{
+  std::string urdf = load_urdf();
+  ASSERT_FALSE(urdf.empty());
+
+  PayloadCompensator comp;
+  comp.init_from_urdf(urdf, "base_link", "tool0");
+
+  PayloadParameters params;
+  params.enabled = true;
+  params.dynamic_enabled = true;
+  params.mass = 1.0;
+  params.ramp_duration = 0.001;
+  params.max_torque_rate = 10000.0;
+  comp.set_parameters(params);
+  comp.set_payload_attached(true, 1.0);
+
+  // Extended pose in horizontal plane
+  std::array<double, 6> q = {0.0, -1.5708, 0.0, -1.5708, 0.0, 0.0};
+  std::array<double, 6> qd{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  std::array<double, 6> qdd_j1{2.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // 2 rad/s^2 on J1
+
+  for (int i = 0; i < 5; ++i) {
+    comp.compute_feedforward(q, 0.01);
+  }
+
+  auto tau_stationary = comp.compute_feedforward(q, qd, qd, 0.01);
+  auto tau_accel = comp.compute_feedforward(q, qd, qdd_j1, 0.01);
+
+  // When J1 accelerates horizontally, J1 torque must increase in the direction of acceleration
+  double delta_tau_j1 = tau_accel[0] - tau_stationary[0];
+  EXPECT_GT(delta_tau_j1, 0.1); // positive inertial torque on J1
+
+  // Test mass scaling: doubling mass to 2.0 kg should approximately double delta_tau_j1
+  params.mass = 2.0;
+  comp.set_parameters(params);
+  comp.set_payload_attached(true, 2.0);
+  for (int i = 0; i < 5; ++i) {
+    comp.compute_feedforward(q, 0.01);
+  }
+  auto tau_stat_2 = comp.compute_feedforward(q, qd, qd, 0.01);
+  auto tau_acc_2 = comp.compute_feedforward(q, qd, qdd_j1, 0.01);
+  double delta_tau_j1_2 = tau_acc_2[0] - tau_stat_2[0];
+
+  EXPECT_NEAR(delta_tau_j1_2, 2.0 * delta_tau_j1, 0.1);
+}
+
+TEST(TestPayloadCompensator, DynamicClampingAndSlewLimiting)
+{
+  std::string urdf = load_urdf();
+  ASSERT_FALSE(urdf.empty());
+
+  PayloadCompensator comp;
+  comp.init_from_urdf(urdf, "base_link", "tool0");
+
+  PayloadParameters params;
+  params.enabled = true;
+  params.dynamic_enabled = true;
+  params.mass = 3.0;
+  params.ramp_duration = 0.001;
+  params.max_torque_rate = 100.0; // 100 Nm/s = 1.0 Nm max change per 0.01s step
+  params.max_payload_torques = {15.0, 15.0, 15.0, 5.0, 5.0, 5.0};
+  comp.set_parameters(params);
+  comp.set_payload_attached(true, 3.0);
+
+  std::array<double, 6> q = {-1.9174, -2.3382, -0.9309, -1.4174, -4.7138, 1.1569};
+  std::array<double, 6> qd{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  std::array<double, 6> qdd_huge{100.0, 100.0, 100.0, 50.0, 50.0, 50.0}; // Extreme acceleration
+
+  auto tau1 = comp.compute_feedforward(q, qd, qdd_huge, 0.01);
+
+  // Torque change from 0 should be bounded by rate limit (1.0 Nm)
+  for (size_t i = 0; i < 6; ++i) {
+    EXPECT_LE(std::abs(tau1[i]), 1.05);
+    EXPECT_FALSE(std::isnan(tau1[i]));
+    EXPECT_FALSE(std::isinf(tau1[i]));
+  }
+
+  // After many steps, torque must not exceed hard clamp (15.0 Nm on J1-J3, 5.0 Nm on J4-J6)
+  for (int k = 0; k < 100; ++k) {
+    comp.compute_feedforward(q, qd, qdd_huge, 0.01);
+  }
+  auto tau_final = comp.compute_feedforward(q, qd, qdd_huge, 0.01);
+
+  EXPECT_LE(std::abs(tau_final[0]), 15.001);
+  EXPECT_LE(std::abs(tau_final[1]), 15.001);
+  EXPECT_LE(std::abs(tau_final[2]), 15.001);
+  EXPECT_LE(std::abs(tau_final[3]), 5.001);
+  EXPECT_LE(std::abs(tau_final[4]), 5.001);
+  EXPECT_LE(std::abs(tau_final[5]), 5.001);
+}
