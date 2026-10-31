@@ -33,6 +33,36 @@
     "gains.wrist_3_joint.d": 0.02,
     "gains.wrist_3_joint.i_clamp": 3.0
   },
+  "scaling_supervision": {
+    "straight_to_prepick": {
+      "velocity_scale": 0.2,
+      "acceleration_scale": 0.2,
+      "reason": "Unloaded segment: zero active payload, nominal Pilz motion rate",
+      "is_fallback": false,
+      "duration_s": 2.745105585
+    },
+    "prepick_to_pick": {
+      "velocity_scale": 0.2,
+      "acceleration_scale": 0.2,
+      "reason": "Unloaded segment: zero active payload, nominal Pilz motion rate",
+      "is_fallback": false,
+      "duration_s": 0.8563887570000001
+    },
+    "pick_to_place": {
+      "velocity_scale": 0.1,
+      "acceleration_scale": 0.1,
+      "reason": "Validated 3.00 kg heavy reference profile: conservative acceleration, avoids high-payload torque saturation [Mode: Full Adaptive]",
+      "is_fallback": false,
+      "duration_s": 8.816504824
+    },
+    "place_to_straight": {
+      "velocity_scale": 0.2,
+      "acceleration_scale": 0.2,
+      "reason": "Unloaded segment: zero active payload, nominal Pilz motion rate",
+      "is_fallback": false,
+      "duration_s": 2.779746068
+    }
+  },
   "grasp_verification": {
     "box_pose_at_pick": true,
     "gripper_position_feedback": true,
@@ -44,9 +74,9 @@
     "source": "/dynamic_joint_states named effort interface; gz_ros2_control/Gazebo JointTransmittedWrench feedback",
     "meaning": "simulated transmitted joint effort, not a physical torque-sensor measurement",
     "alignment": "nearest simulation timestamp within +/- 0.020 s; no stale or commanded-effort fallback",
-    "dynamic_messages_received": 3042,
-    "required_post_startup_rows": 2559,
-    "matched_post_startup_rows": 2559,
+    "dynamic_messages_received": 4103,
+    "required_post_startup_rows": 3220,
+    "matched_post_startup_rows": 3220,
     "post_startup_coverage": 1.0,
     "failure_counts": {
       "missing_effort_fields": 0,
@@ -55,36 +85,36 @@
     }
   },
   "metrics": {
-    "ee_rmse_mm": 14.94226958091274,
-    "ee_max_mm": 32.58485614647996,
-    "ee_final_path_mm": 4.007409775244645,
-    "ee_final_settled_mm": 3.467693544118483,
-    "wrist_3_jitter_rad_s": 0.07380946907591411,
+    "ee_rmse_mm": 17.200636391086388,
+    "ee_max_mm": 29.689561325287315,
+    "ee_final_path_mm": 6.636956827797615,
+    "ee_final_settled_mm": 6.2202043413867765,
+    "wrist_3_jitter_rad_s": 0.0739308459188981,
     "joint_rmse_rad": [
-      0.0044073338040417735,
-      0.01112750279962472,
-      0.011026904783676968,
-      0.015084737331651518,
-      0.004864826557523942,
-      0.002247887046979417
+      0.004816132182228888,
+      0.012860821126849754,
+      0.012948879092860858,
+      0.0178513186481894,
+      0.00573073785622674,
+      0.002394412331327973
     ],
     "joint_max_abs_rad": [
-      0.03013772707425655,
-      0.024600570909050212,
-      0.023702189443849386,
-      0.04048008592697161,
-      0.025254456709288498,
-      0.019288343001448993
+      0.02398515823742242,
+      0.021932215417416412,
+      0.02268232763907596,
+      0.0374005453851225,
+      0.021085318796415287,
+      0.020691025703589716
     ],
     "peak_commanded_torque_Nm": [
-      11.611154266113894,
-      24.37149440508257,
-      14.01903411282826,
-      3.0746550199651437,
-      2.1713414192371894,
-      0.7857396772400568
+      9.213559158874741,
+      23.347802288197453,
+      13.801729051710161,
+      2.833537695275311,
+      1.8421589003964811,
+      0.8395164203431971
     ],
-    "cycle_sec": 16.259999999999998,
-    "samples": 1588
+    "cycle_sec": 25.498999999999995,
+    "samples": 1663
   }
 }

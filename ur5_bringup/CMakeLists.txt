@@ -22,7 +22,14 @@ ament_target_dependencies(pick_place_node
   tf2_msgs
   shape_msgs
 )
-install(TARGETS pick_place_node
+
+add_executable(trajectory_retimer src/trajectory_retimer.cpp)
+ament_target_dependencies(trajectory_retimer
+  rclcpp
+  moveit_core
+)
+
+install(TARGETS pick_place_node trajectory_retimer
   DESTINATION lib/${PROJECT_NAME}
 )
 

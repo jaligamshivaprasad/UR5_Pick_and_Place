@@ -357,8 +357,23 @@ class ControllerSupervisor(Node):
 
         self.get_logger().info(f"Current active arm controller: '{current}'")
 
-        # 2. Safety Quiescence Gate: Robot must be at rest
+        # 2. Safety Quiescence Gate: Robot must be at rest and have zero active trajectory goals
         self.get_logger().info("Verifying stationary quiescence before switch...")
+        active_goals_count = sum(self.active_goals.values())
+        if active_goals_count > 0:
+            self.get_logger().error(
+                f"REJECTED: Cannot switch controllers while {active_goals_count} trajectory goal(s) are active!"
+            )
+            return False
+
+        if self.latest_ctrl_state is not None and self.latest_ctrl_state.reference.velocities:
+            ref_v = max(abs(v) for v in self.latest_ctrl_state.reference.velocities)
+            if ref_v > 0.001:
+                self.get_logger().error(
+                    f"REJECTED: Cannot switch controllers while trajectory reference is in motion (ref_v={ref_v:.6f} rad/s)!"
+                )
+                return False
+
         is_at_rest, max_v, max_e = self.sample_quiescence(0.5)
         if not is_at_rest:
             self.get_logger().info(f"Arm not at rest (max_vel={max_v:.4f} rad/s). Attempting active hold stabilization...")

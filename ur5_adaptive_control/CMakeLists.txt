@@ -24,6 +24,7 @@ add_library(pid_core
   src/pid_core.cpp
   src/gain_adaptation.cpp
   src/payload_compensator.cpp
+  src/arm_dynamics_compensator.cpp
 )
 set_target_properties(pid_core PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(pid_core PUBLIC
@@ -99,6 +100,14 @@ if(BUILD_TESTING)
   ament_add_gtest(test_payload_compensator test/test_payload_compensator.cpp)
   target_link_libraries(test_payload_compensator pid_core)
   ament_target_dependencies(test_payload_compensator kdl_parser)
+
+  ament_add_gtest(test_phase9_safety test/test_phase9_safety.cpp)
+  target_link_libraries(test_phase9_safety pid_core)
+  ament_target_dependencies(test_phase9_safety kdl_parser)
+
+  ament_add_gtest(test_arm_dynamics_compensator test/test_arm_dynamics_compensator.cpp)
+  target_link_libraries(test_arm_dynamics_compensator pid_core)
+  ament_target_dependencies(test_arm_dynamics_compensator kdl_parser)
 endif()
 
 ament_export_include_directories(include)

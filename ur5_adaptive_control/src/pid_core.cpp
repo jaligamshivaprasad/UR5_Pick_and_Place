@@ -21,6 +21,10 @@ void DiscretePid::set_limits(const PidLimits & limits) noexcept
 void DiscretePid::reset() noexcept
 {
   integral_ = 0.0;
+  p_term_ = 0.0;
+  i_term_ = 0.0;
+  d_term_ = 0.0;
+  ff_term_ = 0.0;
   last_command_ = 0.0;
   saturated_ = false;
 }
@@ -35,7 +39,7 @@ double DiscretePid::compute(double error, double error_dot, double dt, double fe
   }
 
   // Proportional term
-  const double p_term = gains_.p * error;
+  p_term_ = gains_.p * error;
 
   // Integral term with anti-windup clamp
   if (gains_.i > 0.0 && gains_.i_clamp > 0.0)
@@ -52,13 +56,14 @@ double DiscretePid::compute(double error, double error_dot, double dt, double fe
   {
     integral_ = 0.0;
   }
-  const double i_term = gains_.i * integral_;
+  i_term_ = gains_.i * integral_;
 
   // Derivative term (on velocity error)
-  const double d_term = gains_.d * error_dot;
+  d_term_ = gains_.d * error_dot;
+  ff_term_ = feedforward;
 
   // Raw unsaturated effort
-  const double u_unsat = p_term + i_term + d_term + feedforward;
+  const double u_unsat = p_term_ + i_term_ + d_term_ + ff_term_;
 
   // Saturation clamping to joint torque limits
   const double u = std::clamp(u_unsat, limits_.min_effort, limits_.max_effort);

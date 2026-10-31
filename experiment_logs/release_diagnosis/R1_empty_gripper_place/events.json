@@ -1,0 +1,26 @@
+[
+  {
+    "time_sec": 58.461000000000006,
+    "event": "arm_start_unloaded_place_pose"
+  },
+  {
+    "time_sec": 64.94500000000001,
+    "event": "arm_complete_unloaded_place_pose"
+  },
+  {
+    "time_sec": 65.85000000000001,
+    "event": "gripper_command_0.4"
+  },
+  {
+    "time_sec": 67.86500000000001,
+    "event": "gripper_complete_0.4"
+  },
+  {
+    "time_sec": 68.76700000000001,
+    "event": "gripper_command_0.0"
+  },
+  {
+    "time_sec": 70.795,
+    "event": "gripper_complete_0.0"
+  }
+]

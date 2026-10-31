@@ -130,6 +130,18 @@ def generate_launch_description():
         ],
         output="screen",
     )
+    sensor_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        name="sensor_bridge",
+        arguments=[
+            "/tray/contact@ros_gz_interfaces/msg/Contacts[ignition.msgs.Contacts",
+            "/fingertip/left_contact@ros_gz_interfaces/msg/Contacts[ignition.msgs.Contacts",
+            "/fingertip/right_contact@ros_gz_interfaces/msg/Contacts[ignition.msgs.Contacts",
+            "/wrist_ft/wrench@geometry_msgs/msg/WrenchStamped[ignition.msgs.Wrench",
+        ],
+        output="screen",
+    )
 
     # Robot State Publisher
     rsp_node = Node(
@@ -255,6 +267,7 @@ def generate_launch_description():
         clock_bridge,
         pose_bridge,
         grasp_bridge,
+        sensor_bridge,
         rsp_node,
         jsb_spawner,
         RegisterEventHandler(OnProcessExit(target_action=jsb_spawner, on_exit=[arm_spawner, gripper_spawner])),

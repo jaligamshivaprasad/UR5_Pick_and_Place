@@ -1,0 +1,18 @@
+[
+  {
+    "time_sec": 107.92,
+    "event": "synthetic_payload_attach"
+  },
+  {
+    "time_sec": 107.926,
+    "event": "state_attached"
+  },
+  {
+    "time_sec": 109.415,
+    "event": "synthetic_payload_detach"
+  },
+  {
+    "time_sec": 109.418,
+    "event": "state_detached"
+  }
+]

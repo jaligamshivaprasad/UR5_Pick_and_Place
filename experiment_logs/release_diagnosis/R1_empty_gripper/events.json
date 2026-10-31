@@ -1,0 +1,18 @@
+[
+  {
+    "time_sec": 82.768,
+    "event": "gripper_command_0.4"
+  },
+  {
+    "time_sec": 84.80000000000001,
+    "event": "gripper_complete_0.4"
+  },
+  {
+    "time_sec": 85.79,
+    "event": "gripper_command_0.0"
+  },
+  {
+    "time_sec": 87.82700000000001,
+    "event": "gripper_complete_0.0"
+  }
+]

@@ -105,15 +105,14 @@ std::array<double, 6> PayloadCompensator::compute_feedforward(
 
   if (!initialized_ || !current_params_.enabled || dt <= 0.0 || dt > 0.5) {
     last_torques_.fill(0.0);
+    last_gravity_feedforward_.fill(0.0);
+    last_dynamic_feedforward_.fill(0.0);
     return torques;
   }
 
   // Update smooth S-curve ramp factor
-  // Use configured duration on attach (smooth engagement), fast 0.02s ramp on detach
-  // to avoid pushing unburdened arm upward when payload is released.
-  const double ramp_duration = is_attached_ ?
-    std::max(0.001, current_params_.ramp_duration) :
-    std::min(current_params_.ramp_duration, 0.02);
+  // Smoothly ramps between 0 and 1 using configured ramp_duration for both attach and release
+  const double ramp_duration = std::max(0.001, current_params_.ramp_duration);
   if (current_alpha_ != target_alpha_) {
     ramp_elapsed_ += dt;
     const double xi = std::clamp(ramp_elapsed_ / ramp_duration, 0.0, 1.0);
@@ -126,6 +125,8 @@ std::array<double, 6> PayloadCompensator::compute_feedforward(
   // If completely disengaged and target is 0, zero output
   if (current_alpha_ <= 1e-6 && target_alpha_ <= 1e-6) {
     last_torques_.fill(0.0);
+    last_gravity_feedforward_.fill(0.0);
+    last_dynamic_feedforward_.fill(0.0);
     return torques;
   }
 
@@ -244,20 +245,21 @@ std::array<double, 6> PayloadCompensator::compute_feedforward(
     M_dyn_support = d_scale * M_inertial_tool0;
   }
 
-  // Combined support wrench: gravity compensation + dynamic feedforward
-  const KDL::Vector F_total = F_gravity_support + F_dyn_support;
-  const KDL::Vector M_total = M_gravity_support + M_dyn_support;
-
   // Project support wrench to joint space via transpose Jacobian:
-  // tau_j = J_v(j) . F_total + J_w(j) . M_total
+  // tau_j = J_v(j) . (F_gravity + F_dyn) + J_w(j) . (M_gravity + M_dyn)
   for (unsigned int j = 0; j < 6; ++j) {
     const KDL::Vector J_v(kdl_jac_(0, j), kdl_jac_(1, j), kdl_jac_(2, j));
     const KDL::Vector J_w(kdl_jac_(3, j), kdl_jac_(4, j), kdl_jac_(5, j));
 
-    const double tau_raw = KDL::dot(J_v, F_total) + KDL::dot(J_w, M_total);
+    const double tau_grav = KDL::dot(J_v, F_gravity_support) + KDL::dot(J_w, M_gravity_support);
+    const double tau_dyn = KDL::dot(J_v, F_dyn_support) + KDL::dot(J_w, M_dyn_support);
+    last_gravity_feedforward_[j] = tau_grav;
+    last_dynamic_feedforward_[j] = tau_dyn;
 
-    // Apply torque slew rate limit (faster rate allowed on detach to match sudden load release)
-    const double rate_lim = is_attached_ ? current_params_.max_torque_rate : std::max(current_params_.max_torque_rate, 800.0);
+    const double tau_raw = tau_grav + tau_dyn;
+
+    // Apply smooth torque slew rate limit
+    const double rate_lim = current_params_.max_torque_rate;
     const double max_step = rate_lim * dt;
     const double delta_tau = std::clamp(tau_raw - last_torques_[j], -max_step, max_step);
     double tau_slew = last_torques_[j] + delta_tau;

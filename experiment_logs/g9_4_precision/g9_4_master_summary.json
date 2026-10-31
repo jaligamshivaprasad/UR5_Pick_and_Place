@@ -1,0 +1,112 @@
+[
+  {
+    "id": "exp01_1_0kg_arm_ff_off",
+    "status": "passed",
+    "payload_kg": 1.0,
+    "ee_max_mm": 2.619553779158554,
+    "ee_rmse_mm": 0.6333442248230136,
+    "ee_settled_mm": 0.054970822925832746,
+    "wrist_3_jitter": 0.07345070770647232,
+    "cycle_sec": 22.430000000000007,
+    "samples": 1613
+  },
+  {
+    "id": "exp02_1_0kg_arm_ff_on",
+    "status": "passed",
+    "payload_kg": 1.0,
+    "ee_max_mm": 21.131354491606118,
+    "ee_rmse_mm": 4.904591350036838,
+    "ee_settled_mm": 1.3996580886617804,
+    "wrist_3_jitter": 0.07522335189241837,
+    "cycle_sec": 23.580000000000013,
+    "samples": 1729
+  },
+  {
+    "id": "exp03_1_0kg_fixed_pid_arm_ff_off",
+    "status": "passed",
+    "payload_kg": 1.0,
+    "ee_max_mm": 2.59752032683348,
+    "ee_rmse_mm": 0.6445669365515924,
+    "ee_settled_mm": 0.08456411922231084,
+    "wrist_3_jitter": 0.07373039061451343,
+    "cycle_sec": 22.47,
+    "samples": 1618
+  },
+  {
+    "id": "exp04_3_0kg_arm_ff_off",
+    "status": "passed",
+    "payload_kg": 3.0,
+    "ee_max_mm": 3.493678361108998,
+    "ee_rmse_mm": 0.7352000369849055,
+    "ee_settled_mm": 0.09252646529210565,
+    "wrist_3_jitter": 0.07373645093187829,
+    "cycle_sec": 24.75,
+    "samples": 1845
+  },
+  {
+    "id": "exp05_3_0kg_arm_ff_on",
+    "status": "passed",
+    "payload_kg": 3.0,
+    "ee_max_mm": 21.1231598776735,
+    "ee_rmse_mm": 4.574923335068981,
+    "ee_settled_mm": 1.2737128016999786,
+    "wrist_3_jitter": 0.07535327089522778,
+    "cycle_sec": 26.349999999999994,
+    "samples": 2005
+  },
+  {
+    "id": "exp06_0_3kg_agile_arm_ff_off",
+    "status": "passed",
+    "payload_kg": 0.3,
+    "ee_max_mm": 1.6258046418460426,
+    "ee_rmse_mm": 0.4585501972033608,
+    "ee_settled_mm": 0.07478557619749708,
+    "wrist_3_jitter": 0.07363930844285402,
+    "cycle_sec": 20.659999999999997,
+    "samples": 1435
+  },
+  {
+    "id": "exp07_5_0kg_stress_test",
+    "status": "passed",
+    "payload_kg": 5.0,
+    "ee_max_mm": 6.708731107029211,
+    "ee_rmse_mm": 1.8124183687649613,
+    "ee_settled_mm": 0.07090150036717703,
+    "wrist_3_jitter": 0.0735472066257723,
+    "cycle_sec": 26.980000000000004,
+    "samples": 2064
+  },
+  {
+    "id": "exp08_3_0kg_perturbed_com",
+    "status": "passed",
+    "payload_kg": 3.0,
+    "ee_max_mm": 4.648517396490845,
+    "ee_rmse_mm": 0.8336760877109457,
+    "ee_settled_mm": 0.0667248585120249,
+    "wrist_3_jitter": 0.07354696045531356,
+    "cycle_sec": 24.739999999999995,
+    "samples": 1844
+  },
+  {
+    "id": "exp09_0_3kg_sub_half_mm",
+    "status": "passed",
+    "payload_kg": 0.3,
+    "ee_max_mm": 1.3537517186486836,
+    "ee_rmse_mm": 0.2880078664975488,
+    "ee_settled_mm": 0.05977816047975945,
+    "wrist_3_jitter": 0.07344805902533358,
+    "cycle_sec": 30.590000000000003,
+    "samples": 2423
+  },
+  {
+    "id": "exp10_1_0kg_sub_half_mm",
+    "status": "passed",
+    "payload_kg": 1.0,
+    "ee_max_mm": 1.34768249883457,
+    "ee_rmse_mm": 0.28384980965312306,
+    "ee_settled_mm": 0.08911742840644897,
+    "wrist_3_jitter": 0.07373447563135005,
+    "cycle_sec": 33.519999999999996,
+    "samples": 2722
+  }
+]

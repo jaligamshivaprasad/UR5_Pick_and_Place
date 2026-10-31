@@ -194,7 +194,7 @@
                     <mesh filename="package://ur5_description/meshes/robotiq_85/visual/2f_85/left_finger_tip.dae" />
                 </geometry>
             </visual>
-            <collision>
+            <collision name="${prefix}robotiq_85_left_finger_tip_link_collision">
                 <geometry>
                     <!-- <mesh filename="package://robotiq_description/meshes/collision/2f_85/left_finger_tip.stl" /> -->
                     <mesh filename="package://ur5_description/meshes/robotiq_85/collision/2f_85/left_finger_tip.stl" />
@@ -232,7 +232,7 @@
                     <mesh filename="package://ur5_description/meshes/robotiq_85/visual/2f_85/right_finger_tip.dae" />
                 </geometry>
             </visual>
-            <collision>
+            <collision name="${prefix}robotiq_85_right_finger_tip_link_collision">
                 <geometry>
                     <!-- <mesh filename="package://robotiq_description/meshes/collision/2f_85/right_finger_tip.stl" /> -->
                     <mesh filename="package://ur5_description/meshes/robotiq_85/collision/2f_85/right_finger_tip.stl" />

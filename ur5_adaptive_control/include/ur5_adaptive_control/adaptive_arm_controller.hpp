@@ -19,6 +19,7 @@
 #include "ur5_adaptive_control/gain_adaptation.hpp"
 #include "ur5_adaptive_control/pid_core.hpp"
 #include "ur5_adaptive_control/payload_compensator.hpp"
+#include "ur5_adaptive_control/arm_dynamics_compensator.hpp"
 
 namespace ur5_adaptive_control
 {
@@ -47,6 +48,8 @@ public:
 
   bool is_adaptation_enabled() const noexcept { return adaptation_enabled_; }
   const std::string & get_operating_mode() const noexcept { return operating_mode_; }
+  bool is_arm_dynamics_feedforward_enabled() const noexcept { return arm_dynamics_feedforward_enabled_; }
+  const std::array<double, 6> & get_last_arm_dynamics_feedforward() const noexcept { return last_arm_dynamics_feedforward_; }
 
 private:
   bool adaptation_enabled_{false};
@@ -98,11 +101,28 @@ private:
   double payload_gain_scheduling_kd_factor_{0.08};
   std::array<PidGains, 6> nominal_gains_{};
 
+  // Stage B: Arm-only dynamic feedforward compensator (UR5 arm inertia + Coriolis)
+  ArmDynamicsCompensator arm_dynamics_compensator_;
+  ArmDynamicsParameters arm_dynamics_params_{};
+  bool arm_dynamics_feedforward_enabled_{false};
+  double arm_dynamics_scale_{1.0};
+  std::array<double, 6> last_arm_dynamics_feedforward_{};
+
   // Payload feedforward realtime telemetry publisher
   using PayloadTelemetryMsg = std_msgs::msg::Float64MultiArray;
   using PayloadTelemetryPublisher = realtime_tools::RealtimePublisher<PayloadTelemetryMsg>;
   rclcpp::Publisher<PayloadTelemetryMsg>::SharedPtr payload_telemetry_pub_raw_;
   std::unique_ptr<PayloadTelemetryPublisher> payload_telemetry_pub_;
+
+  // Decomposed PID & torque telemetry publisher (allocation-free, lock-free, 100 Hz safe)
+  // Layout: data[0] = sim_time_sec, then for each of 6 joints:
+  // [p_term, i_term, d_term, ff_gravity, ff_dynamic, ff_total, cmd_effort, integral_state]
+  using PidTelemetryMsg = std_msgs::msg::Float64MultiArray;
+  using PidTelemetryPublisher = realtime_tools::RealtimePublisher<PidTelemetryMsg>;
+  rclcpp::Publisher<PidTelemetryMsg>::SharedPtr pid_telemetry_pub_raw_;
+  std::unique_ptr<PidTelemetryPublisher> pid_telemetry_pub_;
+  rclcpp::Time last_pid_telemetry_publish_time_{0, 0, RCL_ROS_TIME};
+  rclcpp::Duration pid_telemetry_publish_period_{10ms};  // 100 Hz
 };
 
 }  // namespace ur5_adaptive_control

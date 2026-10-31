@@ -65,6 +65,13 @@ controller_interface::CallbackReturn AdaptiveArmController::on_init()
     auto_declare<bool>("payload_gain_scheduling_enabled", false);
     auto_declare<double>("payload_gain_scheduling_kp_factor", 0.15);
     auto_declare<double>("payload_gain_scheduling_kd_factor", 0.08);
+
+    // Stage B: Optional Arm Dynamics Feedforward parameters
+    auto_declare<bool>("arm_dynamics_feedforward_enabled", false);
+    auto_declare<double>("arm_dynamics_scale", 1.0);
+    auto_declare<double>("arm_dynamics_max_torque_rate", 250.0);
+    auto_declare<bool>("arm_dynamics_include_gripper", true);
+    auto_declare<double>("arm_dynamics_gripper_mass", 0.9209);
   } catch (const std::exception & e) {
     RCLCPP_ERROR(get_node()->get_logger(), "Exception during parameter declaration: %s", e.what());
     return controller_interface::CallbackReturn::ERROR;
@@ -185,7 +192,22 @@ controller_interface::CallbackReturn AdaptiveArmController::on_configure(
 
   payload_compensator_.set_parameters(payload_params_);
 
-  // Load URDF and initialize PayloadCompensator
+  // Stage B: Arm Dynamics Feedforward parameters
+  arm_dynamics_feedforward_enabled_ = get_node()->get_parameter("arm_dynamics_feedforward_enabled").as_bool();
+  arm_dynamics_scale_ = get_node()->get_parameter("arm_dynamics_scale").as_double();
+  arm_dynamics_params_.enabled = arm_dynamics_feedforward_enabled_;
+  arm_dynamics_params_.dynamic_scale = arm_dynamics_scale_;
+  arm_dynamics_params_.max_torque_rate = get_node()->get_parameter("arm_dynamics_max_torque_rate").as_double();
+  arm_dynamics_params_.include_gripper = get_node()->get_parameter("arm_dynamics_include_gripper").as_bool();
+  arm_dynamics_params_.gripper_mass = get_node()->get_parameter("arm_dynamics_gripper_mass").as_double();
+  if (torque_limits_.size() == 6) {
+    for (size_t i = 0; i < 6; ++i) {
+      arm_dynamics_params_.max_torques[i] = torque_limits_[i];
+    }
+  }
+  arm_dynamics_compensator_.set_parameters(arm_dynamics_params_);
+
+  // Load URDF and initialize PayloadCompensator & ArmDynamicsCompensator
   std::string urdf_xml;
   std::string urdf_path = get_node()->get_parameter("robot_description_path").as_string();
   if (get_node()->has_parameter("robot_description")) {
@@ -201,10 +223,12 @@ controller_interface::CallbackReturn AdaptiveArmController::on_configure(
   }
   if (!urdf_xml.empty()) {
     payload_compensator_.init_from_urdf(urdf_xml, "base_link", "tool0");
+    arm_dynamics_compensator_.init_from_urdf(
+      urdf_xml, "base_link", "tool0", arm_dynamics_params_.include_gripper, arm_dynamics_params_.gripper_mass);
   } else {
     RCLCPP_WARN(
       get_node()->get_logger(),
-      "PayloadCompensator could not load robot URDF from parameter or path '%s'",
+      "PayloadCompensator and ArmDynamicsCompensator could not load robot URDF from parameter or path '%s'",
       urdf_path.c_str());
   }
 
@@ -215,11 +239,12 @@ controller_interface::CallbackReturn AdaptiveArmController::on_configure(
       if (!msg) return;
       // Match the complete state token. In particular, "detached" contains
       // "attached" and must never engage compensation.
-      if (msg->data == "detached") {
+      if (msg->data == "detached" || msg->data == "unload" || msg->data == "unloading") {
         payload_compensator_.set_payload_attached(false);
         RCLCPP_INFO(
           get_node()->get_logger(),
-          "Payload grasp DETACH detected. Disengaging feedforward ramp.");
+          "Payload grasp DETACH/UNLOAD detected (%s). Disengaging feedforward ramp.",
+          msg->data.c_str());
       } else if (msg->data == "attached") {
         payload_compensator_.set_payload_attached(
           true, payload_params_.mass, payload_params_.com_offset);
@@ -250,6 +275,14 @@ controller_interface::CallbackReturn AdaptiveArmController::on_configure(
   payload_telemetry_pub_->msg_.data.resize(8, 0.0);
   payload_telemetry_pub_->unlock();
 
+  // Setup realtime decomposed PID & torque telemetry publisher (49 doubles: stamp + 6x8)
+  pid_telemetry_pub_raw_ = get_node()->create_publisher<PidTelemetryMsg>(
+    "~/pid_telemetry", rclcpp::SystemDefaultsQoS());
+  pid_telemetry_pub_ = std::make_unique<PidTelemetryPublisher>(pid_telemetry_pub_raw_);
+  pid_telemetry_pub_->lock();
+  pid_telemetry_pub_->msg_.data.resize(49, 0.0);
+  pid_telemetry_pub_->unlock();
+
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
@@ -263,10 +296,13 @@ controller_interface::CallbackReturn AdaptiveArmController::on_activate(
   gain_adaptation_.set_enabled(adaptation_enabled_);
   joint_saturated_.fill(false);
   last_payload_feedforward_.fill(0.0);
+  arm_dynamics_compensator_.reset();
+  last_arm_dynamics_feedforward_.fill(0.0);
 
   last_mirror_publish_time_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
   last_adaptation_time_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
   last_telemetry_publish_time_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
+  last_pid_telemetry_publish_time_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
 
   auto ret = JointTrajectoryController::on_activate(previous_state);
   if (ret != controller_interface::CallbackReturn::SUCCESS) {
@@ -287,9 +323,12 @@ controller_interface::CallbackReturn AdaptiveArmController::on_deactivate(
   }
   gain_adaptation_.reset();
   joint_saturated_.fill(false);
+  arm_dynamics_compensator_.reset();
+  last_arm_dynamics_feedforward_.fill(0.0);
   last_mirror_publish_time_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
   last_adaptation_time_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
   last_telemetry_publish_time_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
+  last_pid_telemetry_publish_time_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
 
   return JointTrajectoryController::on_deactivate(previous_state);
 }
@@ -391,6 +430,28 @@ controller_interface::return_type AdaptiveArmController::update(
     }
   }
 
+  // Stage B: Arm Dynamics parameter poll
+  bool arm_dyn_param = false;
+  if (get_node()->get_parameter("arm_dynamics_feedforward_enabled", arm_dyn_param)) {
+    if (arm_dyn_param != arm_dynamics_feedforward_enabled_) {
+      arm_dynamics_feedforward_enabled_ = arm_dyn_param;
+      arm_dynamics_params_.enabled = arm_dynamics_feedforward_enabled_;
+      arm_dynamics_compensator_.set_parameters(arm_dynamics_params_);
+      RCLCPP_INFO(
+        get_node()->get_logger(), "Online parameter update: arm_dynamics_feedforward_enabled = %s",
+        arm_dynamics_feedforward_enabled_ ? "true" : "false");
+    }
+  }
+
+  double arm_dyn_scale = 0.0;
+  if (get_node()->get_parameter("arm_dynamics_scale", arm_dyn_scale)) {
+    if (arm_dyn_scale >= 0.0 && std::abs(arm_dyn_scale - arm_dynamics_params_.dynamic_scale) > 1e-4) {
+      arm_dynamics_scale_ = arm_dyn_scale;
+      arm_dynamics_params_.dynamic_scale = arm_dynamics_scale_;
+      arm_dynamics_compensator_.set_parameters(arm_dynamics_params_);
+    }
+  }
+
   // Base update: handles trajectory interpolation (state_desired_), state feedback reading (state_current_),
   // tracking error calculation (state_error_), goal tolerances, and FollowJointTrajectory action feedback.
   // Note: with use_closed_loop_pid_adapter_ = false, base does NOT execute pids_->computeCommand().
@@ -459,13 +520,23 @@ controller_interface::return_type AdaptiveArmController::update(
   last_payload_feedforward_ = payload_compensator_.compute_feedforward(
     q_current, qd_desired, qdd_desired, dt_sec);
 
-  // 4. Authoritative Torque Computation via DiscretePid + Payload Feedforward
+  // Stage B: Compute Arm Dynamic Feedforward (UR5 arm inertia + Coriolis via KDL RNE)
+  last_arm_dynamics_feedforward_ = arm_dynamics_compensator_.compute_feedforward(
+    q_current, qd_desired, qdd_desired, dt_sec);
+
+  // 4. Authoritative Torque Computation via DiscretePid + Combined Feedforward
   if (has_effort_command_interface_) {
     for (size_t i = 0; i < dof_ && i < 6; ++i) {
       const double e_pos = state_error_.positions[i];
       // Use filtered velocity error from adaptation component for clean D-term action
       const double e_vel_filtered = gain_adaptation_.get_joint(i).get_filtered_velocity_error();
-      const double tau_ff = last_payload_feedforward_[i];
+      const double tau_ff = last_payload_feedforward_[i] + last_arm_dynamics_feedforward_[i];
+
+      // Bumpless integral handling: when payload is detached/unloaded and feedforward has reached zero,
+      // clear any residual integral holding bias to prevent upward arm drift.
+      if (!payload_compensator_.is_attached() && payload_compensator_.get_ramp_factor() < 1e-4) {
+        discrete_pids_[i].set_integral(0.0);
+      }
 
       double tau_cmd = discrete_pids_[i].compute(e_pos, e_vel_filtered, dt_sec, tau_ff);
       joint_saturated_[i] = discrete_pids_[i].is_saturated();
@@ -544,6 +615,31 @@ controller_interface::return_type AdaptiveArmController::update(
         data[7] = payload_compensator_.get_active_mass();
       }
       payload_telemetry_pub_->unlockAndPublish();
+    }
+  }
+
+  // 6. Realtime Decomposed PID & Torque Telemetry Publisher (allocation-free, lock-free, 100 Hz safe)
+  if (pid_telemetry_pub_ && (time >= (last_pid_telemetry_publish_time_ + pid_telemetry_publish_period_))) {
+    if (pid_telemetry_pub_->trylock()) {
+      last_pid_telemetry_publish_time_ = time;
+      auto & data = pid_telemetry_pub_->msg_.data;
+      if (data.size() == 49) {
+        data[0] = time.seconds();
+        const auto & ff_grav = payload_compensator_.get_gravity_feedforward();
+        const auto & ff_dyn = payload_compensator_.get_dynamic_feedforward();
+        for (size_t i = 0; i < 6; ++i) {
+          const size_t offset = 1 + i * 8;
+          data[offset + 0] = discrete_pids_[i].get_p_term();
+          data[offset + 1] = discrete_pids_[i].get_i_term();
+          data[offset + 2] = discrete_pids_[i].get_d_term();
+          data[offset + 3] = ff_grav[i];
+          data[offset + 4] = ff_dyn[i];
+          data[offset + 5] = discrete_pids_[i].get_ff_term();
+          data[offset + 6] = (i < command_current_.effort.size()) ? command_current_.effort[i] : 0.0;
+          data[offset + 7] = discrete_pids_[i].get_integral();
+        }
+      }
+      pid_telemetry_pub_->unlockAndPublish();
     }
   }
 

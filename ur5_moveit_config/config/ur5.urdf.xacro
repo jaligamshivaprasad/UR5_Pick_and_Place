@@ -199,6 +199,27 @@
       <sensor name="$(arg tf_prefix)wrist_3_ft" type="force_torque">
         <always_on>true</always_on>
         <update_rate>1000</update_rate>
+        <topic>/wrist_ft/wrench</topic>
+      </sensor>
+    </gazebo>
+    <gazebo reference="$(arg tf_prefix)robotiq_85_left_finger_tip_link">
+      <sensor name="$(arg tf_prefix)left_fingertip_contact" type="contact">
+        <contact>
+          <collision>$(arg tf_prefix)robotiq_85_left_finger_tip_link_collision</collision>
+        </contact>
+        <always_on>true</always_on>
+        <update_rate>100</update_rate>
+        <topic>/fingertip/left_contact</topic>
+      </sensor>
+    </gazebo>
+    <gazebo reference="$(arg tf_prefix)robotiq_85_right_finger_tip_link">
+      <sensor name="$(arg tf_prefix)right_fingertip_contact" type="contact">
+        <contact>
+          <collision>$(arg tf_prefix)robotiq_85_right_finger_tip_link_collision</collision>
+        </contact>
+        <always_on>true</always_on>
+        <update_rate>100</update_rate>
+        <topic>/fingertip/right_contact</topic>
       </sensor>
     </gazebo>
     <gazebo>

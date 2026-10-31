@@ -58,6 +58,12 @@ public:
   double compute(double error, double error_dot, double dt, double feedforward = 0.0);
 
   double get_integral() const noexcept { return integral_; }
+  void set_integral(double integral) noexcept { integral_ = integral; }
+  void decay_integral(double factor) noexcept { integral_ *= factor; }
+  double get_p_term() const noexcept { return p_term_; }
+  double get_i_term() const noexcept { return i_term_; }
+  double get_d_term() const noexcept { return d_term_; }
+  double get_ff_term() const noexcept { return ff_term_; }
   double get_last_command() const noexcept { return last_command_; }
   bool is_saturated() const noexcept { return saturated_; }
 
@@ -65,6 +71,10 @@ private:
   PidGains gains_{};
   PidLimits limits_{};
   double integral_{0.0};      // Accumulated integral state (rad*s)
+  double p_term_{0.0};
+  double i_term_{0.0};
+  double d_term_{0.0};
+  double ff_term_{0.0};
   double last_command_{0.0};  // Clamped output effort (N*m)
   bool saturated_{false};
 };

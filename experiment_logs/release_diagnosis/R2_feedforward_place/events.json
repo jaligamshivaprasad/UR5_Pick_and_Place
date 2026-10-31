@@ -1,0 +1,26 @@
+[
+  {
+    "time_sec": 50.247,
+    "event": "arm_start_unloaded_place_pose"
+  },
+  {
+    "time_sec": 56.781000000000006,
+    "event": "arm_complete_unloaded_place_pose"
+  },
+  {
+    "time_sec": 57.698,
+    "event": "synthetic_payload_attach"
+  },
+  {
+    "time_sec": 57.699000000000005,
+    "event": "state_attached"
+  },
+  {
+    "time_sec": 59.079,
+    "event": "synthetic_payload_detach"
+  },
+  {
+    "time_sec": 59.081,
+    "event": "state_detached"
+  }
+]

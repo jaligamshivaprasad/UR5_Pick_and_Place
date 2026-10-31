@@ -400,6 +400,11 @@ def run_progressive_tests():
     # Restore adaptation_enabled for full capability
     set_params(supervisor, {"adaptation_enabled": True, "operating_mode": "adaptive_enabled"})
     supervisor.spin_for(0.2)
+
+    # Re-align arm to START_POSE reference after payload detachment disturbance
+    print("  -> Re-aligning arm to START_POSE reference before recovery...")
+    send_hold_trajectory(supervisor, ADAPTIVE_CONTROLLER, duration_sec=2.0)
+    supervisor.spin_for(0.5)
     print("  -> PASS\n")
 
     # -------------------------------------------------------------------------

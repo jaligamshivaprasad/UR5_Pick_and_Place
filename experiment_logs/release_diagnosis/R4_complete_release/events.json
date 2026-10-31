@@ -1,0 +1,146 @@
+[
+  {
+    "time_sec": 41.389,
+    "event": "detach_command"
+  },
+  {
+    "time_sec": 41.397000000000006,
+    "event": "state_detached"
+  },
+  {
+    "time_sec": 41.397000000000006,
+    "event": "gripper_command_0.0"
+  },
+  {
+    "time_sec": 43.43,
+    "event": "gripper_complete_0.0"
+  },
+  {
+    "time_sec": 43.43,
+    "event": "arm_start_align"
+  },
+  {
+    "time_sec": 46.474000000000004,
+    "event": "arm_complete_align"
+  },
+  {
+    "time_sec": 47.394000000000005,
+    "event": "arm_start_straight_to_prepick"
+  },
+  {
+    "time_sec": 50.18,
+    "event": "arm_complete_straight_to_prepick"
+  },
+  {
+    "time_sec": 50.18,
+    "event": "arm_start_prepick_to_pick"
+  },
+  {
+    "time_sec": 51.064,
+    "event": "arm_complete_prepick_to_pick"
+  },
+  {
+    "time_sec": 51.064,
+    "event": "gripper_command_0.4"
+  },
+  {
+    "time_sec": 53.075,
+    "event": "gripper_complete_0.4"
+  },
+  {
+    "time_sec": 53.075,
+    "event": "attach_command"
+  },
+  {
+    "time_sec": 53.076,
+    "event": "state_attached"
+  },
+  {
+    "time_sec": 53.528000000000006,
+    "event": "arm_start_pick_to_place"
+  },
+  {
+    "time_sec": 58.321000000000005,
+    "event": "arm_complete_pick_to_place"
+  },
+  {
+    "time_sec": 58.786,
+    "event": "release_approach_start"
+  },
+  {
+    "time_sec": 58.786,
+    "event": "arm_start_release_approach"
+  },
+  {
+    "time_sec": 60.295,
+    "event": "arm_complete_release_approach"
+  },
+  {
+    "time_sec": 60.295,
+    "event": "release_approach_complete"
+  },
+  {
+    "time_sec": 60.295,
+    "event": "release_settle_start"
+  },
+  {
+    "time_sec": 60.733000000000004,
+    "event": "release_settle_complete"
+  },
+  {
+    "time_sec": 60.733000000000004,
+    "event": "support_confirmed_z_0.4072"
+  },
+  {
+    "time_sec": 60.733000000000004,
+    "event": "release_unload_start"
+  },
+  {
+    "time_sec": 60.734,
+    "event": "state_unload"
+  },
+  {
+    "time_sec": 60.948,
+    "event": "release_unload_complete"
+  },
+  {
+    "time_sec": 60.948,
+    "event": "detach_command"
+  },
+  {
+    "time_sec": 60.953,
+    "event": "state_detached"
+  },
+  {
+    "time_sec": 60.953,
+    "event": "gripper_command_0.0"
+  },
+  {
+    "time_sec": 62.96,
+    "event": "gripper_complete_0.0"
+  },
+  {
+    "time_sec": 64.95,
+    "event": "release_retract_start"
+  },
+  {
+    "time_sec": 64.95,
+    "event": "arm_start_release_retract"
+  },
+  {
+    "time_sec": 66.48,
+    "event": "arm_complete_release_retract"
+  },
+  {
+    "time_sec": 66.48,
+    "event": "release_retract_complete"
+  },
+  {
+    "time_sec": 66.48,
+    "event": "arm_start_place_to_straight"
+  },
+  {
+    "time_sec": 69.313,
+    "event": "arm_complete_place_to_straight"
+  }
+]

@@ -1,0 +1,118 @@
+[
+  {
+    "time_sec": 49.867000000000004,
+    "event": "detach_command"
+  },
+  {
+    "time_sec": 49.877,
+    "event": "state_detached"
+  },
+  {
+    "time_sec": 49.877,
+    "event": "gripper_command_0.0"
+  },
+  {
+    "time_sec": 51.92400000000001,
+    "event": "gripper_complete_0.0"
+  },
+  {
+    "time_sec": 51.92400000000001,
+    "event": "arm_start_align"
+  },
+  {
+    "time_sec": 54.958000000000006,
+    "event": "arm_complete_align"
+  },
+  {
+    "time_sec": 55.85,
+    "event": "arm_start_straight_to_prepick"
+  },
+  {
+    "time_sec": 58.641000000000005,
+    "event": "arm_complete_straight_to_prepick"
+  },
+  {
+    "time_sec": 58.641000000000005,
+    "event": "arm_start_prepick_to_pick"
+  },
+  {
+    "time_sec": 59.521,
+    "event": "arm_complete_prepick_to_pick"
+  },
+  {
+    "time_sec": 59.521,
+    "event": "gripper_command_0.4"
+  },
+  {
+    "time_sec": 61.54600000000001,
+    "event": "gripper_complete_0.4"
+  },
+  {
+    "time_sec": 61.54600000000001,
+    "event": "attach_command"
+  },
+  {
+    "time_sec": 61.54900000000001,
+    "event": "state_attached"
+  },
+  {
+    "time_sec": 61.981,
+    "event": "arm_start_pick_to_place"
+  },
+  {
+    "time_sec": 66.784,
+    "event": "arm_complete_pick_to_place"
+  },
+  {
+    "time_sec": 67.23100000000001,
+    "event": "release_approach_start"
+  },
+  {
+    "time_sec": 67.23100000000001,
+    "event": "arm_start_release_approach"
+  },
+  {
+    "time_sec": 68.766,
+    "event": "arm_complete_release_approach"
+  },
+  {
+    "time_sec": 68.766,
+    "event": "release_approach_complete"
+  },
+  {
+    "time_sec": 68.766,
+    "event": "release_settle_start"
+  },
+  {
+    "time_sec": 69.155,
+    "event": "release_settle_complete"
+  },
+  {
+    "time_sec": 69.155,
+    "event": "support_confirmed_z_0.4071"
+  },
+  {
+    "time_sec": 69.155,
+    "event": "release_unload_start"
+  },
+  {
+    "time_sec": 69.155,
+    "event": "state_unload"
+  },
+  {
+    "time_sec": 69.373,
+    "event": "release_unload_complete"
+  },
+  {
+    "time_sec": 69.373,
+    "event": "detach_command"
+  },
+  {
+    "time_sec": 69.375,
+    "event": "state_detached"
+  },
+  {
+    "time_sec": 71.34700000000001,
+    "event": "sim_time_window_timeout"
+  }
+]

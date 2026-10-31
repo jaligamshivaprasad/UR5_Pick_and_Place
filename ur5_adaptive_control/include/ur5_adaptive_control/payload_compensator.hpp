@@ -71,6 +71,8 @@ public:
   bool is_attached() const noexcept { return is_attached_; }
   double get_active_mass() const noexcept { return current_alpha_ * current_params_.mass; }
   bool is_initialized() const noexcept { return initialized_; }
+  const std::array<double, 6> & get_gravity_feedforward() const noexcept { return last_gravity_feedforward_; }
+  const std::array<double, 6> & get_dynamic_feedforward() const noexcept { return last_dynamic_feedforward_; }
 
 private:
   KDL::Chain chain_;
@@ -94,8 +96,10 @@ private:
   double target_alpha_{0.0};
   double ramp_elapsed_{0.0};
 
-  // Memory for rate limiting
+  // Memory for rate limiting and feedforward decomposition
   std::array<double, 6> last_torques_{};
+  std::array<double, 6> last_gravity_feedforward_{};
+  std::array<double, 6> last_dynamic_feedforward_{};
 };
 
 }  // namespace ur5_adaptive_control

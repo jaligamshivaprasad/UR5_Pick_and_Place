@@ -105,6 +105,11 @@ adaptive_arm_controller:
     payload_gain_scheduling_enabled: false
     payload_gain_scheduling_kp_factor: 0.15
     payload_gain_scheduling_kd_factor: 0.08
+    arm_dynamics_feedforward_enabled: false
+    arm_dynamics_scale: 1.0
+    arm_dynamics_max_torque_rate: 250.0
+    arm_dynamics_include_gripper: true
+    arm_dynamics_gripper_mass: 0.9209
     robot_description_path: "/home/shiva/ur5/ur5_ws/experiment_logs/test_phase4_1_adaptive/robot.urdf"
     gains:
       shoulder_pan_joint: {p: 380.0, i: 8.0, d: 6.0, i_clamp: 50.0}
